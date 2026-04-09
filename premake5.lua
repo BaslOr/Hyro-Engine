@@ -59,7 +59,7 @@ project "Hyro"
    SetupCppProject()
 
   	pchheader "pch.h"
-  	pchsource "Hyro/src/Hyro/pch.cpp"
+  	pchsource "Hyro/src/pch.cpp"
 
 
    files {
