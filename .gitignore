@@ -26,6 +26,7 @@ imgui.ini
 *.user
 *.userosscache
 *.sln.docstates
+*slnx
 *.VC.db
 *.VC.opendb
 
