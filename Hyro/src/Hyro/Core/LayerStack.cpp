@@ -1,0 +1,60 @@
+#include "pch.h"
+#include "LayerStack.h"
+#include <algorithm>
+
+namespace Hyro {
+
+    LayerStack::LayerStack()
+        : m_LayerInsertIndex(0)
+    {
+        m_Layers.reserve(10);
+    }
+
+    LayerStack::~LayerStack()
+    {
+        for (Layer* layer : m_Layers)
+            delete layer;
+    }
+
+    void LayerStack::PushLayer(Layer* layer)
+    {
+        m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, layer);
+        ++m_LayerInsertIndex; 
+        layer->OnAttach();
+    }
+
+    void LayerStack::PushOverlay(Layer* overlay)
+    {
+        m_Layers.emplace_back(overlay);
+        overlay->OnAttach();
+    }
+
+    void LayerStack::PopLayer(Layer* layer)
+    {
+        auto it = std::find(m_Layers.begin(), m_Layers.end(), layer);
+
+        if (it != m_Layers.end()) {
+            layer->OnDetach();
+
+            size_t index = std::distance(m_Layers.begin(), it);
+
+            delete* it;
+            m_Layers.erase(it);
+
+            if (index < m_LayerInsertIndex)
+                m_LayerInsertIndex--;
+        }
+    }
+
+    void LayerStack::PopOverlay(Layer* overlay)
+    {
+        overlay->OnDetach();
+
+        auto it = std::find(m_Layers.begin(), m_Layers.end(), overlay);
+        if (it != m_Layers.end()) {
+            delete* it; 
+            m_Layers.erase(it);
+        }
+    }
+
+}

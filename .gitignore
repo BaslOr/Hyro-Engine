@@ -1,0 +1,65 @@
+# =========================
+# Build Output
+# =========================
+bin/
+bin-int/
+build/
+Debug/
+Release/
+x64/
+x86/
+
+# =========================
+# ImGui
+# =========================
+imgui.ini
+
+# =========================
+# Visual Studio
+# =========================
+.vs/
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+
+# =========================
+# Compiled / Intermediate
+# =========================
+*.obj
+*.o
+*.pch
+*.pdb
+*.idb
+*.ilk
+*.tlog
+*.exe
+*.dll
+*.lib
+*.exp
+
+# =========================
+# Premake generated files
+# =========================
+*.make
+*.make2
+premake5.lua.bak
+
+# =========================
+# Logs / Temp
+# =========================
+*.log
+*.tmp
+*.cache
+
+# =========================
+# OS specific
+# =========================
+.DS_Store
+Thumbs.db

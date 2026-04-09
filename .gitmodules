@@ -1,0 +1,12 @@
+[submodule "Hyro/vendor/GLFW"]
+	path = Hyro/vendor/GLFW
+	url = https://github.com/BaslOr/glfw
+[submodule "Hyro/vendor/glm"]
+	path = Hyro/vendor/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "Hyro/vendor/ImGui"]
+	path = Hyro/vendor/ImGui
+	url = https://github.com/BaslOr/imgui
+[submodule "Hyro/vendor/spdlog"]
+	path = Hyro/vendor/spdlog
+	url = https://github.com/BaslOr/spdlog
