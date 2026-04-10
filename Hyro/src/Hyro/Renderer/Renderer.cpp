@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Renderer.h"
 
+#include "Hyro/Core/Core.h"
+
 #include "Platform/OpenGL/OpenGLGraphicsAPI.h"
 
 namespace Hyro {
@@ -10,7 +12,10 @@ namespace Hyro {
 
 		m_GraphicsAPI->SetBlendFunction(settings.enableBlendFunction);
 		m_GraphicsAPI->SetSampleCount(settings.SampleCount);
-		m_GraphicsAPI->SetUpDebugCallback();
+
+		if (g_CurrentBuildConfig == BuildConfig::Debug) {
+			m_GraphicsAPI->SetUpDebugCallback(); 
+		}
 		//Set Default Vertex Layout
 
 		//Init Instance/Device On Vulkan, ...

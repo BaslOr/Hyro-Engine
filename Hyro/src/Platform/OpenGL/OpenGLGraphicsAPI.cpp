@@ -73,7 +73,7 @@ namespace Hyro {
 
 	void OpenGLGraphicsAPI::DrawIndexed(uint32_t count)
 	{
-		glDrawElements(GL_TRIANGLES, count, GL_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void OpenGLGraphicsAPI::SetBlendFunction(bool enabled)

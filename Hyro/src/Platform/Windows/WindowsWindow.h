@@ -31,6 +31,12 @@ namespace Hyro {
 		inline bool IsVSync() const override { return m_Data.VSync; }
 
 	private:
+		void SetupWindowHints();
+		void CreateGraphicsContext();
+
+		void SetupGLFWCallbacks();
+
+	private:
 		GLFWwindow* m_Window;
 
 

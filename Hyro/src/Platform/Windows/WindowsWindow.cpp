@@ -26,28 +26,80 @@ namespace Hyro {
         m_Data.Height = props.Height;
         m_Data.Title = props.Height;
         
-        if (Renderer::GetAPI() == GraphicsAPIType::OpenGL) {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            glfwWindowHint(GLFW_SAMPLES, 4);
-        }
+        SetupWindowHints();
 
         m_Window = glfwCreateWindow(m_Data.Width, m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
         if (!m_Window) {
 			HYRO_LOG_CORE_ERROR("Failed to create Window!");
         }
 
-		//TODO: Create Graphics Context based on Renderer::GetAPI()
+        CreateGraphicsContext();
         m_Data.GraphicsContext = CreateRef<OpenGLContext>(m_Window);
         m_Data.GraphicsContext->Init();
         m_Data.GraphicsContext->ResizeViewport(m_Data.Width, m_Data.Height);
 
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
+        SetupGLFWCallbacks();
+    }
 
+    WindowsWindow::~WindowsWindow()
+    {
+        glfwDestroyWindow(m_Window);
+        glfwTerminate();
+    }
 
-        // Set GLFW callbacks
+    void WindowsWindow::OnUpdate(TimeStep deltaTime)
+    {
+        glfwPollEvents();
+        m_Data.GraphicsContext->SwapBuffers();
+    }
+
+    void WindowsWindow::SetVSync(bool enabled)
+    {
+        if (enabled)
+            glfwSwapInterval(1);
+        else
+            glfwSwapInterval(0);
+        
+        m_Data.VSync = enabled;
+    }
+    void WindowsWindow::SetupWindowHints()
+    {
+        switch (Renderer::GetAPI())
+        {
+        case GraphicsAPIType::None:
+            HYRO_LOG_CORE_FATAL("No Graphics API selected!");
+            break;
+        case GraphicsAPIType::OpenGL:
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_SAMPLES, 4);
+            break;
+        case GraphicsAPIType::Vulkan:
+            HYRO_LOG_CORE_ERROR("Vulkan is not supported yet!");
+            break;
+        }
+    }
+
+    void WindowsWindow::CreateGraphicsContext()
+    {
+        switch (Renderer::GetAPI())
+        {
+            case GraphicsAPIType::None:
+                HYRO_LOG_CORE_FATAL("No Graphics API selected!");
+				break;
+            case GraphicsAPIType::OpenGL:
+               m_Data.GraphicsContext = CreateRef<OpenGLContext>(m_Window);
+		       break;
+            case GraphicsAPIType::Vulkan:
+				HYRO_LOG_CORE_ERROR("Vulkan is not supported yet!");
+                break;
+        }
+    }
+    void WindowsWindow::SetupGLFWCallbacks()
+    {
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
             {
                 WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
@@ -57,7 +109,7 @@ namespace Hyro {
                 WindowResizeEvent event(width, height);
                 data.EventCallback(event);
 
-                if(data.GraphicsContext != nullptr)
+                if (data.GraphicsContext != nullptr)
                     data.GraphicsContext->ResizeViewport(data.Width, data.Height);
             });
 
@@ -139,27 +191,5 @@ namespace Hyro {
                 MouseMovedEvent event((float)xPos, (float)yPos);
                 data.EventCallback(event);
             });
-    }
-
-    WindowsWindow::~WindowsWindow()
-    {
-        glfwDestroyWindow(m_Window);
-        glfwTerminate();
-    }
-
-    void WindowsWindow::OnUpdate(TimeStep deltaTime)
-    {
-        glfwPollEvents();
-        m_Data.GraphicsContext->SwapBuffers();
-    }
-
-    void WindowsWindow::SetVSync(bool enabled)
-    {
-        if (enabled)
-            glfwSwapInterval(1);
-        else
-            glfwSwapInterval(0);
-        
-        m_Data.VSync = enabled;
     }
 }

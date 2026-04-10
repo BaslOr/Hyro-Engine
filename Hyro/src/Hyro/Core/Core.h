@@ -48,7 +48,7 @@ namespace Hyro {
 	};
 
 #ifdef HYRO_DEBUG
-	constexpr BuildConfig CurrentBuildConfig = BuildConfig::Debug;
+	constexpr BuildConfig g_CurrentBuildConfig = BuildConfig::Debug;
 #elif defined(HYRO_RELEASE)
 	constexpr BuildConfig CurrentBuildConfig = BuildConfig::Release;
 #elif defined(HYRO_DIST)
