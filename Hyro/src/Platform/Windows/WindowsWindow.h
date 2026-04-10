@@ -21,12 +21,12 @@ namespace Hyro {
 
 		void OnUpdate(TimeStep deltaTime) override;
 
-		inline uint32_t GetWidth() override { return m_Data.Width; }
-		inline uint32_t GetHeight() override { return m_Data.Height; }
+		inline uint16_t GetWidth() override { return m_Data.Width; }
+		inline uint16_t GetHeight() override { return m_Data.Height; }
 
 		inline void* GetNative() const override { return (void*)m_Window; }
-
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
+
 		void SetVSync(bool enabled) override;
 		inline bool IsVSync() const override { return m_Data.VSync; }
 
@@ -43,7 +43,7 @@ namespace Hyro {
 		struct WindowData
 		{
 			std::string Title;
-			unsigned int Width, Height;
+			uint16_t Width, Height;
 			bool VSync;
 
 			Ref<GraphicsContext> GraphicsContext;

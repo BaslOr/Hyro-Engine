@@ -20,7 +20,7 @@ namespace Hyro {
 
         m_Data.Width = props.Width;
         m_Data.Height = props.Height;
-        m_Data.Title = props.Height;
+        m_Data.Title = props.Title;
         
         SetupWindowHints();
 
@@ -99,8 +99,8 @@ namespace Hyro {
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
             {
                 WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-                data.Width = width;
-                data.Height = height;
+                data.Width = static_cast<uint16_t>(width);
+                data.Height = static_cast<uint16_t>(height);
 
                 WindowResizeEvent event(width, height);
                 data.EventCallback(event);
@@ -124,19 +124,19 @@ namespace Hyro {
                 {
                 case GLFW_PRESS:
                 {
-                    KeyPressedEvent event(key, 0);
+                    KeyPressedEvent event((KeyCode)key, 0);
                     data.EventCallback(event);
                     break;
                 }
                 case GLFW_RELEASE:
                 {
-                    KeyReleasedEvent event(key);
+                    KeyReleasedEvent event((KeyCode)key);
                     data.EventCallback(event);
                     break;
                 }
                 case GLFW_REPEAT:
                 {
-                    KeyPressedEvent event(key, true);
+                    KeyPressedEvent event((KeyCode)key, true);
                     data.EventCallback(event);
                     break;
                 }
@@ -147,7 +147,7 @@ namespace Hyro {
             {
                 WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-                KeyTypedEvent event(keycode);
+                KeyTypedEvent event((KeyCode)keycode);
                 data.EventCallback(event);
             });
 
@@ -159,13 +159,13 @@ namespace Hyro {
                 {
                 case GLFW_PRESS:
                 {
-                    MouseButtonPressedEvent event(button);
+                    MouseButtonPressedEvent event((MouseCode)button);
                     data.EventCallback(event);
                     break;
                 }
                 case GLFW_RELEASE:
                 {
-                    MouseButtonReleasedEvent event(button);
+                    MouseButtonReleasedEvent event((MouseCode)button);
                     data.EventCallback(event);
                     break;
                 }
