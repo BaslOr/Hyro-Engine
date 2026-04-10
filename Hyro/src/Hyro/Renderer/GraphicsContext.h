@@ -11,6 +11,8 @@ namespace Hyro {
 		virtual void SwapBuffers() const = 0;
 		virtual void ResizeViewport(uint32_t width, uint32_t height) = 0;
 
+		virtual void GenerateDebugCallback() = 0;
+
 	};
 
 }

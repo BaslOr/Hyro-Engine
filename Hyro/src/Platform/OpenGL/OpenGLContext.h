@@ -11,9 +11,11 @@ namespace Hyro {
 	public:
 		OpenGLContext(GLFWwindow* windowHandle);
 
-		virtual void Init() override;
-		virtual void SwapBuffers() const override;
-		virtual void ResizeViewport(uint32_t width, uint32_t height) override;
+		void Init() override;
+		void SwapBuffers() const override;
+		void ResizeViewport(uint32_t width, uint32_t height) override;
+
+		void GenerateDebugCallback() override;
 
 	private:
 		GLFWwindow* m_WindowHandle;
