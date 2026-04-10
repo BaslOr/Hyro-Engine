@@ -39,9 +39,21 @@
 
 
 
-
 namespace Hyro {
 
+	enum class BuildConfig {
+		Debug = 0,
+		Release = 1,
+		Distribution = 2
+	};
+
+#ifdef HYRO_DEBUG
+	constexpr BuildConfig CurrentBuildConfig = BuildConfig::Debug;
+#elif defined(HYRO_RELEASE)
+	constexpr BuildConfig CurrentBuildConfig = BuildConfig::Release;
+#elif defined(HYRO_DIST)
+	constexpr BuildConfig CurrentBuildConfig = BuildConfig::Distribution;
+#endif // HYRO_DEBUG
 	
 }
 

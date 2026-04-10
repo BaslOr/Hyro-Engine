@@ -13,6 +13,8 @@ namespace Hyro {
 
 		virtual void SetBlendFunction(bool enabled) = 0;
 		virtual void SetSampleCount(uint32_t count) = 0;
+
+		virtual void SetUpDebugCallback() = 0;
 	};
 
 }

@@ -41,10 +41,6 @@ namespace Hyro {
 		//TODO: Create Graphics Context based on Renderer::GetAPI()
         m_Data.GraphicsContext = CreateRef<OpenGLContext>(m_Window);
         m_Data.GraphicsContext->Init();
-
-        //Move to GraphicsContext
-		m_Data.GraphicsContext->GenerateDebugCallback();
-
         m_Data.GraphicsContext->ResizeViewport(m_Data.Width, m_Data.Height);
 
 

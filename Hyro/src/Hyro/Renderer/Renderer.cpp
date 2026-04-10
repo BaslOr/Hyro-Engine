@@ -7,6 +7,10 @@ namespace Hyro {
 	void Renderer::Init(const Settings& settings)
 	{
 		InitGraphicsAPI();
+
+		m_GraphicsAPI->SetBlendFunction(settings.enableBlendFunction);
+		m_GraphicsAPI->SetSampleCount(settings.SampleCount);
+		m_GraphicsAPI->SetUpDebugCallback();
 		//Set Default Vertex Layout
 
 		//Init Instance/Device On Vulkan, ...

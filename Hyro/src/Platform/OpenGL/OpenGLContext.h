@@ -15,8 +15,6 @@ namespace Hyro {
 		void SwapBuffers() const override;
 		void ResizeViewport(uint32_t width, uint32_t height) override;
 
-		void GenerateDebugCallback() override;
-
 	private:
 		GLFWwindow* m_WindowHandle;
 	};

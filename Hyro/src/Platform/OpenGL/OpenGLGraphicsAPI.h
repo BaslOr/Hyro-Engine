@@ -11,6 +11,8 @@ namespace Hyro {
 
 		void Clear() override;
 		void SetClearColor(const glm::vec4& color) override;
+
+		void SetUpDebugCallback() override;
 	};
 
 }
