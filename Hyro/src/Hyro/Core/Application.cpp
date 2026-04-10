@@ -6,6 +6,8 @@
 
 #include "Hyro/Core/Logger.h"
 
+#include "Hyro/Renderer/Renderer.h"
+
 #include "Platform/Windows/WindowsWindow.h"
 
 namespace Hyro {
@@ -21,10 +23,17 @@ namespace Hyro {
 
 		Logger::Init();
 
-		WindowProps props(name, width, height);
 
-		m_Window = WindowsWindow::Create();
+		Renderer::Settings settings{};
+		settings.enableBlendFunction = true;
+		settings.SampleCount = 8;
+
+		WindowProps props(name, width, height, settings.SampleCount);
+
+		m_Window = WindowsWindow::Create(props);
 		m_Window->SetEventCallback(HYRO_BIND_EVENT_FN(Application::OnEvent));
+
+		Renderer::Init(settings);
 
 		m_ImGuiLayer = new ImGuiLayer;
 		PushOverlay(m_ImGuiLayer);

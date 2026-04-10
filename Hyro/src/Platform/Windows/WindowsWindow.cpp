@@ -6,8 +6,9 @@
 #include "Hyro/Events/ApplicationEvent.h"
 
 #include "Platform/OpenGL/OpenGLContext.h"
+#include "Hyro/Renderer/Renderer.h"
+
 #include "Hyro/Core/Core.h"
-#include <sstream>
 
 namespace Hyro {
 
@@ -91,26 +92,29 @@ namespace Hyro {
         m_Data.Height = props.Height;
         m_Data.Title = props.Height;
         
-
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_SAMPLES, 4);
+        if (Renderer::GetAPI() == GraphicsAPIType::OpenGL) {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_SAMPLES, 4);
+        }
 
         m_Window = glfwCreateWindow(m_Data.Width, m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
         if (!m_Window) {
 			HYRO_LOG_CORE_ERROR("Failed to create Window!");
         }
 
-        m_Data.RendereringContext = CreateRef<OpenGLContext>(m_Window);
-        m_Data.RendereringContext->Init();
+		//TODO: Create Graphics Context based on Renderer::GetAPI()
+        m_Data.GraphicsContext = CreateRef<OpenGLContext>(m_Window);
+        m_Data.GraphicsContext->Init();
 
+        //Move to GraphicsContext
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // damit der Callback direkt aufgerufen wird
         glDebugMessageCallback(OpenGLDebugMessageCallback, nullptr);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
-        glViewport(0, 0, m_Data.Width, m_Data.Height);
+        m_Data.GraphicsContext->ResizeViewport(m_Data.Width, m_Data.Height);
 
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
@@ -126,8 +130,8 @@ namespace Hyro {
                 WindowResizeEvent event(width, height);
                 data.EventCallback(event);
 
-                if(data.RendereringContext != nullptr)
-                    data.RendereringContext->ResizeViewport(data.Width, data.Height);
+                if(data.GraphicsContext != nullptr)
+                    data.GraphicsContext->ResizeViewport(data.Width, data.Height);
             });
 
         glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
@@ -219,7 +223,7 @@ namespace Hyro {
     void WindowsWindow::OnUpdate(TimeStep deltaTime)
     {
         glfwPollEvents();
-        m_Data.RendereringContext->SwapBuffers();
+        m_Data.GraphicsContext->SwapBuffers();
     }
 
     void WindowsWindow::SetVSync(bool enabled)

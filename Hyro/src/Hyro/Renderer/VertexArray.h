@@ -1,7 +1,4 @@
 #pragma once
-#include <glad/glad.h>
-
-#include <iostream>
 
 #include "Hyro/Core/Memory.h"	
 #include "IndexBuffer.h"
@@ -15,22 +12,17 @@ namespace Hyro {
 			FLOAT
 		};
 
-		VertexArray();
-		~VertexArray();
+	public:
+		static Ref<VertexArray> Create();
 
-		void setVertexAttribPointer(uint32_t index, int size, TYPE type, int stride, int pointer) const;
-		void enableVertexAttribArray(uint16_t position) const;
+		virtual void SetVertexAttribPointer(uint32_t index, int size, TYPE type, int stride, int pointer) = 0;
+		virtual void EnableVertexAttribArray(uint16_t incex) = 0;
 
-		void addVertexBuffer(Ref<VertexBuffer> buffer);
-		void setIndexBuffer(Ref<IndexBuffer> buffer);
+		virtual void AddVertexBuffer(Ref<VertexBuffer> buffer) = 0;
+		virtual void SetIndexBuffer(Ref<IndexBuffer> buffer) = 0;
 
-		void bind() const { glBindVertexArray(m_ID); }
-		void unBind() const { glBindVertexArray(0); }
-
-	private:
-		uint32_t m_ID;
-
-		int internalTypeToGLType(TYPE type) const;
+		virtual void Bind() const = 0;
+		virtual void UnBind() const = 0;
 
 	};
 

@@ -1,50 +1,25 @@
 #include "pch.h"
 #include "VertexArray.h"
 
+#include "Hyro/Renderer/Renderer.h"
+
+#include "Platform/OpenGL/OpenGLVertexArray.h"
+
 namespace Hyro {
 
-	VertexArray::VertexArray()
-		: m_ID(0)
+	Ref<VertexArray> VertexArray::Create()
 	{
-		glCreateVertexArrays(1, &m_ID);
-		bind();
-	}
-
-	VertexArray::~VertexArray()
-	{
-		glDeleteVertexArrays(1, &m_ID);
-	}
-
-	void VertexArray::setVertexAttribPointer(uint32_t index, int size, TYPE type, int stride, int pointer) const
-	{
-		bind();
-		glVertexAttribPointer(index, size, internalTypeToGLType(type), GL_FALSE, stride, (void*)pointer);
-	}
-
-	void VertexArray::enableVertexAttribArray(uint16_t index) const
-	{
-		bind();
-		glEnableVertexAttribArray(index);
-	}
-
-	void VertexArray::addVertexBuffer(Ref<VertexBuffer> buffer)
-	{
-		bind();
-		buffer->Bind();
-	}
-
-	void VertexArray::setIndexBuffer(Ref<IndexBuffer> buffer)
-	{
-		bind();
-		buffer->Bind();
-	}
-
-	int VertexArray::internalTypeToGLType(TYPE type) const
-	{
-		switch (type)
+		switch (Renderer::GetAPI())
 		{
-		case VertexArray::FLOAT:
-			return GL_FLOAT;
+		case GraphicsAPIType::None:
+			HYRO_LOG_CORE_FATAL("No Graphics API selected!");
+			return nullptr;
+			break;
+		case GraphicsAPIType::OpenGL:
+			return CreateRef<OpenGLVertexArray>();
+			break;
+		case GraphicsAPIType::Vulkan:
+			//Vulkan has no equivalent to vertex arrays
 			break;
 		}
 	}

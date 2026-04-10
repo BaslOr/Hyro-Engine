@@ -21,7 +21,7 @@ namespace Hyro {
 	private:
 		std::shared_ptr<Window> m_Window;
 
-		Scope<VertexArray> m_VAO;
+		Ref<VertexArray> m_VAO;
 		Ref<VertexBuffer> m_VBO;
 		Ref<IndexBuffer> m_IBO;
 		Ref<Shader> m_Shader;

@@ -1,11 +1,9 @@
 #include "pch.h"
 #include "Shader.h"
 
-#include <iostream>
 #include "Hyro/Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 
-#include "Hyro/Core/Core.h"
 
 namespace Hyro {
 
@@ -13,14 +11,14 @@ namespace Hyro {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case GraphicsAPI::None:
+		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API selected! ");
 			return nullptr;
 			break;
-		case GraphicsAPI::OpenGL:
+		case GraphicsAPIType::OpenGL:
 			return CreateRef<OpenGLShader>(vertexPath, fragmentPath);
 			break;
-		case GraphicsAPI::Vulkan:
+		case GraphicsAPIType::Vulkan:
 			HYRO_LOG_CORE_ERROR("Vulkan is not supported yet! ");
 			return nullptr;
 			break;

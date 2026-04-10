@@ -8,8 +8,6 @@
 
 namespace Hyro {
 
-
-
 	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
 		: m_WindowHandle(windowHandle)
 	{

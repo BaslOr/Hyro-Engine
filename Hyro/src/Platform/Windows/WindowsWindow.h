@@ -7,7 +7,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Hyro/Events/Event.h"
 #include "Hyro/Core/Window.h"
 #include "Hyro/Time/TimeStep.h"
 #include "Hyro/Core/Memory.h"
@@ -20,16 +19,16 @@ namespace Hyro {
 		explicit WindowsWindow(const WindowProps& props);
 		~WindowsWindow();
 
-		virtual void OnUpdate(TimeStep deltaTime) override;
+		void OnUpdate(TimeStep deltaTime) override;
 
-		virtual inline uint32_t GetWidth() override { return m_Data.Width; }
-		virtual inline uint32_t GetHeight() override { return m_Data.Height; }
+		inline uint32_t GetWidth() override { return m_Data.Width; }
+		inline uint32_t GetHeight() override { return m_Data.Height; }
 
-		virtual inline void* GetNative() const override { return (void*)m_Window; }
+		inline void* GetNative() const override { return (void*)m_Window; }
 
-		virtual inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
-		virtual void SetVSync(bool enabled) override;
-		inline virtual bool IsVSync() const { return m_Data.VSync; }
+		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
+		void SetVSync(bool enabled) override;
+		inline bool IsVSync() const override { return m_Data.VSync; }
 
 	private:
 		GLFWwindow* m_Window;
@@ -41,8 +40,9 @@ namespace Hyro {
 			unsigned int Width, Height;
 			bool VSync;
 
+			Ref<GraphicsContext> GraphicsContext;
+
 			EventCallbackFn EventCallback;
-			Ref<GraphicsContext> RendereringContext;
 		};
 
 		WindowData m_Data;

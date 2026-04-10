@@ -1,6 +1,4 @@
 #pragma once
-#include <cassert>
-
 #include "Hyro/Core/Logger.h"
 
 #define BIT(x) (1 << x)

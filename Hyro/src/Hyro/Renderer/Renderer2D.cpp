@@ -3,28 +3,26 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Hyro/Renderer/Renderer.h"
+
 namespace Hyro {
 
 	Renderer2D::Renderer2D(Ref<Window> window)
 		: m_Window(window)
 	{
 		m_Shader = Shader::Create("Assets/Shaders/vertex.glsl", "Assets/Shaders/fragment.glsl");
-		m_VAO = CreateScope<VertexArray>();
+		m_VAO = VertexArray::Create();
 		m_VBO = VertexBuffer::Create();
 		m_IBO = IndexBuffer::Create();
 
-		m_VAO->setIndexBuffer(m_IBO);
-		m_VAO->addVertexBuffer(m_VBO);
-		m_VAO->setVertexAttribPointer(0, 3, VertexArray::TYPE::FLOAT, 9 * sizeof(float), 0);
-		m_VAO->setVertexAttribPointer(1, 4, VertexArray::TYPE::FLOAT, 9 * sizeof(float), offsetof(Vertex, Color));
-		m_VAO->setVertexAttribPointer(2, 2, VertexArray::TYPE::FLOAT, 9 * sizeof(float), offsetof(Vertex, UV));
-		m_VAO->enableVertexAttribArray(0);
-		m_VAO->enableVertexAttribArray(1);
-		m_VAO->enableVertexAttribArray(2);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_MULTISAMPLE);
+		m_VAO->SetIndexBuffer(m_IBO);
+		m_VAO->AddVertexBuffer(m_VBO);
+		m_VAO->SetVertexAttribPointer(0, 3, VertexArray::TYPE::FLOAT, 9 * sizeof(float), 0);
+		m_VAO->SetVertexAttribPointer(1, 4, VertexArray::TYPE::FLOAT, 9 * sizeof(float), offsetof(Vertex, Color));
+		m_VAO->SetVertexAttribPointer(2, 2, VertexArray::TYPE::FLOAT, 9 * sizeof(float), offsetof(Vertex, UV));
+		m_VAO->EnableVertexAttribArray(0);
+		m_VAO->EnableVertexAttribArray(1);
+		m_VAO->EnableVertexAttribArray(2);
 	}
 
 	Renderer2D::~Renderer2D()
@@ -34,8 +32,8 @@ namespace Hyro {
 
 	void Renderer2D::BeginScene()
 	{
-		glClearColor(0.2f, 0.5f, 0.8f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		Renderer::SetClearColor(glm::vec4(0.2f, 0.5f, 0.8f, 1.f));
+		Renderer::Clear();
 
 		m_Vertices.clear();
 		m_Indices.clear();
@@ -47,14 +45,14 @@ namespace Hyro {
 		m_VBO->SetData(m_Vertices);
 		m_IBO->SetData(m_Indices);
 
-		m_VAO->bind();
+		m_VAO->Bind();
 		m_Shader->Bind();
 		float width = static_cast<float>(m_Window->GetWidth());
 		float height = static_cast<float>(m_Window->GetHeight());
 		glm::mat4 projection = glm::ortho(0.f, width, 0.f, height);
 		m_Shader->setUniformMat4("u_ProjectionMatrix", projection);
 
-		glDrawElements(GL_TRIANGLES, static_cast<int>(m_Indices.size()), GL_UNSIGNED_INT, 0);
+		Renderer::DrawIndexed(static_cast<uint32_t>(m_Indices.size()));
 	}
 
 	void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)

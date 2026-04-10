@@ -14,14 +14,14 @@ namespace Hyro {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case GraphicsAPI::None:
+		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API selected! ");
 			return nullptr;
 			break;
-		case GraphicsAPI::OpenGL:
+		case GraphicsAPIType::OpenGL:
 			return CreateRef<OpenGLVertexBuffer>();
 			break;
-		case GraphicsAPI::Vulkan:
+		case GraphicsAPIType::Vulkan:
 			HYRO_LOG_CORE_ERROR("Vulkan is not supported yet! ");
 			return nullptr;
 			break;
@@ -32,14 +32,14 @@ namespace Hyro {
     {
 		switch (Renderer::GetAPI())
 		{
-		case GraphicsAPI::None:
+		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API selected! ");
 			return nullptr;
 			break;
-		case GraphicsAPI::OpenGL:
+		case GraphicsAPIType::OpenGL:
 			return CreateRef<OpenGLVertexBuffer>(vertices);
 			break;
-		case GraphicsAPI::Vulkan:
+		case GraphicsAPIType::Vulkan:
 			HYRO_LOG_CORE_ERROR("Vulkan is not supported yet! ");
 			return nullptr;
 			break;
