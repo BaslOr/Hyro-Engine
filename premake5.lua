@@ -18,14 +18,14 @@ objdir    ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 filter "system:windows"
    systemversion "latest"
-   defines { "PLATFORM_WINDOWS"}
+   defines { "HYRO_PLATFORM_WINDOWS"}
 
 filter "system:linux"
    pic "On"
-   defines { "PLATFORM_LINUX" }
+   defines { "HYRO_PLATFORM_LINUX" }
 
 filter "system:macosx"
-   defines { "PLATFORM_MAC" }
+   defines { "HYRO_PLATFORM_MACOS" }
    
 filter "configurations:Debug"
    defines { "HYRO_DEBUG" }

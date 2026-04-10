@@ -41,19 +41,38 @@
 
 namespace Hyro {
 
+	//Should eventually be moved to a separate file, but for now it's fine here
 	enum class BuildConfig {
 		Debug = 0,
 		Release = 1,
 		Distribution = 2
 	};
 
+	enum class PlatformType {
+		Windows = 0,
+		Linux = 1,
+		MacOS = 2
+	};
+
 #ifdef HYRO_DEBUG
 	constexpr BuildConfig g_CurrentBuildConfig = BuildConfig::Debug;
 #elif defined(HYRO_RELEASE)
-	constexpr BuildConfig CurrentBuildConfig = BuildConfig::Release;
+	constexpr BuildConfig g_CurrentBuildConfig = BuildConfig::Release;
 #elif defined(HYRO_DIST)
-	constexpr BuildConfig CurrentBuildConfig = BuildConfig::Distribution;
+	constexpr BuildConfig g_CurrentBuildConfig = BuildConfig::Distribution;
+#else
+#error "Unknown build configuration!"
 #endif // HYRO_DEBUG
+
+#ifdef HYRO_PLATFORM_WINDOWS
+	constexpr PlatformType g_CurrentPlatform = PlatformType::Windows;
+#elif defined(HYRO_PLATFORM_LINUX)
+	constexpr Platform g_CurrentPlatform = Platform::Linux;
+#elif defined(HYRO_PLATFORM_MACOS)
+	constexpr Platform g_CurrentPlatform = Platform::MacOS;
+#else
+ #error "Unknown platform!"
+#endif // HYRO_PLATFORM_WINDOWS
 	
 }
 

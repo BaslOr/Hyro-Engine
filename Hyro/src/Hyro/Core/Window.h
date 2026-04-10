@@ -22,6 +22,9 @@ namespace Hyro {
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
 
+	public:
+		static Ref<Window> Create(const WindowProps& props = WindowProps());
+
 		virtual ~Window() { }
 
 		virtual void OnUpdate(TimeStep deltaTime) = 0;
@@ -34,8 +37,6 @@ namespace Hyro {
 		virtual bool IsVSync() const = 0;
 
 		virtual void* GetNative() const = 0;
-
-		static Ref<Window> Create(const WindowProps& props);
 	};
 
 }

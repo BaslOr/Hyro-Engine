@@ -12,10 +12,6 @@
 
 namespace Hyro {
 
-    Ref<Window> Window::Create(const WindowProps& props) {
-        return CreateRef<WindowsWindow>(props);
-    }
-
     WindowsWindow::WindowsWindow(const WindowProps& props)
     {
         if (!glfwInit()) {
