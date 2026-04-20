@@ -5,7 +5,6 @@
 #include "Hyro/Events/MouseEvent.h"
 #include "Hyro/Events/ApplicationEvent.h"
 
-#include "Platform/OpenGL/OpenGLContext.h"
 #include "Hyro/Renderer/Renderer.h"
 
 #include "Hyro/Core/Core.h"
@@ -29,11 +28,10 @@ namespace Hyro {
 			HYRO_LOG_CORE_ERROR("Failed to create Window!");
         }
 
-        CreateGraphicsContext();
-        m_Data.GraphicsContext = CreateRef<OpenGLContext>(m_Window);
+        m_Data.GraphicsContext = GraphicsContext::Create(Renderer::GetAPI(), GetNative());
         m_Data.GraphicsContext->Init();
         m_Data.GraphicsContext->ResizeViewport(m_Data.Width, m_Data.Height);
-
+        
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetupGLFWCallbacks();
@@ -57,9 +55,10 @@ namespace Hyro {
             glfwSwapInterval(1);
         else
             glfwSwapInterval(0);
-        
+
         m_Data.VSync = enabled;
     }
+
     void WindowsWindow::SetupWindowHints()
     {
         switch (Renderer::GetAPI())
@@ -74,26 +73,11 @@ namespace Hyro {
             glfwWindowHint(GLFW_SAMPLES, 4);
             break;
         case GraphicsAPIType::Vulkan:
-            HYRO_LOG_CORE_ERROR("Vulkan is not supported yet!");
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
             break;
         }
     }
 
-    void WindowsWindow::CreateGraphicsContext()
-    {
-        switch (Renderer::GetAPI())
-        {
-            case GraphicsAPIType::None:
-                HYRO_LOG_CORE_FATAL("No Graphics API selected!");
-				break;
-            case GraphicsAPIType::OpenGL:
-               m_Data.GraphicsContext = CreateRef<OpenGLContext>(m_Window);
-		       break;
-            case GraphicsAPIType::Vulkan:
-				HYRO_LOG_CORE_ERROR("Vulkan is not supported yet!");
-                break;
-        }
-    }
     void WindowsWindow::SetupGLFWCallbacks()
     {
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)

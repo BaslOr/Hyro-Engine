@@ -8,27 +8,34 @@
 
 namespace Hyro {
 
+	struct Renderer2DData {
+		Ref<VertexArray> VAO;
+		Ref<VertexBuffer> VBO;
+		Ref<IndexBuffer> IBO;
+		Ref<Shader> Shader;
+
+		std::vector<Vertex> Vertices;
+		std::vector<uint32_t> Indices;
+		uint32_t Count = 0;
+	};
+
 	class Renderer2D {
 	public:
-		Renderer2D(std::shared_ptr<Window> window);
-		~Renderer2D();
 
-		void BeginScene();
-		void EndScene();
 
-		void DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+		static void DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	private:
-		std::shared_ptr<Window> m_Window;
+		static void Init();
+		static void Shutdown();
 
-		Ref<VertexArray> m_VAO;
-		Ref<VertexBuffer> m_VBO;
-		Ref<IndexBuffer> m_IBO;
-		Ref<Shader> m_Shader;
+		static void BeginScene();
+		static void EndScene();
 
-		std::vector<Vertex> m_Vertices;
-		std::vector<uint32_t> m_Indices;
-		uint32_t m_Count = 0;
+	private:
+		inline static Renderer2DData m_Data;
+
+		friend Renderer;
 	};
 
 }

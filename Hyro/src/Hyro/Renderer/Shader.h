@@ -2,6 +2,8 @@
 #include <string>
 #include <glm/glm.hpp>
 
+#include "Hyro/Core/Memory.h"
+
 namespace Hyro {
 
 	class Shader {

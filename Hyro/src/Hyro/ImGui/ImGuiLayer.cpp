@@ -4,10 +4,14 @@
 #include <imgui.h>
 #include "Hyro/Core/KeyCodes.h"
 #include "Hyro/Core/Application.h"
-#include "Hyro/Core/Input.h"
 
+#define HYRO_IMGUI_USE_VULKAN_BACKEND
 #include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+#ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
+    #include <backends/imgui_impl_opengl3.h>
+#elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
+    #include <backends/imgui_impl_vulkan.h>
+#endif
 #include <GLFW/glfw3.h>
 
 namespace Hyro {
@@ -180,12 +184,20 @@ namespace Hyro {
         Application& app = Application::Get();
         GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow()->GetNative());
         ImGui_ImplGlfw_InitForOpenGL(window, true);
+#ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
         ImGui_ImplOpenGL3_Init("#version 460");
+#elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
+        //ImGui_ImplGlfw_InitForVulkan(window, true);
+#endif
 	}
 
 	void ImGuiLayer::OnDetach()
 	{
+#ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
         ImGui_ImplOpenGL3_Shutdown();
+#elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
+        //ImGui_ImplVulkan_Shutdown();
+#endif
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
 	}
@@ -193,7 +205,11 @@ namespace Hyro {
     void ImGuiLayer::Begin()
     {
         // Start the Dear ImGui frame
+#ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
         ImGui_ImplOpenGL3_NewFrame();
+#elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
+        //ImGui_ImplVulkan_NewFrame();
+#endif
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
     }
@@ -204,7 +220,12 @@ namespace Hyro {
         io.DisplaySize = { static_cast<float>(app.GetWindow()->GetWidth()), static_cast<float>(app.GetWindow()->GetWidth()) };
 
         ImGui::Render();
+#ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
+        //VkCommandBuffer commandBuffer;
+        //ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+#endif
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {

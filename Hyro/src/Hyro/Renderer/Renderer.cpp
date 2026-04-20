@@ -1,29 +1,33 @@
 #include "pch.h"
-#include "Renderer.h"
+#include "Hyro/Renderer/Renderer.h"
 
-#include "Hyro/Core/Core.h"
-
-#include "Platform/OpenGL/OpenGLGraphicsAPI.h"
+#include "Hyro/Renderer/Renderer2D.h"
 
 namespace Hyro {
 	void Renderer::Init(const Settings& settings)
 	{
-		InitGraphicsAPI();
-
-		m_GraphicsAPI->SetBlendFunction(settings.enableBlendFunction);
-		m_GraphicsAPI->SetSampleCount(settings.SampleCount);
-
-		if (g_CurrentBuildConfig == BuildConfig::Debug) {
-			m_GraphicsAPI->SetUpDebugCallback(); 
-		}
 		//Set Default Vertex Layout
 
-		//Init Instance/Device On Vulkan, ...
+		//Some kind of API description should be passed here
+		//To determine blend func, sample count, ...
+		m_GraphicsAPI = GraphicsAPI::Create(m_GraphicsAPIType);
+
+		Renderer2D::Init();
 	}
 
 	void Renderer::Shutdown()
 	{
+		Renderer2D::Shutdown();
+	}
 
+	void Renderer::BeginScene()
+	{
+		Renderer2D::BeginScene();
+	}
+
+	void Renderer::EndScene()
+	{
+		Renderer2D::EndScene();
 	}
 
 	void Renderer::DrawIndexed(uint32_t count)
@@ -41,19 +45,4 @@ namespace Hyro {
 		m_GraphicsAPI->SetClearColor(color);
 	}
 
-	void Renderer::InitGraphicsAPI()
-	{
-		switch (m_GraphicsAPIType)
-		{
-		case Hyro::GraphicsAPIType::None:
-			HYRO_LOG_CORE_FATAL("No Graphics API selected!");
-			break;
-		case Hyro::GraphicsAPIType::OpenGL:
-			m_GraphicsAPI = CreateScope<OpenGLGraphicsAPI>();
-			break;
-		case Hyro::GraphicsAPIType::Vulkan:
-			HYRO_LOG_CORE_ERROR("Vulkan is not supported yet!");
-			break;
-		}
-	}
 }

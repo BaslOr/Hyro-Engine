@@ -1,12 +1,11 @@
 #include "pch.h"
-#include "VertexBuffer.h"
+#include "Hyro/Renderer/VertexBuffer.h"
 #include "Hyro/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLVertexBuffer.h"
+#include "Platform/Vulkan/VulkanVertexBuffer.h"
 
 #include "Hyro/Core/Core.h"
-
-#include <iostream>
 
 namespace Hyro {
 
@@ -22,8 +21,8 @@ namespace Hyro {
 			return CreateRef<OpenGLVertexBuffer>();
 			break;
 		case GraphicsAPIType::Vulkan:
-			HYRO_LOG_CORE_ERROR("Vulkan is not supported yet! ");
-			return nullptr;
+			HYRO_LOG_CORE_ERROR("Vulkan Vertex Buffers are not supported yet ");
+			return CreateRef<Vulkan::VulkanVertexBuffer>();
 			break;
 		}
 	}
@@ -40,8 +39,8 @@ namespace Hyro {
 			return CreateRef<OpenGLVertexBuffer>(vertices);
 			break;
 		case GraphicsAPIType::Vulkan:
-			HYRO_LOG_CORE_ERROR("Vulkan is not supported yet! ");
-			return nullptr;
+			HYRO_LOG_CORE_ERROR("Vulkan Vertex Buffers are not supported yet ");
+			return CreateRef<Vulkan::VulkanVertexBuffer>();
 			break;
 		}
     }

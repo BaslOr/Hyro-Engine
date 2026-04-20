@@ -1,11 +1,8 @@
 #pragma once
-#include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <string>
-#include <memory>
-
-#include <glm/glm.hpp>
 
 #include "Hyro/Core/Window.h"
 #include "Hyro/Time/TimeStep.h"
@@ -24,15 +21,15 @@ namespace Hyro {
 		inline uint16_t GetWidth() override { return m_Data.Width; }
 		inline uint16_t GetHeight() override { return m_Data.Height; }
 
-		inline void* GetNative() const override { return (void*)m_Window; }
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 
 		void SetVSync(bool enabled) override;
 		inline bool IsVSync() const override { return m_Data.VSync; }
 
+		inline void* GetNative() const override { return (void*)m_Window; }
+
 	private:
 		void SetupWindowHints();
-		void CreateGraphicsContext();
 
 		void SetupGLFWCallbacks();
 

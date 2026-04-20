@@ -11,7 +11,7 @@ public:
 		: Application("Sandbox", 1280, 720)
 	{
 		auto window = GetWindow();
-		PushLayer(new SandboxLayer(window));
+		PushLayer(new SandboxLayer());
 	}
 	~WaterSimulation() = default;
 

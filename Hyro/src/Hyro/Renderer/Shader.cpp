@@ -3,6 +3,7 @@
 
 #include "Hyro/Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Platform/Vulkan/VulkanShader.h"
 
 
 namespace Hyro {
@@ -19,8 +20,8 @@ namespace Hyro {
 			return CreateRef<OpenGLShader>(vertexPath, fragmentPath);
 			break;
 		case GraphicsAPIType::Vulkan:
-			HYRO_LOG_CORE_ERROR("Vulkan is not supported yet! ");
-			return nullptr;
+			HYRO_LOG_CORE_INFO("Vulkan Shader is not implemented yet");
+			return CreateRef<Vulkan::VulkanShader>();
 			break;
 		}
 	}

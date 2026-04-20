@@ -1,4 +1,6 @@
 #pragma once
+#include "Hyro/Renderer/Renderer.h"
+#include "Hyro/Core/Memory.h"
 
 namespace Hyro {
 
@@ -6,6 +8,7 @@ namespace Hyro {
 	//Commands for rendering should be in GraphicsAPI class
 	class GraphicsContext {
 	public:
+		static Scope<GraphicsContext> Create(GraphicsAPIType type, void* windowHandle);
 
 		virtual void Init() = 0;
 		virtual void SwapBuffers() const = 0;

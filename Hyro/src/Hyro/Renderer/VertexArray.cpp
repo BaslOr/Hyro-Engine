@@ -20,6 +20,7 @@ namespace Hyro {
 			break;
 		case GraphicsAPIType::Vulkan:
 			//Vulkan has no equivalent to vertex arrays
+			return nullptr;
 			break;
 		}
 	}

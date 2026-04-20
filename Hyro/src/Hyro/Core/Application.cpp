@@ -5,10 +5,10 @@
 #include <GLFW/glfw3.h>
 
 #include "Hyro/Core/Logger.h"
-
 #include "Hyro/Renderer/Renderer.h"
-
 #include "Platform/Windows/WindowsWindow.h"
+
+#include "Hyro/Events/ApplicationEvent.h"
 
 namespace Hyro {
 

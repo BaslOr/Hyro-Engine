@@ -73,8 +73,10 @@ project "Hyro"
        "GLFW",
        "glad",
        "ImGui",
-       "spdlog"
+       "spdlog",
+       "vulkan-1.lib"
    }
+
    includedirs { 
        "Hyro/vendor/glm",
        "Hyro/vendor/KHR",
@@ -83,7 +85,12 @@ project "Hyro"
        "Hyro/vendor/GLFW/include",
        "Hyro/vendor/ImGui",
        "Hyro/vendor/spdlog/include",
+       "C:/VulkanSDK/1.4.328.1/Include",
        "Hyro/src"
+   }
+
+   libdirs {
+      "C:/VulkanSDK/1.4.328.1/Lib"
    }
 
    defines { "SPDLOG_COMPILED_LIB" }
@@ -122,7 +129,12 @@ project "Sandbox"
        "Hyro/vendor/GLFW/include",
        "Hyro/vendor/ImGui",
        "Hyro/vendor/spdlog/include",
+       "C:/VulkanSDK/1.4.328.1/Include",
        "Hyro/src"
+   }
+
+   libdirs {
+      "C:/VulkanSDK/1.4.328.1/Lib"
    }
 
    filter { "system:windows", "action:vs*" }  -- This is needed that spdlog compiles successfully

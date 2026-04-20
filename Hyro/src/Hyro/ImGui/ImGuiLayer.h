@@ -1,10 +1,6 @@
 #pragma once
 #include "Hyro/Core/Layer.h"
 
-#include "Hyro/Events/ApplicationEvent.h"
-#include "Hyro/Events/KeyEvent.h"
-#include "Hyro/Events/MouseEvent.h"
-
 namespace Hyro {
 
 	class ImGuiLayer : public Layer {
