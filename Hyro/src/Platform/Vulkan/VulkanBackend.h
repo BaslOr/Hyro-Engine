@@ -1,16 +1,18 @@
 #pragma once
-#include "Hyro/Renderer/GraphicsContext.h"
+#include "Hyro/Renderer/GraphicsBackend.h"
 
 namespace Hyro {
 
-	class VulkanContext : public GraphicsContext{
+	class VulkanBackend : public GraphicsBackend{
 	public:
-		VulkanContext() = default;
-		~VulkanContext() = default;
+		VulkanBackend() = default;
+		~VulkanBackend() = default;
 
 		void Init() override {}
 		void SwapBuffers() const override {}
 		void ResizeViewport(uint32_t width, uint32_t height) override {}
+
+		void GetCommandBuffer() {}
 
 	};
 

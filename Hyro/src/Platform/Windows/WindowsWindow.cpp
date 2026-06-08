@@ -28,7 +28,7 @@ namespace Hyro {
 			HYRO_LOG_CORE_ERROR("Failed to create Window!");
         }
 
-        m_Data.GraphicsContext = GraphicsContext::Create(Renderer::GetAPI(), GetNative());
+        m_Data.GraphicsContext = GraphicsBackend::Create(Renderer::GetAPI(), GetNative());
         m_Data.GraphicsContext->Init();
         m_Data.GraphicsContext->ResizeViewport(m_Data.Width, m_Data.Height);
         

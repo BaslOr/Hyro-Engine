@@ -8,6 +8,8 @@
 #include <functional>
 #include <cassert>
 
+#include <fstream>
+
 #include <string>
 #include <sstream>
 #include <vector>

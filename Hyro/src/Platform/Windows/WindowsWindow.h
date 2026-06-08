@@ -7,7 +7,7 @@
 #include "Hyro/Core/Window.h"
 #include "Hyro/Time/TimeStep.h"
 #include "Hyro/Core/Memory.h"
-#include <Hyro/Renderer/GraphicsContext.h>
+#include <Hyro/Renderer/GraphicsBackend.h>
 
 namespace Hyro {
 
@@ -43,7 +43,7 @@ namespace Hyro {
 			uint16_t Width, Height;
 			bool VSync;
 
-			Ref<GraphicsContext> GraphicsContext;
+			Ref<GraphicsBackend> GraphicsContext;
 
 			EventCallbackFn EventCallback;
 		};

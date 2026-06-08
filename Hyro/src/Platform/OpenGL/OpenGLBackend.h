@@ -1,12 +1,12 @@
 #pragma once
-#include "Hyro/Renderer/GraphicsContext.h"
+#include "Hyro/Renderer/GraphicsBackend.h"
 
 
 namespace Hyro {
 
-	class OpenGLContext : public GraphicsContext {
+	class OpenGLBackend : public GraphicsBackend {
 	public:
-		OpenGLContext(void* windowHandle);
+		OpenGLBackend(void* windowHandle);
 
 		void Init() override;
 		void SwapBuffers() const override;

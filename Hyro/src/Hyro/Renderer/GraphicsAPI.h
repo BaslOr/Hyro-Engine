@@ -1,6 +1,9 @@
 #pragma once
 #include <glm/glm.hpp>
 
+#include "Hyro/Core/Memory.h"
+#include "Hyro/Renderer/GraphicsPipeline.h"
+
 namespace Hyro {
 
 	enum class GraphicsAPIType {
@@ -12,7 +15,7 @@ namespace Hyro {
 	//Sending Commands to GPU
 	class GraphicsAPI {
 	public:
-		static Scope<GraphicsAPI> Create(GraphicsAPIType api);
+		static Scope<GraphicsAPI> Create(GraphicsAPIType api, const GraphicsPipelineSettings& settings);
 
 		virtual void DrawIndexed(uint32_t count) = 0;
 

@@ -25,10 +25,12 @@ namespace Hyro {
 
 
 		Renderer::Settings settings{};
-		settings.enableBlendFunction = true;
-		settings.SampleCount = 8;
+		settings.PipelineSettings.VertexShaderPath = "Assets/Shaders/vert.spv";
+		settings.PipelineSettings.FragmentShaderPath = "Assets/Shaders/frag.spv";
+		settings.PipelineSettings.EnableBlending = true;
+		settings.PipelineSettings.SampleCount = 4;
 
-		WindowProps props(name, width, height, settings.SampleCount);
+		WindowProps props(name, width, height, settings.PipelineSettings.SampleCount);
 
 		m_Window = WindowsWindow::Create(props);
 		m_Window->SetEventCallback(HYRO_BIND_EVENT_FN(Application::OnEvent));

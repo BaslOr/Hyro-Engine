@@ -2,6 +2,7 @@
 #include "Hyro/Core/Memory.h"
 
 #include "Hyro/Renderer/GraphicsAPI.h"
+#include "Hyro/Renderer/GraphicsPipeline.h"
 
 
 namespace Hyro {
@@ -9,8 +10,7 @@ namespace Hyro {
 	class Renderer {
 	public:
 		struct Settings {
-			bool enableBlendFunction = false;
-			uint32_t SampleCount = 1;
+			GraphicsPipelineSettings PipelineSettings;
 		};
 
 	public:

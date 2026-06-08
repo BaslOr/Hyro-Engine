@@ -1,13 +1,13 @@
 #include "pch.h"
-#include "Hyro/Renderer/GraphicsContext.h"
+#include "Hyro/Renderer/GraphicsBackend.h"
 
-#include "Platform/OpenGL/OpenGLContext.h"
-#include "Platform/Vulkan/VulkanContext.h"
+#include "Platform/OpenGL/OpenGLBackend.h"
+#include "Platform/Vulkan/VulkanBackend.h"
 
 
 namespace Hyro {
 
-	Scope<GraphicsContext> GraphicsContext::Create(GraphicsAPIType type, void* windowHandle)
+	Scope<GraphicsBackend> GraphicsBackend::Create(GraphicsAPIType type, void* windowHandle)
 	{
         switch (Renderer::GetAPI())
         {
@@ -15,10 +15,10 @@ namespace Hyro {
             HYRO_LOG_CORE_FATAL("No Graphics API selected!");
             break;
         case GraphicsAPIType::OpenGL:
-            return CreateScope<OpenGLContext>(windowHandle);
+            return CreateScope<OpenGLBackend>(windowHandle);
             break;
         case GraphicsAPIType::Vulkan:
-            return CreateScope<VulkanContext>();
+            return CreateScope<VulkanBackend>();
             break;
         }
 	}
