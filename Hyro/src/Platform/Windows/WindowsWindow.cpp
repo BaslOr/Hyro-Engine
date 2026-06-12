@@ -28,19 +28,23 @@ namespace Hyro {
 			HYRO_LOG_CORE_ERROR("Failed to create Window!");
         }
 
-        m_Data.GraphicsContext = GraphicsBackend::Create(Renderer::GetAPI(), GetNative());
+        m_Data.GraphicsContext = GraphicsContext::Create(Renderer::GetAPI(), GetNative());
         m_Data.GraphicsContext->Init();
         m_Data.GraphicsContext->ResizeViewport(m_Data.Width, m_Data.Height);
         
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetupGLFWCallbacks();
+
+		HYRO_LOG_CORE_TRACE("Created WindowsWindow with title: {0}, width: {1}, height: {2}", m_Data.Title, m_Data.Width, m_Data.Height);
     }
 
     WindowsWindow::~WindowsWindow()
     {
         glfwDestroyWindow(m_Window);
         glfwTerminate();
+
+		HYRO_LOG_CORE_TRACE("Destroyed WindowsWindow with title: {0}", m_Data.Title);
     }
 
     void WindowsWindow::OnUpdate(TimeStep deltaTime)

@@ -7,11 +7,10 @@
 
 namespace Hyro {
 
-	VulkanSurface::VulkanSurface(const Ref<VulkanInstance> instance)
+	VulkanSurface::VulkanSurface(const Ref<VulkanInstance> instance, void* windowHandle)
 		: m_Instance(instance)
 	{
-		auto window = Application::Get().GetWindow();
-		glfwCreateWindowSurface(m_Instance->GetVkInstance(), (GLFWwindow*)window->GetNative(), g_VulkanAllocationCallback, &m_Surface);
+		glfwCreateWindowSurface(m_Instance->GetVkInstance(), (GLFWwindow*)windowHandle, g_VulkanAllocationCallback, &m_Surface);
 	}
 
 	VulkanSurface::~VulkanSurface()

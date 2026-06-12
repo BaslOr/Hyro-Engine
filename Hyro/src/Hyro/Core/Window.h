@@ -3,7 +3,7 @@
 #include "Hyro/Events/Event.h"
 #include "Hyro/Time/TimeStep.h"
 #include "Hyro/Core/Memory.h"
-#include "Hyro/Renderer/GraphicsBackend.h"
+#include "Hyro/Renderer/GraphicsContext.h"
 
 namespace Hyro {
 

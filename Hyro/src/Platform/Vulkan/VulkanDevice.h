@@ -20,38 +20,37 @@ namespace Hyro {
 
 	class VulkanDevice {
 	public:
-		VulkanDevice(const Ref<VulkanInstance> instance, const Ref<VulkanSurface> surface);
-		~VulkanDevice();
+		static void Init(const Ref<VulkanInstance> instance, const Ref<VulkanSurface> surface);
+		static void Destroy();
 
-		inline VkDevice GetDevice() const { return m_Device; }
-		inline VkPhysicalDevice GetVkPhysicalDevice() const { return m_PhysicalDevice; }
-
-		inline QueueFamilyIndices GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
-
-		inline VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
-		inline VkQueue GetPresentationQueue() const { return m_PresentationQueue; }
-		inline VkQueue GetTransferQueue() const { return m_TransferQueue; }
-
-	private:
-		void PickPhysicalDevice(VkInstance instance);
-		void CreateDeviceAndQueues();
-
-		bool IsDeviceSuitable(VkPhysicalDevice device);
-		int GetPhysicalDeviceScore(VkPhysicalDevice device);
-
-		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+		inline static VkDevice GetVkDevice() { return m_Device; }
+		inline static VkPhysicalDevice GetVkPhysicalDevice() { return m_PhysicalDevice; }
+			   
+		inline static QueueFamilyIndices GetQueueFamilyIndices() { return m_QueueFamilyIndices; }
+			   
+		inline static VkQueue GetGraphicsQueue() { return m_GraphicsQueue; }
+		inline static VkQueue GetPresentationQueue() { return m_PresentationQueue; }
+		inline static VkQueue GetTransferQueue() { return m_TransferQueue; }
 
 	private:
-		VkPhysicalDevice m_PhysicalDevice;
-		VkDevice m_Device;
+		static void PickPhysicalDevice(VkInstance instance);
+		static void CreateDeviceAndQueues();
 
-		VkSurfaceKHR m_Surface;
-		
-		VkQueue m_GraphicsQueue;
-		VkQueue m_PresentationQueue;
-		VkQueue m_TransferQueue;
+		static bool IsDeviceSuitable(VkPhysicalDevice device);
+		static int GetPhysicalDeviceScore(VkPhysicalDevice device);
 
-		QueueFamilyIndices m_QueueFamilyIndices;
+		static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+
+	private:
+		static inline VkPhysicalDevice m_PhysicalDevice;
+		static inline VkDevice m_Device;
+		static inline VkSurfaceKHR m_Surface;
+			    
+		static inline VkQueue m_GraphicsQueue;
+		static inline VkQueue m_PresentationQueue;
+		static inline VkQueue m_TransferQueue;
+			    
+		static inline QueueFamilyIndices m_QueueFamilyIndices;
 	};
 
 }

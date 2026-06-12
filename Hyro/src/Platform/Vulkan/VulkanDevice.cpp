@@ -5,10 +5,10 @@
 
 namespace Hyro {
 
-
-	VulkanDevice::VulkanDevice(const Ref<VulkanInstance> instance, const Ref<VulkanSurface> surface)
-		: m_Surface(surface->GetVkSurface())
+	void VulkanDevice::Init(const Ref<VulkanInstance> instance, const Ref<VulkanSurface> surface)
 	{
+		m_Surface = surface->GetVkSurface();
+
 		PickPhysicalDevice(instance->GetVkInstance());
 		CreateDeviceAndQueues();
 
@@ -17,11 +17,11 @@ namespace Hyro {
 		HYRO_LOG_CORE_TRACE("Created Vulkan Device");
 	}
 
-	VulkanDevice::~VulkanDevice()
+	void VulkanDevice::Destroy()
 	{
 		vkDestroyDevice(m_Device, g_VulkanAllocationCallback);
-	}
 
+	}
 
 	void VulkanDevice::PickPhysicalDevice(VkInstance instance)
 	{

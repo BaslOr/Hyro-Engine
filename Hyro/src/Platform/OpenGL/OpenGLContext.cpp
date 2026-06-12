@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Platform/OpenGL/OpenGLBackend.h"
+#include "Platform/OpenGL/OpenGLContext.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -8,12 +8,12 @@
 
 namespace Hyro {
 
-	OpenGLBackend::OpenGLBackend(void* windowHandle)
+	OpenGLContext::OpenGLContext(void* windowHandle)
 		: m_WindowHandle(windowHandle)
 	{
 	}
 
-	void OpenGLBackend::Init()
+	void OpenGLContext::Init()
 	{
 		glfwMakeContextCurrent((GLFWwindow*)m_WindowHandle);
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -22,12 +22,12 @@ namespace Hyro {
 		}
 	}
 
-	void OpenGLBackend::SwapBuffers() const
+	void OpenGLContext::SwapBuffers() const
 	{
 		glfwSwapBuffers((GLFWwindow*)m_WindowHandle);
 	}
 
-	void OpenGLBackend::ResizeViewport(uint32_t width, uint32_t height)
+	void OpenGLContext::ResizeViewport(uint32_t width, uint32_t height)
 	{
 		glViewport(0, 0, width, height);
 	}

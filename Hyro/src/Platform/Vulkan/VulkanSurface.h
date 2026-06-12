@@ -6,7 +6,7 @@ namespace Hyro {
 
 	class VulkanSurface {
 	public:
-		VulkanSurface(const Ref<VulkanInstance> instance);
+		VulkanSurface(const Ref<VulkanInstance> instance, void* windowHandle);
 		~VulkanSurface();
 
 		inline VkSurfaceKHR GetVkSurface() const { return m_Surface; }

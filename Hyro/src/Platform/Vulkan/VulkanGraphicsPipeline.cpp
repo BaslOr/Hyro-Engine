@@ -1,11 +1,13 @@
 #include "pch.h"
-#include "VulkanGraphicsPipeline.h"
+#include "Platform/Vulkan/VulkanGraphicsPipeline.h"
+
+#include "Platform/Vulkan/VulkanContext.h"
 
 namespace Hyro {
 
-	VulkanGraphicsPipeline::VulkanGraphicsPipeline(const Ref<VulkanDevice> device, const GraphicsPipelineSettings& settings)
-		: m_Device(device)
+	VulkanGraphicsPipeline::VulkanGraphicsPipeline(const GraphicsPipelineSettings& settings)
 	{
+		VkDevice device = VulkanDevice::GetVkDevice();
 		auto vertShaderCode = ReadFile(settings.VertexShaderPath);
 		auto fragShaderCode = ReadFile(settings.FragmentShaderPath);
 
@@ -85,16 +87,44 @@ namespace Hyro {
         pipelineLayoutInfo.setLayoutCount = 0;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
 
-        if (vkCreatePipelineLayout(m_Device->GetDevice(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS) {
+        if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS) {
             throw std::runtime_error("failed to create pipeline layout!");
         }
 
-		vkDestroyShaderModule(m_Device->GetDevice(), vertShaderModule, g_VulkanAllocationCallback);
-		vkDestroyShaderModule(m_Device->GetDevice(), fragShaderModule, g_VulkanAllocationCallback);
+
+		VkRenderPass renderPass = VulkanContext::Get().GetRenderPass();
+
+        VkGraphicsPipelineCreateInfo pipelineInfo{};
+        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+        pipelineInfo.stageCount = 2;
+        pipelineInfo.pStages = shaderStages;
+        pipelineInfo.pVertexInputState = &vertexInputInfo;
+        pipelineInfo.pInputAssemblyState = &inputAssembly;
+        pipelineInfo.pViewportState = &viewportState;
+        pipelineInfo.pRasterizationState = &rasterizer;
+        pipelineInfo.pMultisampleState = &multisampling;
+        pipelineInfo.pDepthStencilState = nullptr; // Optional
+        pipelineInfo.pColorBlendState = &colorBlending;
+        pipelineInfo.pDynamicState = &dynamicState;
+        pipelineInfo.layout = m_PipelineLayout;
+        pipelineInfo.renderPass = renderPass;
+        pipelineInfo.subpass = 0;
+
+        if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, g_VulkanAllocationCallback, &m_Pipeline) != VK_SUCCESS) {
+			HYRO_LOG_CORE_FATAL("Failed to create graphics pipeline!");
+        }
+
+        vkDestroyShaderModule(device, vertShaderModule, g_VulkanAllocationCallback);
+        vkDestroyShaderModule(device, fragShaderModule, g_VulkanAllocationCallback);
+
+		HYRO_LOG_CORE_INFO("Graphics pipeline created successfully");
 	}
 
 	VulkanGraphicsPipeline::~VulkanGraphicsPipeline()
 	{
+		VkDevice device = VulkanDevice::GetVkDevice();
+		vkDestroyPipeline(device, m_Pipeline, g_VulkanAllocationCallback);
+		vkDestroyPipelineLayout(device, m_PipelineLayout, g_VulkanAllocationCallback);
 	}
 
 	std::vector<char> VulkanGraphicsPipeline::ReadFile(const std::string& filepath)
@@ -118,8 +148,9 @@ namespace Hyro {
 		moduleInfo.codeSize = code.size();
 		moduleInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
+		VkDevice device = VulkanDevice::GetVkDevice();
 		VkShaderModule shaderModule;
-		VkCheck(vkCreateShaderModule(m_Device->GetDevice(), &moduleInfo, g_VulkanAllocationCallback, &shaderModule));
+		VkCheck(vkCreateShaderModule(device, &moduleInfo, g_VulkanAllocationCallback, &shaderModule));
 
 		return shaderModule;
 	}

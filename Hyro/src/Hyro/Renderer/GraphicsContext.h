@@ -6,9 +6,9 @@ namespace Hyro {
 
 	//Only handles connection to GPU/Window, not rendering itself
 	//Commands for rendering should be in GraphicsAPI class
-	class GraphicsBackend {
+	class GraphicsContext {
 	public:
-		static Scope<GraphicsBackend> Create(GraphicsAPIType type, void* windowHandle);
+		static Scope<GraphicsContext> Create(GraphicsAPIType type, void* windowHandle);
 
 		virtual void Init() = 0;
 		virtual void SwapBuffers() const = 0;

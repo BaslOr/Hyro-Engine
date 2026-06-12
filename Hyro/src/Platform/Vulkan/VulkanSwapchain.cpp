@@ -6,8 +6,8 @@
 
 namespace Hyro {
 
-	VulkanSwapchain::VulkanSwapchain(const Ref<VulkanDevice> device, const Ref<VulkanSurface> surface)
-		: m_Device(device), m_Surface(surface)
+	VulkanSwapchain::VulkanSwapchain(const Ref<VulkanSurface> surface)
+		: m_Surface(surface)
 	{
 		CreateSwapchain();
 		CreateImageViews();
@@ -17,13 +17,15 @@ namespace Hyro {
 
 	VulkanSwapchain::~VulkanSwapchain()
 	{
-		vkDestroySwapchainKHR(m_Device->GetDevice(), m_Swapchain, g_VulkanAllocationCallback);
+		vkDestroySwapchainKHR(m_Device->GetVkDevice(), m_Swapchain, g_VulkanAllocationCallback);
 	}
 
 	void VulkanSwapchain::CreateSwapchain()
 	{
+		VkDevice device = VulkanDevice::GetVkDevice();
+
 		SwapchainSupportDetails details = GetSwapchainSupportDetails();
-		m_Format = ChooseFormat(details.formats);
+		VkSurfaceFormatKHR surfaceFormat = ChooseFormat(details.formats);
 		m_PresentMode = ChoosePresentMode(details.presentModes);
 		m_Extent = ChooseExtent(details.capabilities);
 
@@ -36,8 +38,8 @@ namespace Hyro {
 		swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		swapchainInfo.surface = m_Surface->GetVkSurface();
 		swapchainInfo.minImageCount = imageCount;
-		swapchainInfo.imageFormat = m_Format.format;
-		swapchainInfo.imageColorSpace = m_Format.colorSpace;
+		swapchainInfo.imageFormat = surfaceFormat.format;
+		swapchainInfo.imageColorSpace = surfaceFormat.colorSpace;
 		swapchainInfo.imageExtent = m_Extent;
 		swapchainInfo.imageArrayLayers = 1;
 		swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -61,11 +63,13 @@ namespace Hyro {
 		swapchainInfo.clipped = VK_FALSE;// In case of taking screenshots, we want to be able to read the pixels even if they are not visible on the screen
 		swapchainInfo.oldSwapchain = VK_NULL_HANDLE;
 
-		VkCheck(vkCreateSwapchainKHR(m_Device->GetDevice(), &swapchainInfo, g_VulkanAllocationCallback, &m_Swapchain));
+		VkCheck(vkCreateSwapchainKHR(m_Device->GetVkDevice(), &swapchainInfo, g_VulkanAllocationCallback, &m_Swapchain));
 
-		vkGetSwapchainImagesKHR(m_Device->GetDevice(), m_Swapchain, &imageCount, nullptr);
+		vkGetSwapchainImagesKHR(m_Device->GetVkDevice(), m_Swapchain, &imageCount, nullptr);
 		m_Images.resize(imageCount);
-		vkGetSwapchainImagesKHR(m_Device->GetDevice(), m_Swapchain, &imageCount, m_Images.data());
+		vkGetSwapchainImagesKHR(m_Device->GetVkDevice(), m_Swapchain, &imageCount, m_Images.data());
+
+		m_Format = surfaceFormat.format;
 	}
 
 	void VulkanSwapchain::CreateImageViews()
@@ -77,7 +81,7 @@ namespace Hyro {
 			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 			createInfo.image = m_Images[i];
 			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = m_Format.format;
+			createInfo.format = m_Format;
 			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
 			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
 			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -88,7 +92,7 @@ namespace Hyro {
 			createInfo.subresourceRange.baseArrayLayer = 0;
 			createInfo.subresourceRange.layerCount = 1;
 
-			VkCheck(vkCreateImageView(m_Device->GetDevice(), &createInfo, g_VulkanAllocationCallback, &m_ImageViews[i]));
+			VkCheck(vkCreateImageView(m_Device->GetVkDevice(), &createInfo, g_VulkanAllocationCallback, &m_ImageViews[i]));
 		}
 	}
 

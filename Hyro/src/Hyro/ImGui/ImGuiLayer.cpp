@@ -11,8 +11,11 @@
     #include <backends/imgui_impl_opengl3.h>
 #elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
     #include <backends/imgui_impl_vulkan.h>
+    #include "Platform/Vulkan/VulkanCommandPool.h"//Temporary include until we have a better solution for passing command buffers to the ImGui Vulkan backend
 #endif
 #include <GLFW/glfw3.h>
+#include <Platform/Vulkan/VulkanContext.h>
+
 
 namespace Hyro {
 
@@ -183,11 +186,54 @@ namespace Hyro {
 
         Application& app = Application::Get();
         GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow()->GetNative());
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
 #ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 460");
 #elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
-        //ImGui_ImplGlfw_InitForVulkan(window, true);
+        // Setup Platform/Renderer backends
+        ImGui_ImplGlfw_InitForVulkan(window, true);
+
+		VulkanContext* context = &VulkanContext::Get();
+		VkDescriptorPool descriptorPool;
+
+        // Create Descriptor Pool
+        // If you wish to load e.g. additional textures you may need to alter pools sizes and maxSets.
+        {
+            VkDescriptorPoolSize pool_sizes[] =
+            {
+                { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE },
+            };
+            VkDescriptorPoolCreateInfo pool_info = {};
+            pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+            pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+            pool_info.maxSets = 0;
+            for (VkDescriptorPoolSize& pool_size : pool_sizes)
+                pool_info.maxSets += pool_size.descriptorCount;
+            pool_info.poolSizeCount = (uint32_t)IM_COUNTOF(pool_sizes);
+            pool_info.pPoolSizes = pool_sizes;
+            if (vkCreateDescriptorPool(VulkanDevice::GetVkDevice(), &pool_info, nullptr, &descriptorPool)) {
+				HYRO_ASSERT(false, "Failed to create ImGui descriptor pool!");
+            }
+
+        }
+
+        ImGui_ImplVulkan_InitInfo initInfo = {};
+        //init_info.ApiVersion = VK_API_VERSION_1_3;              // Pass in your value of VkApplicationInfo::apiVersion, otherwise will default to header version.
+        initInfo.Instance = context->GetInstance();
+        initInfo.PhysicalDevice = VulkanDevice::GetVkPhysicalDevice();
+        initInfo.Device = VulkanDevice::GetVkDevice();
+        initInfo.QueueFamily = 0;
+        initInfo.Queue = VulkanDevice::GetGraphicsQueue();
+        initInfo.PipelineCache = VK_NULL_HANDLE;
+        initInfo.DescriptorPool = descriptorPool;
+        initInfo.MinImageCount = context->GetMinImageCount();
+        initInfo.ImageCount = context->GetImageCount();
+        initInfo.Allocator = nullptr;
+        initInfo.PipelineInfoMain.RenderPass = context->GetRenderPass();
+        initInfo.PipelineInfoMain.Subpass = 0;
+        initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+        initInfo.CheckVkResultFn = [](VkResult result) { HYRO_ASSERT(result == VK_SUCCESS, "Vulkan error"); };
+        ImGui_ImplVulkan_Init(&initInfo);
 #endif
 	}
 
@@ -196,7 +242,7 @@ namespace Hyro {
 #ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
         ImGui_ImplOpenGL3_Shutdown();
 #elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
-        //ImGui_ImplVulkan_Shutdown();
+        ImGui_ImplVulkan_Shutdown();
 #endif
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
@@ -208,7 +254,7 @@ namespace Hyro {
 #ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
         ImGui_ImplOpenGL3_NewFrame();
 #elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
-        //ImGui_ImplVulkan_NewFrame();
+        ImGui_ImplVulkan_NewFrame();
 #endif
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -217,14 +263,85 @@ namespace Hyro {
     void ImGuiLayer::End() {
         ImGuiIO& io = ImGui::GetIO();
         Application& app = Application::Get();
-        io.DisplaySize = { static_cast<float>(app.GetWindow()->GetWidth()), static_cast<float>(app.GetWindow()->GetWidth()) };
+        io.DisplaySize = { static_cast<float>(app.GetWindow()->GetWidth()), static_cast<float>(app.GetWindow()->GetHeight()) };
 
         ImGui::Render();
 #ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
-        //VkCommandBuffer commandBuffer;
-        //ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+		VulkanContext& context = VulkanContext::Get();
+		VkSemaphore waitSemaphores[] = { context.GetImageAvailableSemaphore() };
+		VkSemaphore signalSemaphores[] = { context.GetRenderFinishedSemaphore() };
+		VkFence inFlightFence = context.GetInFlightFence();
+
+        uint32_t imageIndex = 0;
+        VkResult result = vkAcquireNextImageKHR(VulkanDevice::GetVkDevice(), context.GetSwapchain(), UINT64_MAX, context.GetImageAvailableSemaphore(), VK_NULL_HANDLE, &imageIndex);
+
+        if (vkWaitForFences(VulkanDevice::GetVkDevice(), 1, &inFlightFence, VK_TRUE, UINT64_MAX) != VK_SUCCESS) {    // wait indefinitely instead of periodically checking
+            HYRO_LOG_CORE_FATAL("Failed to wait for in-flight fence!");
+        }
+
+        if (vkResetFences(VulkanDevice::GetVkDevice(), 1, &inFlightFence) != VK_SUCCESS) {
+            HYRO_LOG_CORE_FATAL("Failed to reset in-flight fence!");
+        }
+
+
+        VkCommandBuffer commandBuffer = VulkanCommandPool::BeginSingleTimeCommands();
+        {
+            VkRenderPassBeginInfo beginInfo = {};
+            beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            beginInfo.renderPass = context.GetRenderPass();
+            beginInfo.framebuffer = context.GetVkFramebuffer(imageIndex);
+            beginInfo.renderArea.extent.width = app.GetWindow()->GetWidth();
+            beginInfo.renderArea.extent.height = app.GetWindow()->GetHeight();
+            beginInfo.clearValueCount = 1;
+			VkClearValue clear_color[4] = { 0.23f, 0.34f, 0.45f, 1.f };
+            beginInfo.pClearValues = clear_color;
+            vkCmdBeginRenderPass(commandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+        }
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+
+        vkCmdEndRenderPass(commandBuffer);
+        {
+            VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            VkSubmitInfo submitInfo = {};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.waitSemaphoreCount = 1;
+            submitInfo.pWaitSemaphores = waitSemaphores;
+            submitInfo.pWaitDstStageMask = &wait_stage;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &commandBuffer;
+            submitInfo.signalSemaphoreCount = 1;
+            submitInfo.pSignalSemaphores = signalSemaphores;
+
+            if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+                HYRO_LOG_CORE_FATAL("Failed to end command buffer!");
+            }
+            if (vkQueueSubmit(VulkanDevice::GetGraphicsQueue(), 1, &submitInfo, context.GetInFlightFence()) != VK_SUCCESS) {
+				HYRO_LOG_CORE_FATAL("Failed to submit draw command buffer!");
+            }
+        }
+
+        VkPresentInfoKHR presentInfo = {};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = signalSemaphores;
+        presentInfo.swapchainCount = 1;
+		VkSwapchainKHR swapchain = context.GetSwapchain();
+        presentInfo.pSwapchains = &swapchain;
+        presentInfo.pImageIndices = &imageIndex;
+        if (vkQueuePresentKHR(VulkanDevice::GetPresentationQueue(), &presentInfo) != VK_SUCCESS) {
+            HYRO_LOG_CORE_FATAL("Failed to present swap chain image!");
+        }
+
+        vkQueueWaitIdle(VulkanDevice::GetPresentationQueue());
+
+        vkFreeCommandBuffers(
+            VulkanDevice::GetVkDevice(),
+            VulkanCommandPool::GetVkCommandPool(),
+            1,
+            &commandBuffer
+        );
 #endif
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

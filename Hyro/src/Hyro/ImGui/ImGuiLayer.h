@@ -1,6 +1,7 @@
 #pragma once
 #include "Hyro/Core/Layer.h"
 
+
 namespace Hyro {
 
 	class ImGuiLayer : public Layer {
@@ -17,7 +18,6 @@ namespace Hyro {
 		void End();
 
 	private:
-
 	};
 
 }

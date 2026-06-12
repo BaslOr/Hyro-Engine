@@ -14,8 +14,15 @@ namespace Hyro {
 
 	class VulkanSwapchain {
 	public:
-		VulkanSwapchain(const Ref<VulkanDevice> device, const Ref<VulkanSurface> surface);
+		VulkanSwapchain(const Ref<VulkanSurface> surface);
 		~VulkanSwapchain();
+
+		inline VkSwapchainKHR GetVkSwapchain() const { return m_Swapchain; }
+		inline VkFormat GetImageFormat() const { return m_Format; }
+		inline VkExtent2D GetExtent() const { return m_Extent; }
+		inline const std::vector<VkImageView>& GetImageViews() const { return m_ImageViews; }
+
+		inline uint32_t GetMinImageCount() { SwapchainSupportDetails details = GetSwapchainSupportDetails(); return details.capabilities.minImageCount; }
 
 	private:
 		void CreateSwapchain();
@@ -34,7 +41,7 @@ namespace Hyro {
 		std::vector<VkImage> m_Images;
 		std::vector<VkImageView> m_ImageViews;
 
-		VkSurfaceFormatKHR m_Format;
+		VkFormat m_Format;
 		VkPresentModeKHR m_PresentMode;
 		VkExtent2D m_Extent;
 

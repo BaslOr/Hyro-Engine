@@ -17,6 +17,8 @@ namespace Hyro {
 	public:
 		static Scope<GraphicsAPI> Create(GraphicsAPIType api, const GraphicsPipelineSettings& settings);
 
+		virtual void Submit() = 0;
+
 		virtual void DrawIndexed(uint32_t count) = 0;
 
 		virtual void Clear() = 0;
