@@ -15,20 +15,26 @@ namespace Hyro {
 		}
 	}
 
-	VkCommandBuffer VulkanCommandPool::AllocateCommandBuffer(VkCommandBufferLevel level)
+	std::vector<VkCommandBuffer> VulkanCommandPool::AllocateCommandBuffers(uint32_t count, VkCommandBufferLevel level)
 	{
+		std::vector<VkCommandBuffer> commandBuffers(count);
+
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = m_CommandPool;
 		allocInfo.level = level;
-		allocInfo.commandBufferCount = 1;
+		allocInfo.commandBufferCount = count;
 
-		VkCommandBuffer commandBuffer;
-		if (vkAllocateCommandBuffers(VulkanDevice::GetVkDevice(), &allocInfo, &commandBuffer) != VK_SUCCESS) {	
+		if (vkAllocateCommandBuffers(VulkanDevice::GetVkDevice(), &allocInfo, commandBuffers.data()) != VK_SUCCESS) {	
 			HYRO_LOG_CORE_FATAL("Failed to allocate command buffer!");
 		}
 
-		return commandBuffer;
+		return	commandBuffers;
+	}
+
+	void VulkanCommandPool::FreeCommandBuffers(const std::vector<VkCommandBuffer>& commandBuffers)
+	{
+		vkFreeCommandBuffers(VulkanDevice::GetVkDevice(), m_CommandPool, commandBuffers.size(), commandBuffers.data());
 	}
 
 	VkCommandBuffer VulkanCommandPool::BeginSingleTimeCommands()

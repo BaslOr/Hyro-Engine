@@ -8,10 +8,12 @@ namespace Hyro {
 	public:		
 		static void Init();
 
-		static VkCommandBuffer AllocateCommandBuffer(VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+		static std::vector<VkCommandBuffer> AllocateCommandBuffers(uint32_t count, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+		static void FreeCommandBuffers(const std::vector<VkCommandBuffer>& commandBuffers);
 
 		static VkCommandBuffer BeginSingleTimeCommands();
 		static void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+
 		static VkCommandPool GetVkCommandPool() { return m_CommandPool; }
 
 	private:

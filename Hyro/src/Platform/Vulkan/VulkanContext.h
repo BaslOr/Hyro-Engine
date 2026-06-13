@@ -31,10 +31,7 @@ namespace Hyro {
 		inline VkFramebuffer GetVkFramebuffer(size_t index) const { return m_Framebuffer->GetVkFramebuffer(index); }
 		inline uint32_t GetMinImageCount() const { return m_Swapchain->GetMinImageCount();; }
 		inline uint32_t GetImageCount() const { return static_cast<uint32_t>(m_Swapchain->GetImageViews().size()); }
-
-		inline VkSemaphore GetImageAvailableSemaphore() const { return m_ImageAvailableSemaphore; }
-		inline VkSemaphore GetRenderFinishedSemaphore() const { return m_RenderFinishedSemaphore; }
-		inline VkFence GetInFlightFence() const { return m_InFlightFence; }
+		inline VkExtent2D GetSwapchainExtent() const { return m_Swapchain->GetExtent(); }
 
 		inline static VulkanContext& Get() { return *s_Instance; }
 
@@ -47,10 +44,6 @@ namespace Hyro {
 		Ref<VulkanSwapchain> m_Swapchain;
 		Ref<VulkanRenderPass> m_RenderPass;
 		Scope<VulkanFramebuffer> m_Framebuffer;
-
-		VkSemaphore m_ImageAvailableSemaphore;
-		VkSemaphore m_RenderFinishedSemaphore;
-		VkFence m_InFlightFence;
 	};
 
 }

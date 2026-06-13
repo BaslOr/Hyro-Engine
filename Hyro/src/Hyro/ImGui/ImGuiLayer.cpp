@@ -15,6 +15,7 @@
 #endif
 #include <GLFW/glfw3.h>
 #include <Platform/Vulkan/VulkanContext.h>
+#include <Platform/Vulkan/VulkanAPI.h>
 
 
 namespace Hyro {
@@ -182,6 +183,10 @@ namespace Hyro {
         {
             style.WindowRounding = 0.0f;
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+            style.Colors[ImGuiCol_ChildBg].w = 1.0f;
+            style.Colors[ImGuiCol_PopupBg].w = 1.0f;
+            style.Colors[ImGuiCol_DockingEmptyBg].w = 1.0f;
+            style.Colors[ImGuiCol_MenuBarBg].w = 1.0f;
         }
 
         Application& app = Application::Get();
@@ -217,12 +222,14 @@ namespace Hyro {
 
         }
 
+        uint32_t graphicsFamily = VulkanDevice::GetQueueFamilyIndices().GraphcisQueueFamily.value();
+
         ImGui_ImplVulkan_InitInfo initInfo = {};
-        //init_info.ApiVersion = VK_API_VERSION_1_3;              // Pass in your value of VkApplicationInfo::apiVersion, otherwise will default to header version.
+        initInfo.ApiVersion = VK_API_VERSION_1_3;              // Pass in your value of VkApplicationInfo::apiVersion, otherwise will default to header version.
         initInfo.Instance = context->GetInstance();
         initInfo.PhysicalDevice = VulkanDevice::GetVkPhysicalDevice();
         initInfo.Device = VulkanDevice::GetVkDevice();
-        initInfo.QueueFamily = 0;
+        initInfo.QueueFamily = graphicsFamily;
         initInfo.Queue = VulkanDevice::GetGraphicsQueue();
         initInfo.PipelineCache = VK_NULL_HANDLE;
         initInfo.DescriptorPool = descriptorPool;
@@ -256,6 +263,8 @@ namespace Hyro {
 #elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
         ImGui_ImplVulkan_NewFrame();
 #endif
+
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 1));
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
     }
@@ -269,79 +278,10 @@ namespace Hyro {
 #ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
-		VulkanContext& context = VulkanContext::Get();
-		VkSemaphore waitSemaphores[] = { context.GetImageAvailableSemaphore() };
-		VkSemaphore signalSemaphores[] = { context.GetRenderFinishedSemaphore() };
-		VkFence inFlightFence = context.GetInFlightFence();
-
-        uint32_t imageIndex = 0;
-        VkResult result = vkAcquireNextImageKHR(VulkanDevice::GetVkDevice(), context.GetSwapchain(), UINT64_MAX, context.GetImageAvailableSemaphore(), VK_NULL_HANDLE, &imageIndex);
-
-        if (vkWaitForFences(VulkanDevice::GetVkDevice(), 1, &inFlightFence, VK_TRUE, UINT64_MAX) != VK_SUCCESS) {    // wait indefinitely instead of periodically checking
-            HYRO_LOG_CORE_FATAL("Failed to wait for in-flight fence!");
-        }
-
-        if (vkResetFences(VulkanDevice::GetVkDevice(), 1, &inFlightFence) != VK_SUCCESS) {
-            HYRO_LOG_CORE_FATAL("Failed to reset in-flight fence!");
-        }
-
-
-        VkCommandBuffer commandBuffer = VulkanCommandPool::BeginSingleTimeCommands();
-        {
-            VkRenderPassBeginInfo beginInfo = {};
-            beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            beginInfo.renderPass = context.GetRenderPass();
-            beginInfo.framebuffer = context.GetVkFramebuffer(imageIndex);
-            beginInfo.renderArea.extent.width = app.GetWindow()->GetWidth();
-            beginInfo.renderArea.extent.height = app.GetWindow()->GetHeight();
-            beginInfo.clearValueCount = 1;
-			VkClearValue clear_color[4] = { 0.23f, 0.34f, 0.45f, 1.f };
-            beginInfo.pClearValues = clear_color;
-            vkCmdBeginRenderPass(commandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
-        }
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
-
-        vkCmdEndRenderPass(commandBuffer);
-        {
-            VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            VkSubmitInfo submitInfo = {};
-            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            submitInfo.waitSemaphoreCount = 1;
-            submitInfo.pWaitSemaphores = waitSemaphores;
-            submitInfo.pWaitDstStageMask = &wait_stage;
-            submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &commandBuffer;
-            submitInfo.signalSemaphoreCount = 1;
-            submitInfo.pSignalSemaphores = signalSemaphores;
-
-            if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-                HYRO_LOG_CORE_FATAL("Failed to end command buffer!");
-            }
-            if (vkQueueSubmit(VulkanDevice::GetGraphicsQueue(), 1, &submitInfo, context.GetInFlightFence()) != VK_SUCCESS) {
-				HYRO_LOG_CORE_FATAL("Failed to submit draw command buffer!");
-            }
-        }
-
-        VkPresentInfoKHR presentInfo = {};
-        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores;
-        presentInfo.swapchainCount = 1;
-		VkSwapchainKHR swapchain = context.GetSwapchain();
-        presentInfo.pSwapchains = &swapchain;
-        presentInfo.pImageIndices = &imageIndex;
-        if (vkQueuePresentKHR(VulkanDevice::GetPresentationQueue(), &presentInfo) != VK_SUCCESS) {
-            HYRO_LOG_CORE_FATAL("Failed to present swap chain image!");
-        }
-
-        vkQueueWaitIdle(VulkanDevice::GetPresentationQueue());
-
-        vkFreeCommandBuffers(
-            VulkanDevice::GetVkDevice(),
-            VulkanCommandPool::GetVkCommandPool(),
-            1,
-            &commandBuffer
-        );
+		//ImGui is rendererd inside the main render pass, so we don't call ImGui_ImplVulkan_RenderDrawData here. Instead,
+        // we call ImGui_ImplVulkan_RenderDrawData in the VulkanAPI::Submit() function after rendering the main scene,
+        // and before submitting the command buffer. This is because the ImGui Vulkan backend needs to record its draw commands inside the main render pass,
+        // and we don't want to have multiple render passes for a single frame.
 #endif
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

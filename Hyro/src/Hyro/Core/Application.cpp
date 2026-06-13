@@ -29,7 +29,6 @@ namespace Hyro {
 		settings.PipelineSettings.FragmentShaderPath = "Assets/Shaders/frag.spv";
 		settings.PipelineSettings.EnableBlending = true;
 		settings.PipelineSettings.SampleCount = 4;
-
 		WindowProps props(name, width, height, settings.PipelineSettings.SampleCount);
 
 		m_Window = WindowsWindow::Create(props);
@@ -64,6 +63,8 @@ namespace Hyro {
 			for (Layer* layer : m_LayerStack)
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
+
+			Renderer::Submit();
 
 			m_Window->OnUpdate(deltaTime);
 		}

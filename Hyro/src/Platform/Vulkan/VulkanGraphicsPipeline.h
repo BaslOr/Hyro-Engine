@@ -12,6 +12,8 @@ namespace Hyro {
 		VulkanGraphicsPipeline(const GraphicsPipelineSettings& settings);
 		~VulkanGraphicsPipeline();
 
+		inline VkPipeline GetVkPipeline() const { return m_Pipeline; }
+
 	private:
 
 		std::vector<char> ReadFile(const std::string& filepath);

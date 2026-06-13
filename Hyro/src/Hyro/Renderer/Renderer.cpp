@@ -45,4 +45,9 @@ namespace Hyro {
 		m_GraphicsAPI->SetClearColor(color);
 	}
 
+	void Renderer::Submit()
+	{
+		m_GraphicsAPI->Submit();
+	}
+
 }

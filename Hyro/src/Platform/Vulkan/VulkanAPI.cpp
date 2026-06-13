@@ -3,18 +3,141 @@
 
 #include "Platform/Vulkan/VulkanContext.h"
 
+#include <backends/imgui_impl_vulkan.h>
+
+
 namespace Hyro {
 
 	VulkanAPI::VulkanAPI(const GraphicsPipelineSettings& settings)
 	{
 		m_Pipeline = CreateScope<VulkanGraphicsPipeline>(settings);
 		VulkanCommandPool::Init();
+		m_CommandBuffer = VulkanCommandPool::AllocateCommandBuffers(m_MaxFramesInFlight);
+
+		CreateSyncObjects();
 	}
+
+	VulkanAPI::~VulkanAPI()
+	{
+		vkQueueWaitIdle(VulkanDevice::GetPresentationQueue());
+
+		vkFreeCommandBuffers(
+			VulkanDevice::GetVkDevice(),
+			VulkanCommandPool::GetVkCommandPool(),
+			1,
+			&m_CommandBuffer
+		);
+
+        for (size_t i = 0; i < m_MaxFramesInFlight; i++) {
+            vkDestroySemaphore(VulkanDevice::GetVkDevice(), m_RenderFinishedSemaphores[i], g_VulkanAllocationCallback);
+            vkDestroySemaphore(VulkanDevice::GetVkDevice(), m_ImageAvailableSemaphores[i], g_VulkanAllocationCallback);
+            vkDestroyFence(VulkanDevice::GetVkDevice(), m_InFlightFences[i], g_VulkanAllocationCallback);
+        }
+
+	}
+
+    void VulkanAPI::Submit()
+    {
+        VulkanContext& context = VulkanContext::Get();
+        VkDevice device = VulkanDevice::GetVkDevice();
+
+        vkWaitForFences(device, 1, &m_InFlightFences, VK_TRUE, UINT64_MAX);
+        vkResetFences(device, 1, &m_InFlightFences);
+
+        uint32_t imageIndex = 0;
+        VkResult result = vkAcquireNextImageKHR(
+            device,
+            context.GetSwapchain(),
+            UINT64_MAX,
+            m_ImageAvailableSemaphores,
+            VK_NULL_HANDLE,
+            &imageIndex
+        );
+
+        if (result != VK_SUCCESS) {
+            HYRO_LOG_CORE_ERROR("Failed to acquire swap chain image!");
+        }
+
+        vkResetCommandBuffer(m_CommandBuffer, 0);
+
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+        vkBeginCommandBuffer(m_CommandBuffer, &beginInfo);
+
+        VkClearValue clearColor;
+        clearColor = { {0.f, 0.f, 0.f, 1.0f} };
+
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = context.GetRenderPass();
+        renderPassInfo.framebuffer = context.GetVkFramebuffer(imageIndex);
+        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.extent = context.GetSwapchainExtent();
+        renderPassInfo.clearValueCount = 1;
+        renderPassInfo.pClearValues = &clearColor;
+
+        vkCmdBeginRenderPass(m_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->GetVkPipeline());
+
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(context.GetSwapchainExtent().width);
+        viewport.height = static_cast<float>(context.GetSwapchainExtent().height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewport(m_CommandBuffer, 0, 1, &viewport);
+
+        VkRect2D scissor{};
+        scissor.offset = { 0, 0 };
+        scissor.extent = context.GetSwapchainExtent();
+        vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
+
+
+		vkCmdDraw(m_CommandBuffer, 3, 1, 0, 0); // Temporary draw call for testing, replace with actual draw calls later
+
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_CommandBuffer);
+
+
+
+
+
+        vkCmdEndRenderPass(m_CommandBuffer);
+
+        vkEndCommandBuffer(m_CommandBuffer);
+
+        VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphores;
+        submitInfo.pWaitDstStageMask = &waitStage;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &m_CommandBuffer;
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = &m_RenderFinishedSemaphores;
+
+        vkQueueSubmit(VulkanDevice::GetGraphicsQueue(), 1, &submitInfo, m_InFlightFences);
+
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = &m_RenderFinishedSemaphores;
+        presentInfo.swapchainCount = 1;
+
+        VkSwapchainKHR swapchain = context.GetSwapchain();
+        presentInfo.pSwapchains = &swapchain;
+        presentInfo.pImageIndices = &imageIndex;
+
+        vkQueuePresentKHR(VulkanDevice::GetPresentationQueue(), &presentInfo);
+    }
 
 	void VulkanAPI::DrawIndexed(uint32_t count)
 	{
-
-	}
+	}	
 
 	void VulkanAPI::Clear()
 	{
@@ -22,6 +145,29 @@ namespace Hyro {
 
 	void VulkanAPI::SetClearColor(const glm::vec4& color)
 	{
+	}
+
+	void VulkanAPI::CreateSyncObjects()
+	{
+        m_ImageAvailableSemaphores.resize(m_MaxFramesInFlight);
+        m_RenderFinishedSemaphores.resize(m_MaxFramesInFlight);
+        m_InFlightFences.resize(m_MaxFramesInFlight);
+
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        VkFenceCreateInfo fenceInfo{};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        for (size_t i = 0; i < m_MaxFramesInFlight; i++) {
+            if (vkCreateSemaphore(VulkanDevice::GetVkDevice(), &semaphoreInfo, g_VulkanAllocationCallback, &m_ImageAvailableSemaphores[i]) != VK_SUCCESS ||
+                vkCreateSemaphore(VulkanDevice::GetVkDevice(), &semaphoreInfo, g_VulkanAllocationCallback, &m_RenderFinishedSemaphores[i]) != VK_SUCCESS ||
+                vkCreateFence(VulkanDevice::GetVkDevice(), &fenceInfo, g_VulkanAllocationCallback, &m_InFlightFences[i]) != VK_SUCCESS) {
+
+                throw std::runtime_error("failed to create synchronization objects for a frame!");
+            }
+        }
 	}
 
 }

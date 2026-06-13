@@ -26,6 +26,8 @@ namespace Hyro {
 		static void Clear();
 		static void SetClearColor(const glm::vec4& color);
 
+		static void Submit();
+
 	private:
 		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::Vulkan;
 

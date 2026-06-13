@@ -8,6 +8,7 @@ namespace Hyro {
 		OpenGLGraphicsAPI();
 
 		void DrawIndexed(uint32_t count) override;
+		void Submit() override;
 
 		void Clear() override;
 		void SetClearColor(const glm::vec4& color) override;
