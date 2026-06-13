@@ -1,8 +1,7 @@
 #pragma once
-#include "Platform/Vulkan/VulkanDevice.h"
-#include "Platform/Vulkan/VulkanRenderPass.h"
-
 #include "Hyro/Renderer/GraphicsPipeline.h"
+
+#include <vulkan/vulkan.h>
 
 
 namespace Hyro {

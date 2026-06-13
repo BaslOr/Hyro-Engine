@@ -2,6 +2,7 @@
 #include "VulkanSwapchain.h"
 
 #include "Hyro/Core/Application.h"
+#include "Platform/Vulkan/VulkanContext.h"
 
 
 namespace Hyro {
@@ -11,13 +12,16 @@ namespace Hyro {
 	{
 		CreateSwapchain();
 		CreateImageViews();
+		CreateRenderPass();
+		CreateFramebuffers();
 
 		HYRO_LOG_CORE_TRACE("Created Vulkan Swapchain");
 	}
 
 	VulkanSwapchain::~VulkanSwapchain()
 	{
-		vkDestroySwapchainKHR(m_Device->GetVkDevice(), m_Swapchain, g_VulkanAllocationCallback);
+		CleanUpOldSwapchain();
+		vkDestroyRenderPass(VulkanDevice::GetVkDevice(), m_RenderPass, g_VulkanAllocationCallback);
 	}
 
 	void VulkanSwapchain::CreateSwapchain()
@@ -44,7 +48,7 @@ namespace Hyro {
 		swapchainInfo.imageArrayLayers = 1;
 		swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-		QueueFamilyIndices indices = m_Device->GetQueueFamilyIndices();;
+		QueueFamilyIndices indices = VulkanDevice::GetQueueFamilyIndices();
 		uint32_t queueFamilyIndices[] = { indices.GraphcisQueueFamily.value(), indices.PresentationQueueFamily.value() };
 
 		if (indices.GraphcisQueueFamily != indices.PresentationQueueFamily) {
@@ -63,11 +67,11 @@ namespace Hyro {
 		swapchainInfo.clipped = VK_FALSE;// In case of taking screenshots, we want to be able to read the pixels even if they are not visible on the screen
 		swapchainInfo.oldSwapchain = VK_NULL_HANDLE;
 
-		VkCheck(vkCreateSwapchainKHR(m_Device->GetVkDevice(), &swapchainInfo, g_VulkanAllocationCallback, &m_Swapchain));
+		VkCheck(vkCreateSwapchainKHR(device, &swapchainInfo, g_VulkanAllocationCallback, &m_Swapchain));
 
-		vkGetSwapchainImagesKHR(m_Device->GetVkDevice(), m_Swapchain, &imageCount, nullptr);
+		vkGetSwapchainImagesKHR(device, m_Swapchain, &imageCount, nullptr);
 		m_Images.resize(imageCount);
-		vkGetSwapchainImagesKHR(m_Device->GetVkDevice(), m_Swapchain, &imageCount, m_Images.data());
+		vkGetSwapchainImagesKHR(device, m_Swapchain, &imageCount, m_Images.data());
 
 		m_Format = surfaceFormat.format;
 	}
@@ -92,32 +96,106 @@ namespace Hyro {
 			createInfo.subresourceRange.baseArrayLayer = 0;
 			createInfo.subresourceRange.layerCount = 1;
 
-			VkCheck(vkCreateImageView(m_Device->GetVkDevice(), &createInfo, g_VulkanAllocationCallback, &m_ImageViews[i]));
+			VkCheck(vkCreateImageView(VulkanDevice::GetVkDevice(), &createInfo, g_VulkanAllocationCallback, &m_ImageViews[i]));
 		}
 	}
 
-	void VulkanSwapchain::Recreate()
+	void VulkanSwapchain::CreateRenderPass()
 	{
+		VkAttachmentDescription colorAttachment{};
+		colorAttachment.format = m_Format;
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		VkAttachmentReference colorAttachmentRef{};
+		colorAttachmentRef.attachment = 0;
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkSubpassDescription subpass{};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &colorAttachmentRef;
+
+		VkRenderPassCreateInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount = 1;
+		renderPassInfo.pAttachments = &colorAttachment;
+		renderPassInfo.subpassCount = 1;
+		renderPassInfo.pSubpasses = &subpass;
+
+		if (vkCreateRenderPass(VulkanDevice::GetVkDevice(), &renderPassInfo, nullptr, &m_RenderPass) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create render pass!");
+		}
+	}
+
+	void VulkanSwapchain::CreateFramebuffers()
+	{
+		m_Framebuffers.resize(m_Images.size());
+
+		for (size_t i = 0; i < m_Images.size(); i++) {
+			VkImageView attachments[] = {
+				m_ImageViews[i]
+			};
+
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = m_RenderPass;
+			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.pAttachments = attachments;
+			framebufferInfo.width = m_Extent.width;
+			framebufferInfo.height = m_Extent.height;
+			framebufferInfo.layers = 1;
+			if (vkCreateFramebuffer(VulkanDevice::GetVkDevice(), &framebufferInfo, g_VulkanAllocationCallback, &m_Framebuffers[i]) != VK_SUCCESS) {
+				HYRO_LOG_CORE_FATAL("Failed to create framebuffers!");
+			}
+		}
+	}
+
+	void VulkanSwapchain::CleanUpOldSwapchain()
+	{
+		vkDestroySwapchainKHR(VulkanDevice::GetVkDevice(), m_Swapchain, g_VulkanAllocationCallback);
+
+		for (auto imageView : m_ImageViews) {
+			vkDestroyImageView(VulkanDevice::GetVkDevice(), imageView, g_VulkanAllocationCallback);
+		}
+
+		for (auto framebuffer : m_Framebuffers) {
+			vkDestroyFramebuffer(VulkanDevice::GetVkDevice(), framebuffer, g_VulkanAllocationCallback);
+		}
+	}
+
+	void VulkanSwapchain::Recreate(uint32_t width, uint32_t height)
+	{
+		CleanUpOldSwapchain();
+
+		CreateSwapchain();
+		CreateImageViews();
+		CreateFramebuffers();
 	}
 
 	SwapchainSupportDetails VulkanSwapchain::GetSwapchainSupportDetails()
 	{
 		SwapchainSupportDetails details;
 
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_Device->GetVkPhysicalDevice(), m_Surface->GetVkSurface(), &details.capabilities);
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VulkanDevice::GetVkPhysicalDevice(), m_Surface->GetVkSurface(), &details.capabilities);
 
 		uint32_t formatCount = 0;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(m_Device->GetVkPhysicalDevice(), m_Surface->GetVkSurface(), &formatCount, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(VulkanDevice::GetVkPhysicalDevice(), m_Surface->GetVkSurface(), &formatCount, nullptr);
 		if (formatCount != 0) {
 			details.formats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(m_Device->GetVkPhysicalDevice(), m_Surface->GetVkSurface(), &formatCount, details.formats.data());
+			vkGetPhysicalDeviceSurfaceFormatsKHR(VulkanDevice::GetVkPhysicalDevice(), m_Surface->GetVkSurface(), &formatCount, details.formats.data());
 		}
 
 		uint32_t presentModeCount = 0;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(m_Device->GetVkPhysicalDevice(), m_Surface->GetVkSurface(), &presentModeCount, nullptr);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(VulkanDevice::GetVkPhysicalDevice(), m_Surface->GetVkSurface(), &presentModeCount, nullptr);
 		if (presentModeCount != 0) {
 			details.presentModes.resize(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(m_Device->GetVkPhysicalDevice(), m_Surface->GetVkSurface(), &presentModeCount, details.presentModes.data());
+			vkGetPhysicalDeviceSurfacePresentModesKHR(VulkanDevice::GetVkPhysicalDevice(), m_Surface->GetVkSurface(), &presentModeCount, details.presentModes.data());
 		}
 
 		if (details.formats.empty() || details.presentModes.empty()) {

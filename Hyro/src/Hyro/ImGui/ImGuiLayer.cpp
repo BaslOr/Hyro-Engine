@@ -6,6 +6,7 @@
 #include "Hyro/Core/Application.h"
 
 #define HYRO_IMGUI_USE_VULKAN_BACKEND
+//#define HYRO_IMGUI_USE_OPENGL_BACKEND
 #include "backends/imgui_impl_glfw.h"
 #ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
     #include <backends/imgui_impl_opengl3.h>

@@ -3,7 +3,6 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Vertex.h"
-#include "Hyro/Core/Window.h"
 #include "Hyro/Core/Memory.h"
 
 namespace Hyro {

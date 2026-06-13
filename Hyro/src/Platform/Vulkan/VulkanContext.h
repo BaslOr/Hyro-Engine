@@ -2,8 +2,7 @@
 #include "Hyro/Renderer/GraphicsContext.h"
 
 #include "Platform/Vulkan/VulkanSurface.h"
-#include "Platform/Vulkan/VulkanDevice.h"
-#include "Platform/Vulkan/VulkanFramebuffer.h"
+#include "Platform/Vulkan/VulkanSwapchain.h"
 
 namespace Hyro {
 
@@ -19,16 +18,17 @@ namespace Hyro {
 
 		void Init() override {}
 		void SwapBuffers() const override {}
-		void ResizeViewport(uint32_t width, uint32_t height) override {}
+		void ResizeViewport(uint32_t width, uint32_t height) override;
 
 		VkFormat GetSwapchainImageFormat() const { return m_Swapchain->GetImageFormat(); } //Later move to modern pipeline thing, look up on claude ;)
-		VkRenderPass GetRenderPass() const { return m_RenderPass->GetRenderPass(); }
+		VkRenderPass GetRenderPass() const { return m_Swapchain->GetRenderPass(); }
+
 
 		//Temporary until we have a better way to pass the Vulkan objects to the ImGui Vulkan backend
 		inline VkInstance GetInstance() const { return m_Instance->GetVkInstance(); }
 		inline VkSurfaceKHR GetSurface() const { return m_Surface->GetVkSurface(); }
 		inline VkSwapchainKHR GetSwapchain() const { return m_Swapchain->GetVkSwapchain(); }
-		inline VkFramebuffer GetVkFramebuffer(size_t index) const { return m_Framebuffer->GetVkFramebuffer(index); }
+		inline VkFramebuffer GetVkFramebuffer(size_t index) const { return m_Swapchain->GetVkFramebuffers()[index]; }
 		inline uint32_t GetMinImageCount() const { return m_Swapchain->GetMinImageCount();; }
 		inline uint32_t GetImageCount() const { return static_cast<uint32_t>(m_Swapchain->GetImageViews().size()); }
 		inline VkExtent2D GetSwapchainExtent() const { return m_Swapchain->GetExtent(); }
@@ -42,8 +42,6 @@ namespace Hyro {
 		Ref<VulkanInstance> m_Instance; //Sets up Debug Messenger as well
 		Ref<VulkanSurface> m_Surface;
 		Ref<VulkanSwapchain> m_Swapchain;
-		Ref<VulkanRenderPass> m_RenderPass;
-		Scope<VulkanFramebuffer> m_Framebuffer;
 	};
 
 }

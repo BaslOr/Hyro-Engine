@@ -42,7 +42,6 @@ namespace Hyro {
         VkDevice device = VulkanDevice::GetVkDevice();
 
         vkWaitForFences(device, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
-        vkResetFences(device, 1, &m_InFlightFences[m_CurrentFrame]);
 
         uint32_t imageIndex = 0;
         VkResult result = vkAcquireNextImageKHR(
@@ -54,9 +53,17 @@ namespace Hyro {
             &imageIndex
         );
 
-        if (result != VK_SUCCESS) {
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+            HYRO_LOG_CORE_ERROR("Swapchain out of date!");
+        }
+        if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
             HYRO_LOG_CORE_ERROR("Failed to acquire swap chain image!");
         }
+
+
+		//Only reset the fence if we are submitting work
+        vkResetFences(device, 1, &m_InFlightFences[m_CurrentFrame]);
 
         vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
 
@@ -96,6 +103,9 @@ namespace Hyro {
         vkCmdSetScissor(m_CommandBuffers[m_CurrentFrame], 0, 1, &scissor);
 
 
+
+
+
 		vkCmdDraw(m_CommandBuffers[m_CurrentFrame], 3, 1, 0, 0); // Temporary draw call for testing, replace with actual draw calls later
 
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_CommandBuffers[m_CurrentFrame]);
@@ -132,7 +142,15 @@ namespace Hyro {
         presentInfo.pSwapchains = &swapchain;
         presentInfo.pImageIndices = &imageIndex;
 
-        vkQueuePresentKHR(VulkanDevice::GetPresentationQueue(), &presentInfo);
+        result = vkQueuePresentKHR(VulkanDevice::GetPresentationQueue(), &presentInfo);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+            HYRO_LOG_CORE_ERROR("Swapchain out of date");
+            return;
+        }
+        if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+            HYRO_LOG_CORE_ERROR("Failed to present swap chain image!");
+        }
 
         m_CurrentFrame = (m_CurrentFrame + 1) % m_MaxFramesInFlight;
     }

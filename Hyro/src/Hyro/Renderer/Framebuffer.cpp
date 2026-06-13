@@ -3,8 +3,6 @@
 
 #include "Hyro/Renderer/Renderer.h"
 
-#include "Platform/Vulkan/VulkanFramebuffer.h"
-
 namespace Hyro {
 
 	//It is questionable if this is even required to be implemented on global level

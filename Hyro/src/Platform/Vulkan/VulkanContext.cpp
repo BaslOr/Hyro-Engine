@@ -12,12 +12,15 @@ namespace Hyro {
 		m_Surface = CreateRef<VulkanSurface>(m_Instance, windowHandle);
 		VulkanDevice::Init(m_Instance, m_Surface);
 		m_Swapchain = CreateRef<VulkanSwapchain>(m_Surface);
-		m_RenderPass = CreateRef<VulkanRenderPass>(m_Swapchain);
-		m_Framebuffer = CreateScope<VulkanFramebuffer>(m_Swapchain);
 	}
 
 	VulkanContext::~VulkanContext()
 	{
+	}
+
+	void VulkanContext::ResizeViewport(uint32_t width, uint32_t height)
+	{
+		m_Swapchain->Recreate(width, height);
 	}
 
 }
