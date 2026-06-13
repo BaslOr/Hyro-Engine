@@ -12,7 +12,7 @@ namespace Hyro {
 	{
 		m_Pipeline = CreateScope<VulkanGraphicsPipeline>(settings);
 		VulkanCommandPool::Init();
-		m_CommandBuffer = VulkanCommandPool::AllocateCommandBuffers(m_MaxFramesInFlight);
+		m_CommandBuffers = VulkanCommandPool::AllocateCommandBuffers(m_MaxFramesInFlight);
 
 		CreateSyncObjects();
 	}
@@ -25,7 +25,7 @@ namespace Hyro {
 			VulkanDevice::GetVkDevice(),
 			VulkanCommandPool::GetVkCommandPool(),
 			1,
-			&m_CommandBuffer
+			m_CommandBuffers.data()
 		);
 
         for (size_t i = 0; i < m_MaxFramesInFlight; i++) {
@@ -41,15 +41,15 @@ namespace Hyro {
         VulkanContext& context = VulkanContext::Get();
         VkDevice device = VulkanDevice::GetVkDevice();
 
-        vkWaitForFences(device, 1, &m_InFlightFences, VK_TRUE, UINT64_MAX);
-        vkResetFences(device, 1, &m_InFlightFences);
+        vkWaitForFences(device, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
+        vkResetFences(device, 1, &m_InFlightFences[m_CurrentFrame]);
 
         uint32_t imageIndex = 0;
         VkResult result = vkAcquireNextImageKHR(
             device,
             context.GetSwapchain(),
             UINT64_MAX,
-            m_ImageAvailableSemaphores,
+            m_ImageAvailableSemaphores[m_CurrentFrame],
             VK_NULL_HANDLE,
             &imageIndex
         );
@@ -58,12 +58,12 @@ namespace Hyro {
             HYRO_LOG_CORE_ERROR("Failed to acquire swap chain image!");
         }
 
-        vkResetCommandBuffer(m_CommandBuffer, 0);
+        vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        vkBeginCommandBuffer(m_CommandBuffer, &beginInfo);
+        vkBeginCommandBuffer(m_CommandBuffers[m_CurrentFrame], &beginInfo);
 
         VkClearValue clearColor;
         clearColor = { {0.f, 0.f, 0.f, 1.0f} };
@@ -77,9 +77,9 @@ namespace Hyro {
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColor;
 
-        vkCmdBeginRenderPass(m_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(m_CommandBuffers[m_CurrentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->GetVkPipeline());
+        vkCmdBindPipeline(m_CommandBuffers[m_CurrentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->GetVkPipeline());
 
         VkViewport viewport{};
         viewport.x = 0.0f;
@@ -88,44 +88,44 @@ namespace Hyro {
         viewport.height = static_cast<float>(context.GetSwapchainExtent().height);
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(m_CommandBuffer, 0, 1, &viewport);
+        vkCmdSetViewport(m_CommandBuffers[m_CurrentFrame], 0, 1, &viewport);
 
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
         scissor.extent = context.GetSwapchainExtent();
-        vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
+        vkCmdSetScissor(m_CommandBuffers[m_CurrentFrame], 0, 1, &scissor);
 
 
-		vkCmdDraw(m_CommandBuffer, 3, 1, 0, 0); // Temporary draw call for testing, replace with actual draw calls later
+		vkCmdDraw(m_CommandBuffers[m_CurrentFrame], 3, 1, 0, 0); // Temporary draw call for testing, replace with actual draw calls later
 
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_CommandBuffer);
-
-
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_CommandBuffers[m_CurrentFrame]);
 
 
 
-        vkCmdEndRenderPass(m_CommandBuffer);
 
-        vkEndCommandBuffer(m_CommandBuffer);
+
+        vkCmdEndRenderPass(m_CommandBuffers[m_CurrentFrame]);
+
+        vkEndCommandBuffer(m_CommandBuffers[m_CurrentFrame]);
 
         VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphores;
+        submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphores[m_CurrentFrame];
         submitInfo.pWaitDstStageMask = &waitStage;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_CommandBuffer;
+        submitInfo.pCommandBuffers = &m_CommandBuffers[m_CurrentFrame];
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &m_RenderFinishedSemaphores;
+        submitInfo.pSignalSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrame];
 
-        vkQueueSubmit(VulkanDevice::GetGraphicsQueue(), 1, &submitInfo, m_InFlightFences);
+        vkQueueSubmit(VulkanDevice::GetGraphicsQueue(), 1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &m_RenderFinishedSemaphores;
+        presentInfo.pWaitSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrame];
         presentInfo.swapchainCount = 1;
 
         VkSwapchainKHR swapchain = context.GetSwapchain();
@@ -133,6 +133,8 @@ namespace Hyro {
         presentInfo.pImageIndices = &imageIndex;
 
         vkQueuePresentKHR(VulkanDevice::GetPresentationQueue(), &presentInfo);
+
+        m_CurrentFrame = (m_CurrentFrame + 1) % m_MaxFramesInFlight;
     }
 
 	void VulkanAPI::DrawIndexed(uint32_t count)

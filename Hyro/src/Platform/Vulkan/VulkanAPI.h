@@ -18,9 +18,6 @@ namespace Hyro {
 		void Clear() override;
 		void SetClearColor(const glm::vec4& color) override;
 
-		inline VkCommandBuffer GetVkCommandBuffer() const { return m_CommandBuffer; }
-
-
 		inline static VulkanAPI& Get() { return *s_Instance; }
 
 	private:
@@ -32,12 +29,13 @@ namespace Hyro {
 		Scope<VulkanGraphicsPipeline> m_Pipeline;
 
 		size_t m_MaxFramesInFlight = 2;
+		size_t m_CurrentFrame = 0;
 
 		std::vector<VkSemaphore> m_ImageAvailableSemaphores;
 		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
 		std::vector<VkFence> m_InFlightFences;
 
-		std::vector<VkCommandBuffer> m_CommandBuffer;
+		std::vector<VkCommandBuffer> m_CommandBuffers;
 	};
 
 }
