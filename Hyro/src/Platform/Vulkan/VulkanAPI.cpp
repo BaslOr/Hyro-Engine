@@ -73,7 +73,7 @@ namespace Hyro {
         vkBeginCommandBuffer(m_CommandBuffers[m_CurrentFrame], &beginInfo);
 
         VkClearValue clearColor;
-        clearColor = { {0.f, 0.f, 0.f, 1.0f} };
+        clearColor = { {m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, m_ClearColor.a} };
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -165,6 +165,7 @@ namespace Hyro {
 
 	void VulkanAPI::SetClearColor(const glm::vec4& color)
 	{
+        m_ClearColor = color;
 	}
 
 	void VulkanAPI::CreateSyncObjects()

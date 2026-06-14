@@ -3,7 +3,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Hyro/Renderer/Renderer.h"
+#include "Hyro/Renderer/RenderCommand.h"
 
 namespace Hyro {
 
@@ -35,8 +35,8 @@ namespace Hyro {
 
 	void Renderer2D::BeginScene()
 	{
-		Renderer::SetClearColor(glm::vec4(0.2f, 0.5f, 0.8f, 1.f));
-		Renderer::Clear();
+		RenderCommand::SetClearColor(glm::vec4(0.2f, 0.5f, 0.8f, 1.f));
+		RenderCommand::Clear();
 
 		m_Data.Vertices.clear();
 		m_Data.Indices.clear();
@@ -56,7 +56,7 @@ namespace Hyro {
 		glm::mat4 projection = glm::ortho(0.f, 1280.f, 0.f, 720.f);
 		m_Data.Shader->setUniformMat4("u_ProjectionMatrix", projection);
 
-		Renderer::DrawIndexed(static_cast<uint32_t>(m_Data.Indices.size()));
+		RenderCommand::DrawIndexed(m_Data.VAO, m_Data.Shader, static_cast<uint32_t>(m_Data.Indices.size()));
 	}
 
 	void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)

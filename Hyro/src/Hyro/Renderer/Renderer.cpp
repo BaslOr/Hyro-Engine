@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Hyro/Renderer/Renderer.h"
 
+#include "Hyro/Renderer/RenderCommand.h"
 #include "Hyro/Renderer/Renderer2D.h"
 
 namespace Hyro {
@@ -10,8 +11,7 @@ namespace Hyro {
 
 		//Some kind of API description should be passed here
 		//To determine blend func, sample count, ...
-		m_GraphicsAPI = GraphicsAPI::Create(m_GraphicsAPIType, settings.PipelineSettings);
-
+		RenderCommand::Init(m_GraphicsAPIType, settings.PipelineSettings);
 		Renderer2D::Init();
 	}
 
@@ -30,24 +30,9 @@ namespace Hyro {
 		Renderer2D::EndScene();
 	}
 
-	void Renderer::DrawIndexed(uint32_t count)
-	{
-		m_GraphicsAPI->DrawIndexed(count);
-	}
-
-	void Renderer::Clear()
-	{
-		m_GraphicsAPI->Clear();
-	}
-
-	void Renderer::SetClearColor(const glm::vec4& color)
-	{
-		m_GraphicsAPI->SetClearColor(color);
-	}
-
 	void Renderer::Submit()
 	{
-		m_GraphicsAPI->Submit();
+		RenderCommand::Submit();
 	}
 
 }

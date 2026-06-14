@@ -22,16 +22,10 @@ namespace Hyro {
 
 		inline static GraphicsAPIType GetAPI() { return m_GraphicsAPIType; }
 
-		static void DrawIndexed(uint32_t count);
-		static void Clear();
-		static void SetClearColor(const glm::vec4& color);
-
 		static void Submit();
 
 	private:
 		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::Vulkan;
-
-		static inline Scope<GraphicsAPI> m_GraphicsAPI;
 	};
 
 }

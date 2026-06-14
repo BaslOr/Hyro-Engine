@@ -36,6 +36,8 @@ namespace Hyro {
 		std::vector<VkFence> m_InFlightFences;
 
 		std::vector<VkCommandBuffer> m_CommandBuffers;
+
+		glm::vec4 m_ClearColor;
 	};
 
 }

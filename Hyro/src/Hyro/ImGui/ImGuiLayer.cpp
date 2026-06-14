@@ -5,15 +5,11 @@
 #include "Hyro/Core/KeyCodes.h"
 #include "Hyro/Core/Application.h"
 
-#define HYRO_IMGUI_USE_VULKAN_BACKEND
-//#define HYRO_IMGUI_USE_OPENGL_BACKEND
+
 #include "backends/imgui_impl_glfw.h"
-#ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
-    #include <backends/imgui_impl_opengl3.h>
-#elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
-    #include <backends/imgui_impl_vulkan.h>
-    #include "Platform/Vulkan/VulkanCommandPool.h"//Temporary include until we have a better solution for passing command buffers to the ImGui Vulkan backend
-#endif
+#include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_vulkan.h>
+#include "Platform/Vulkan/VulkanCommandPool.h"//Temporary include until we have a better solution for passing command buffers to the ImGui Vulkan backend
 #include <GLFW/glfw3.h>
 #include <Platform/Vulkan/VulkanContext.h>
 #include <Platform/Vulkan/VulkanAPI.h>
@@ -192,66 +188,69 @@ namespace Hyro {
 
         Application& app = Application::Get();
         GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow()->GetNative());
-#ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
-        ImGui_ImplOpenGL3_Init("#version 460");
-#elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
-        // Setup Platform/Renderer backends
-        ImGui_ImplGlfw_InitForVulkan(window, true);
+        if (Renderer::GetAPI() == GraphicsAPIType::OpenGL) {
+            ImGui_ImplGlfw_InitForOpenGL(window, true);
+            ImGui_ImplOpenGL3_Init("#version 460");
+        }
+        else if (Renderer::GetAPI() == GraphicsAPIType::Vulkan) {
+            // Setup Platform/Renderer backends
+            ImGui_ImplGlfw_InitForVulkan(window, true);
 
-		VulkanContext* context = &VulkanContext::Get();
-		VkDescriptorPool descriptorPool;
+            VulkanContext* context = &VulkanContext::Get();
+            VkDescriptorPool descriptorPool;
 
-        // Create Descriptor Pool
-        // If you wish to load e.g. additional textures you may need to alter pools sizes and maxSets.
-        {
-            VkDescriptorPoolSize pool_sizes[] =
+            // Create Descriptor Pool
+            // If you wish to load e.g. additional textures you may need to alter pools sizes and maxSets.
             {
-                { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE },
-            };
-            VkDescriptorPoolCreateInfo pool_info = {};
-            pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-            pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-            pool_info.maxSets = 0;
-            for (VkDescriptorPoolSize& pool_size : pool_sizes)
-                pool_info.maxSets += pool_size.descriptorCount;
-            pool_info.poolSizeCount = (uint32_t)IM_COUNTOF(pool_sizes);
-            pool_info.pPoolSizes = pool_sizes;
-            if (vkCreateDescriptorPool(VulkanDevice::GetVkDevice(), &pool_info, nullptr, &descriptorPool)) {
-				HYRO_ASSERT(false, "Failed to create ImGui descriptor pool!");
+                VkDescriptorPoolSize pool_sizes[] =
+                {
+                    { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE },
+                };
+                VkDescriptorPoolCreateInfo pool_info = {};
+                pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+                pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+                pool_info.maxSets = 0;
+                for (VkDescriptorPoolSize& pool_size : pool_sizes)
+                    pool_info.maxSets += pool_size.descriptorCount;
+                pool_info.poolSizeCount = (uint32_t)IM_COUNTOF(pool_sizes);
+                pool_info.pPoolSizes = pool_sizes;
+                if (vkCreateDescriptorPool(VulkanDevice::GetVkDevice(), &pool_info, nullptr, &descriptorPool)) {
+                    HYRO_ASSERT(false, "Failed to create ImGui descriptor pool!");
+                }
+
             }
 
+            uint32_t graphicsFamily = VulkanDevice::GetQueueFamilyIndices().GraphcisQueueFamily.value();
+
+            ImGui_ImplVulkan_InitInfo initInfo = {};
+            initInfo.ApiVersion = VK_API_VERSION_1_3;              // Pass in your value of VkApplicationInfo::apiVersion, otherwise will default to header version.
+            initInfo.Instance = context->GetInstance();
+            initInfo.PhysicalDevice = VulkanDevice::GetVkPhysicalDevice();
+            initInfo.Device = VulkanDevice::GetVkDevice();
+            initInfo.QueueFamily = graphicsFamily;
+            initInfo.Queue = VulkanDevice::GetGraphicsQueue();
+            initInfo.PipelineCache = VK_NULL_HANDLE;
+            initInfo.DescriptorPool = descriptorPool;
+            initInfo.MinImageCount = context->GetMinImageCount();
+            initInfo.ImageCount = context->GetImageCount();
+            initInfo.Allocator = nullptr;
+            initInfo.PipelineInfoMain.RenderPass = context->GetRenderPass();
+            initInfo.PipelineInfoMain.Subpass = 0;
+            initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+            initInfo.CheckVkResultFn = [](VkResult result) { HYRO_ASSERT(result == VK_SUCCESS, "Vulkan error"); };
+            ImGui_ImplVulkan_Init(&initInfo);
         }
-
-        uint32_t graphicsFamily = VulkanDevice::GetQueueFamilyIndices().GraphcisQueueFamily.value();
-
-        ImGui_ImplVulkan_InitInfo initInfo = {};
-        initInfo.ApiVersion = VK_API_VERSION_1_3;              // Pass in your value of VkApplicationInfo::apiVersion, otherwise will default to header version.
-        initInfo.Instance = context->GetInstance();
-        initInfo.PhysicalDevice = VulkanDevice::GetVkPhysicalDevice();
-        initInfo.Device = VulkanDevice::GetVkDevice();
-        initInfo.QueueFamily = graphicsFamily;
-        initInfo.Queue = VulkanDevice::GetGraphicsQueue();
-        initInfo.PipelineCache = VK_NULL_HANDLE;
-        initInfo.DescriptorPool = descriptorPool;
-        initInfo.MinImageCount = context->GetMinImageCount();
-        initInfo.ImageCount = context->GetImageCount();
-        initInfo.Allocator = nullptr;
-        initInfo.PipelineInfoMain.RenderPass = context->GetRenderPass();
-        initInfo.PipelineInfoMain.Subpass = 0;
-        initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-        initInfo.CheckVkResultFn = [](VkResult result) { HYRO_ASSERT(result == VK_SUCCESS, "Vulkan error"); };
-        ImGui_ImplVulkan_Init(&initInfo);
-#endif
 	}
 
 	void ImGuiLayer::OnDetach()
 	{
-#ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
-        ImGui_ImplOpenGL3_Shutdown();
-#elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
-        ImGui_ImplVulkan_Shutdown();
-#endif
+        if (Renderer::GetAPI() == GraphicsAPIType::OpenGL) {
+            ImGui_ImplOpenGL3_Shutdown();
+        }
+        else if (Renderer::GetAPI() == GraphicsAPIType::Vulkan) {
+            ImGui_ImplVulkan_Shutdown();
+        }
+
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
 	}
@@ -259,11 +258,12 @@ namespace Hyro {
     void ImGuiLayer::Begin()
     {
         // Start the Dear ImGui frame
-#ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
-        ImGui_ImplOpenGL3_NewFrame();
-#elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
-        ImGui_ImplVulkan_NewFrame();
-#endif
+        if (Renderer::GetAPI() == GraphicsAPIType::OpenGL) {
+            ImGui_ImplOpenGL3_NewFrame();
+        }
+        else if (Renderer::GetAPI() == GraphicsAPIType::Vulkan) {
+            ImGui_ImplVulkan_NewFrame();
+        }
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 1));
         ImGui_ImplGlfw_NewFrame();
@@ -276,14 +276,15 @@ namespace Hyro {
         io.DisplaySize = { static_cast<float>(app.GetWindow()->GetWidth()), static_cast<float>(app.GetWindow()->GetHeight()) };
 
         ImGui::Render();
-#ifdef HYRO_IMGUI_USE_OPENGL_BACKEND
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#elif defined(HYRO_IMGUI_USE_VULKAN_BACKEND)
-		//ImGui is rendererd inside the main render pass, so we don't call ImGui_ImplVulkan_RenderDrawData here. Instead,
-        // we call ImGui_ImplVulkan_RenderDrawData in the VulkanAPI::Submit() function after rendering the main scene,
-        // and before submitting the command buffer. This is because the ImGui Vulkan backend needs to record its draw commands inside the main render pass,
-        // and we don't want to have multiple render passes for a single frame.
-#endif
+        if (Renderer::GetAPI() == GraphicsAPIType::OpenGL) {
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        }
+        else if (Renderer::GetAPI() == GraphicsAPIType::Vulkan) {
+            //ImGui is rendererd inside the main render pass, so we don't call ImGui_ImplVulkan_RenderDrawData here. Instead,
+            // we call ImGui_ImplVulkan_RenderDrawData in the VulkanAPI::Submit() function after rendering the main scene,
+            // and before submitting the command buffer. This is because the ImGui Vulkan backend needs to record its draw commands inside the main render pass,
+            // and we don't want to have multiple render passes for a single frame.
+        }
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
