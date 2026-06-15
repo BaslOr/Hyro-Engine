@@ -3,6 +3,8 @@
 
 #include "Hyro/Core/Memory.h"
 #include "Hyro/Renderer/GraphicsPipeline.h"
+#include "Hyro/Renderer/Shader.h"
+#include "Hyro/Renderer/VertexArray.h"
 
 namespace Hyro {
 
@@ -17,11 +19,11 @@ namespace Hyro {
 	public:
 		static Scope<GraphicsAPI> Create(GraphicsAPIType api, const GraphicsPipelineSettings& settings);
 
-		virtual void Submit() = 0;
+		virtual void BeginScene() = 0;
+		virtual void EndScene() = 0;
 
-		virtual void DrawIndexed(uint32_t count) = 0;
+		virtual void Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count) = 0;
 
-		virtual void Clear() = 0;
 		virtual void SetClearColor(const glm::vec4&	color) = 0;
 	};
 

@@ -1,0 +1,28 @@
+#pragma once
+#include "Hyro/Renderer/VertexArray.h"
+
+namespace Hyro {
+
+	//Acts as a container for Vertex and Index Buffer to simplify RenderCommand::Submit() and API agnostic renderering
+	class VulkanVertexArray : public VertexArray {
+	public:
+		VulkanVertexArray() = default;
+		~VulkanVertexArray() = default;
+
+		//Will be handled with when vertex layout is modified to be dynamic ;)
+		void SetVertexAttribPointer(uint32_t index, int size, TYPE type, int stride, int pointer) override {}
+		void EnableVertexAttribArray(uint16_t incex) override {}
+
+		void AddVertexBuffer(Ref<VertexBuffer> buffer) override;
+		void SetIndexBuffer(Ref<IndexBuffer> buffer) override;
+
+		void Bind() const override {}
+		void Bind(void* commandBuwffer) const override;
+
+	private:
+		std::vector<Ref<VertexBuffer>> m_VerexBuffers;
+		Ref<IndexBuffer> m_IndexBuffer;
+
+	};
+
+}

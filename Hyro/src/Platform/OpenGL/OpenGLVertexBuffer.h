@@ -14,7 +14,8 @@ namespace Hyro {
 		void SetData(const std::vector<Vertex>& data) override;
 
 		void Bind() const override;
-		void UnBind() const override;
+		void Bind(void* commandBuffer) const override {}
+
 	private:
 		uint32_t m_ID;
 	};

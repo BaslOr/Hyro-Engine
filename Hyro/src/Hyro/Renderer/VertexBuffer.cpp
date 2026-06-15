@@ -3,7 +3,7 @@
 #include "Hyro/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLVertexBuffer.h"
-#include "Platform/Vulkan/VulkanVertexBuffer.h"
+#include "Platform/Vulkan/VulkanBuffer.h"
 
 #include "Hyro/Core/Core.h"
 
@@ -21,13 +21,12 @@ namespace Hyro {
 			return CreateRef<OpenGLVertexBuffer>();
 			break;
 		case GraphicsAPIType::Vulkan:
-			HYRO_LOG_CORE_ERROR("Vulkan Vertex Buffers are not supported yet ");
-			return CreateRef<Vulkan::VulkanVertexBuffer>();
+			return CreateRef<VulkanVertexBuffer>();
 			break;
 		}
 	}
 
-	Ref<VertexBuffer> Hyro::VertexBuffer::Create(std::vector<Vertex> vertices)
+	Ref<VertexBuffer> Hyro::VertexBuffer::Create(const std::vector<Vertex>& vertices)
     {
 		switch (Renderer::GetAPI())
 		{
@@ -39,8 +38,7 @@ namespace Hyro {
 			return CreateRef<OpenGLVertexBuffer>(vertices);
 			break;
 		case GraphicsAPIType::Vulkan:
-			HYRO_LOG_CORE_ERROR("Vulkan Vertex Buffers are not supported yet ");
-			return CreateRef<Vulkan::VulkanVertexBuffer>();
+			return CreateRef<VulkanVertexBuffer>(vertices);
 			break;
 		}
     }

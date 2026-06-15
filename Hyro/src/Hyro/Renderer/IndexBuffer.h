@@ -1,6 +1,5 @@
 #pragma once
 #include "Hyro/Core/Memory.h"
-#include "Hyro/Renderer/Renderer.h"
 
 #include <vector>
 

@@ -34,7 +34,7 @@ namespace Hyro {
 	private:
 		inline static Renderer2DData m_Data;
 
-		friend Renderer;
+		friend class Renderer;
 	};
 
 }

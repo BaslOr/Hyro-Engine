@@ -9,10 +9,10 @@ namespace Hyro {
 		virtual void SetData(const std::vector<Vertex>& data) = 0;
 
 		virtual void Bind() const = 0;
-		virtual void UnBind() const = 0;
+		virtual void Bind(void* commandBuffer) const = 0;
 
 		static Ref<VertexBuffer> Create();
-		static Ref<VertexBuffer> Create(std::vector<Vertex> vertices);
+		static Ref<VertexBuffer> Create(const std::vector<Vertex>& vertices);
 
 	private:
 	};

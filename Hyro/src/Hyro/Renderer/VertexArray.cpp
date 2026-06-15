@@ -4,6 +4,7 @@
 #include "Hyro/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLVertexArray.h"
+#include "Platform/Vulkan/VulkanVertexArray.h"
 
 namespace Hyro {
 
@@ -19,8 +20,7 @@ namespace Hyro {
 			return CreateRef<OpenGLVertexArray>();
 			break;
 		case GraphicsAPIType::Vulkan:
-			//Vulkan has no equivalent to vertex arrays
-			return nullptr;
+			return CreateRef<VulkanVertexArray>();//Acts as a wapper for vertexBuffer + indexBuffers
 			break;
 		}
 	}

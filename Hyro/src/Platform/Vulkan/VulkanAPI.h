@@ -2,7 +2,10 @@
 #include "Hyro/Renderer/GraphicsAPI.h"
 
 #include "Platform/Vulkan/VulkanGraphicsPipeline.h"
+#include "Hyro/Renderer/VertexBuffer.h"
 #include "Platform/Vulkan/VulkanCommandPool.h"
+#include "Hyro/Core/Memory.h"
+#include <cstdint>
 
 
 namespace Hyro {
@@ -12,10 +15,11 @@ namespace Hyro {
 		VulkanAPI(const GraphicsPipelineSettings& settings);
 		~VulkanAPI();
 
-		void Submit() override;
-		void DrawIndexed(uint32_t count) override;
+		void BeginScene() override;
+		void EndScene() override;
 
-		void Clear() override;
+		void Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count) override;
+
 		void SetClearColor(const glm::vec4& color) override;
 
 		inline static VulkanAPI& Get() { return *s_Instance; }
@@ -25,6 +29,8 @@ namespace Hyro {
 
 	private:
 		static inline VulkanAPI* s_Instance = nullptr;
+
+		uint32_t m_ImageIndex = 0;
 
 		Scope<VulkanGraphicsPipeline> m_Pipeline;
 

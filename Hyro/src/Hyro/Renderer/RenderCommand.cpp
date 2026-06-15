@@ -9,38 +9,24 @@ namespace Hyro {
 		m_API = GraphicsAPI::Create(type, pipelineSettings);
 	}
 
-	void RenderCommand::DrawIndexed(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count)
+	void RenderCommand::BeginScene()
 	{
-		if (Renderer::GetAPI() == GraphicsAPIType::OpenGL) {
-			vertexArray->Bind();
-			shader->Bind();
-			m_API->DrawIndexed(count);
-		}
+		m_API->BeginScene();
 	}
 
-	void RenderCommand::Clear()
+	void RenderCommand::EndScene()
 	{
-		m_API->Clear();
+		m_API->EndScene();
+	}
+
+	void RenderCommand::Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count)
+	{
+		m_API->Submit(vertexArray, shader, count);
 	}
 
 	void RenderCommand::SetClearColor(const glm::vec4& color)
 	{
 		m_API->SetClearColor(color);
-	}
-
-	void RenderCommand::Submit()
-	{
-		m_API->Submit();
-	}
-
-	void RenderCommand::Submit(Ref<VertexArray> vertexArray)
-	{
-
-	}
-
-	void RenderCommand::Submit(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer)
-	{
-
 	}
 
 }

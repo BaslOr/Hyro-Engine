@@ -22,17 +22,16 @@ namespace Hyro {
 
 	void Renderer::BeginScene()
 	{
+		RenderCommand::BeginScene();
+
 		Renderer2D::BeginScene();
 	}
 
 	void Renderer::EndScene()
 	{
 		Renderer2D::EndScene();
-	}
 
-	void Renderer::Submit()
-	{
-		RenderCommand::Submit();
+		RenderCommand::EndScene();
 	}
 
 }

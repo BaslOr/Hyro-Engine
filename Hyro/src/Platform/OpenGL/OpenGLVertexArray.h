@@ -11,7 +11,7 @@ namespace Hyro {
 		~OpenGLVertexArray();
 
 		void Bind() const override;
-		void UnBind() const override;
+		void Bind(void* commandBuffer) const override {}
 
 		void SetVertexAttribPointer(uint32_t index, int size, TYPE type, int stride, int pointer) override;
 		void EnableVertexAttribArray(uint16_t index) override;

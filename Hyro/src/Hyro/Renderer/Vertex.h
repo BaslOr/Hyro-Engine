@@ -3,6 +3,7 @@
 
 namespace Hyro {
 
+	//Until now the Vertex Layout is fixed
 	struct Vertex {
 		glm::vec3 Position;
 		glm::vec2 UV;

@@ -67,12 +67,12 @@ namespace Hyro {
 #ifdef HYRO_PLATFORM_WINDOWS
 	constexpr PlatformType g_CurrentPlatform = PlatformType::Windows;
 #elif defined(HYRO_PLATFORM_LINUX)
-	constexpr Platform g_CurrentPlatform = Platform::Linux;
+	constexpr PlatformType g_CurrentPlatform = PlatformType::Linux;
 #elif defined(HYRO_PLATFORM_MACOS)
-	constexpr Platform g_CurrentPlatform = Platform::MacOS;
+	constexpr PlatformType g_CurrentPlatform = PlatformType::MacOS;
 #else
  #error "Unknown platform!"
 #endif // HYRO_PLATFORM_WINDOWS
-	
+
 }
 

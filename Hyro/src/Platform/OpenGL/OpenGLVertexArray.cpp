@@ -22,11 +22,6 @@ namespace Hyro {
 		glBindVertexArray(m_ID);
 	}
 
-	void OpenGLVertexArray::UnBind() const
-	{
-		glBindVertexArray(0);
-	}
-
 	void OpenGLVertexArray::SetVertexAttribPointer(uint32_t index, int size, TYPE type, int stride, int pointer)
 	{
 		Bind();

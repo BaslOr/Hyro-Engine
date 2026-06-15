@@ -42,9 +42,4 @@ namespace Hyro {
 		glBindBuffer(GL_ARRAY_BUFFER, m_ID);
 	}
 
-	void OpenGLVertexBuffer::UnBind() const
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-
 }

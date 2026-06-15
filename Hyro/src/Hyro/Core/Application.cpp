@@ -54,9 +54,6 @@ namespace Hyro {
 			TimeStep deltaTime = static_cast<float>(m_CurrentTime - m_LastTime);
 			m_LastTime = m_CurrentTime;
 
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate(deltaTime);
-
 			ImGuiIO& io = ImGui::GetIO();
 			io.DeltaTime = deltaTime;
 			m_ImGuiLayer->Begin();
@@ -64,7 +61,8 @@ namespace Hyro {
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
 
-			Renderer::Submit();
+			for (Layer* layer : m_LayerStack)
+				layer->OnUpdate(deltaTime);
 
 			m_Window->OnUpdate(deltaTime);
 		}

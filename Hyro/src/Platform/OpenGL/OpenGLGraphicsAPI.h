@@ -7,10 +7,11 @@ namespace Hyro {
 	public:
 		OpenGLGraphicsAPI();
 
-		void DrawIndexed(uint32_t count) override;
-		void Submit() override;
+		void BeginScene() override;
+		void EndScene() override {}
 
-		void Clear() override;
+		void Submit(Ref<VertexArray> vao, Ref<Shader> shader, uint32_t count) override;
+
 		void SetClearColor(const glm::vec4& color) override;
 
 	private:

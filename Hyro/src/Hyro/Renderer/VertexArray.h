@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Hyro/Core/Memory.h"	
-#include "IndexBuffer.h"
 #include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 namespace Hyro {
 
@@ -22,7 +22,7 @@ namespace Hyro {
 		virtual void SetIndexBuffer(Ref<IndexBuffer> buffer) = 0;
 
 		virtual void Bind() const = 0;
-		virtual void UnBind() const = 0;
+		virtual void Bind(void* commandBuffer) const = 0;//Onyl for Vulkan
 
 	};
 

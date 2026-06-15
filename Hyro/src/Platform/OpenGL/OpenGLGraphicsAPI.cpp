@@ -79,18 +79,16 @@ namespace Hyro {
             SetupDebugCallback();
     }
 
-    void OpenGLGraphicsAPI::DrawIndexed(uint32_t count)
-	{
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-	}
-
-    void OpenGLGraphicsAPI::Submit()
+    void OpenGLGraphicsAPI::BeginScene()
     {
+        glClear(GL_COLOR_BUFFER_BIT /* | GL_DEPTH_BUFFER_BIT */);
     }
 
-	void OpenGLGraphicsAPI::Clear()
+    void OpenGLGraphicsAPI::Submit(Ref<VertexArray> vao, Ref<Shader> shader, uint32_t count)
 	{
-		glClear(GL_COLOR_BUFFER_BIT /* | GL_DEPTH_BUFFER_BIT */);
+        vao->Bind();
+        shader->Bind();
+        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void OpenGLGraphicsAPI::SetClearColor(const glm::vec4& color)

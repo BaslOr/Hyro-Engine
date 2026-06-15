@@ -2,6 +2,7 @@
 #include "Hyro/Renderer/IndexBuffer.h"
 
 #include "Hyro/Core/Core.h"
+#include "Hyro/Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLIndexBuffer.h"
 #include "Platform/Vulkan/VulkanIndexBuffer.h"
 

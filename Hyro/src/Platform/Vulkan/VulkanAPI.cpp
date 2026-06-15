@@ -36,21 +36,20 @@ namespace Hyro {
 
 	}
 
-    void VulkanAPI::Submit()
+    void VulkanAPI::BeginScene()
     {
         VulkanContext& context = VulkanContext::Get();
         VkDevice device = VulkanDevice::GetVkDevice();
 
         vkWaitForFences(device, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
 
-        uint32_t imageIndex = 0;
         VkResult result = vkAcquireNextImageKHR(
             device,
             context.GetSwapchain(),
             UINT64_MAX,
             m_ImageAvailableSemaphores[m_CurrentFrame],
             VK_NULL_HANDLE,
-            &imageIndex
+            &m_ImageIndex
         );
 
 
@@ -61,8 +60,7 @@ namespace Hyro {
             HYRO_LOG_CORE_ERROR("Failed to acquire swap chain image!");
         }
 
-
-		//Only reset the fence if we are submitting work
+        //Only reset the fence if we are submitting work
         vkResetFences(device, 1, &m_InFlightFences[m_CurrentFrame]);
 
         vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
@@ -78,7 +76,7 @@ namespace Hyro {
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = context.GetRenderPass();
-        renderPassInfo.framebuffer = context.GetVkFramebuffer(imageIndex);
+        renderPassInfo.framebuffer = context.GetVkFramebuffer(m_ImageIndex);
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = context.GetSwapchainExtent();
         renderPassInfo.clearValueCount = 1;
@@ -101,21 +99,17 @@ namespace Hyro {
         scissor.offset = { 0, 0 };
         scissor.extent = context.GetSwapchainExtent();
         vkCmdSetScissor(m_CommandBuffers[m_CurrentFrame], 0, 1, &scissor);
+    }
 
-
-
-
-
-		vkCmdDraw(m_CommandBuffers[m_CurrentFrame], 3, 1, 0, 0); // Temporary draw call for testing, replace with actual draw calls later
+    void VulkanAPI::EndScene()
+    {
+        VulkanContext& context = VulkanContext::Get();
+        VkDevice device = VulkanDevice::GetVkDevice();
 
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_CommandBuffers[m_CurrentFrame]);
 
 
-
-
-
         vkCmdEndRenderPass(m_CommandBuffers[m_CurrentFrame]);
-
         vkEndCommandBuffer(m_CommandBuffers[m_CurrentFrame]);
 
         VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -140,9 +134,9 @@ namespace Hyro {
 
         VkSwapchainKHR swapchain = context.GetSwapchain();
         presentInfo.pSwapchains = &swapchain;
-        presentInfo.pImageIndices = &imageIndex;
+        presentInfo.pImageIndices = &m_ImageIndex;
 
-        result = vkQueuePresentKHR(VulkanDevice::GetPresentationQueue(), &presentInfo);
+        VkResult result = vkQueuePresentKHR(VulkanDevice::GetPresentationQueue(), &presentInfo);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             HYRO_LOG_CORE_ERROR("Swapchain out of date");
@@ -155,15 +149,16 @@ namespace Hyro {
         m_CurrentFrame = (m_CurrentFrame + 1) % m_MaxFramesInFlight;
     }
 
-	void VulkanAPI::DrawIndexed(uint32_t count)
-	{
-	}	
+    void VulkanAPI::Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count)
+    {
+        vkCmdBindPipeline(m_CommandBuffers[m_CurrentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->GetVkPipeline());
 
-	void VulkanAPI::Clear()
-	{
-	}
+        vertexArray->Bind(m_CommandBuffers[m_CurrentFrame]);
 
-	void VulkanAPI::SetClearColor(const glm::vec4& color)
+        vkCmdDraw(m_CommandBuffers[m_CurrentFrame], count, 1, 0, 0);
+    }
+
+    void VulkanAPI::SetClearColor(const glm::vec4& color)
 	{
         m_ClearColor = color;
 	}
