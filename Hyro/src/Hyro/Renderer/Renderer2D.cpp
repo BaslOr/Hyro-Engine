@@ -48,12 +48,17 @@ namespace Hyro {
 		//For test purposes only
 		//Rest to m_Data.Vertices when uniforms are implemted in vulkan
 		const std::vector<Vertex> vertices = {
-			{{0.0f, -0.5f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-			{{0.5f, 0.5f , 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-			{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}
+			{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
+			{{0.5f, -0.5f , 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+			{{0.5f, 0.5f  , 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}},
+			{{-0.5f, 0.5f , 0.0f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}
 		};
 		m_Data.VBO->SetData(vertices);
-		m_Data.IBO->SetData(m_Data.Indices);
+		//The same goes for indices
+		const std::vector<uint32_t> indices = {
+			0, 1, 2, 2, 3, 0
+		};
+		m_Data.IBO->SetData(indices);
 
 
 		//TODO: Get size from Framebuffer

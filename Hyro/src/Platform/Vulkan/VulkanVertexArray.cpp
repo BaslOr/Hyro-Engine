@@ -17,7 +17,7 @@ namespace Hyro {
 	{
 		for (const auto vertexBuffer : m_VerexBuffers)
 			vertexBuffer->Bind(commandBuffer);
-		m_IndexBuffer->Bind();//Dont forget to put command buffer in as parameter when creating it on vulkna side
+		m_IndexBuffer->Bind(commandBuffer);
 	}
 
 }

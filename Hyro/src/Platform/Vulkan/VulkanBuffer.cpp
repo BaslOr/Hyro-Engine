@@ -64,6 +64,11 @@ namespace Hyro {
 		VulkanCommandPool::EndSingleTimeCommands(commandBuffer);
 	}
 
+
+	///////////////////////////////////////////////////////////////////////////
+	//////////////////////////Vertex Buffer////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
 	VulkanVertexBuffer::VulkanVertexBuffer()
 	{
 		//Query Max Size
@@ -122,6 +127,11 @@ namespace Hyro {
 		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);
 	}
 
+	void VulkanVertexBuffer::Bind() const
+	{
+		HYRO_LOG_CORE_WARN("Tried to bind Vertex Buffer without a CommandBuffer. This may Indicate a Bug!");
+	}
+
 	void VulkanVertexBuffer::Bind(void* commandBuffer) const
 	{
 		VkDeviceSize offsets[] = { 0 };
@@ -158,6 +168,82 @@ namespace Hyro {
 		attributeDescriptions[2].offset = offsetof(Vertex, Color);
 
 		return attributeDescriptions;
+	}
+
+
+
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	//////////////////////////Index Buffer/////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	VulkanIndexBuffer::VulkanIndexBuffer()
+	{
+		//Query Max Size
+		VkDeviceSize bufferSize = 100000;
+		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
+	}
+
+	VulkanIndexBuffer::VulkanIndexBuffer(const std::vector<uint32_t>& indices)
+	{
+		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingMemory;
+		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
+
+		void* data;
+		vkMapMemory(VulkanDevice::GetVkDevice(), m_Memory, 0, bufferSize, 0, &data);
+		memcpy(data, indices.data(), bufferSize);
+		vkUnmapMemory(VulkanDevice::GetVkDevice(), m_Memory);
+
+		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
+
+		CopyBuffer(stagingBuffer, m_Buffer, bufferSize);
+
+		vkDestroyBuffer(VulkanDevice::GetVkDevice(), stagingBuffer, g_VulkanAllocationCallback);
+		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);
+	}
+
+	VulkanIndexBuffer::~VulkanIndexBuffer()
+	{
+	}
+
+	void VulkanIndexBuffer::Bind() const
+	{
+		HYRO_LOG_CORE_WARN("Tried to bind Index Buffer without a CommandBuffer. This may Indicate a Bug!");
+	}
+
+	void VulkanIndexBuffer::Bind(void* commandBuffer) const
+	{
+		VkDeviceSize offset = 0;
+		vkCmdBindIndexBuffer((VkCommandBuffer)commandBuffer, m_Buffer, offset, VK_INDEX_TYPE_UINT32);
+	}
+
+	void VulkanIndexBuffer::SetData(const std::vector<uint32_t>& indices)
+	{
+		VkDeviceSize bufferSize = 100000;
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingMemory;
+		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
+
+		//Query Max Size
+		void* data;
+		vkMapMemory(VulkanDevice::GetVkDevice(), stagingMemory, 0, bufferSize, 0, &data);
+			memcpy(data, indices.data(), bufferSize);
+		vkUnmapMemory(VulkanDevice::GetVkDevice(), stagingMemory);
+
+		CopyBuffer(stagingBuffer, m_Buffer, bufferSize);
+
+		vkDestroyBuffer(VulkanDevice::GetVkDevice(), stagingBuffer, g_VulkanAllocationCallback);
+		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);
 	}
 
 }

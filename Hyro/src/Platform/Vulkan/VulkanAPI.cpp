@@ -155,7 +155,7 @@ namespace Hyro {
 
         vertexArray->Bind(m_CommandBuffers[m_CurrentFrame]);
 
-        vkCmdDraw(m_CommandBuffers[m_CurrentFrame], count, 1, 0, 0);
+        vkCmdDrawIndexed(m_CommandBuffers[m_CurrentFrame], count, 1, 0, 0, 0);
     }
 
     void VulkanAPI::SetClearColor(const glm::vec4& color)

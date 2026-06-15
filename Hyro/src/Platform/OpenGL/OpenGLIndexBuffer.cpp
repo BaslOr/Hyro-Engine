@@ -35,9 +35,9 @@ namespace Hyro {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID);
 	}
 
-	void OpenGLIndexBuffer::UnBind() const
+	void OpenGLIndexBuffer::Bind(void* commandBuffer) const
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		HYRO_LOG_CORE_WARN("IndexBuffer::Bind(...) was called with a commandBuffer on OpenGL side. This may indicate a Bug!");
 	}
 
 }
