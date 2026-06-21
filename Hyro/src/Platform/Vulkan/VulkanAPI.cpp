@@ -19,6 +19,7 @@ namespace Hyro {
 	VulkanAPI::~VulkanAPI()
 	{
 		vkQueueWaitIdle(VulkanDevice::GetPresentationQueue());
+        vkDeviceWaitIdle(VulkanDevice::GetVkDevice());
 
 		vkFreeCommandBuffers(
 			VulkanDevice::GetVkDevice(),

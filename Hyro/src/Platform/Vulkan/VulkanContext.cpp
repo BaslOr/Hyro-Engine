@@ -20,6 +20,7 @@ namespace Hyro {
 
 	VulkanContext::~VulkanContext()
 	{
+		vkDeviceWaitIdle(VulkanDevice::GetVkDevice());
 	}
 
 	void VulkanContext::ResizeViewport(uint32_t width, uint32_t height)

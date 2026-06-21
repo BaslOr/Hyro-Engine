@@ -288,16 +288,19 @@ namespace Hyro {
 
 	VulkanUniformBuffer::~VulkanUniformBuffer()
 	{
-		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
+		vkDeviceWaitIdle(VulkanDevice::GetVkDevice());
 
+		VulkanDescriptorPool::FreeDescriptorSet(m_DescriptorSets);
+		vkDestroyDescriptorSetLayout(VulkanDevice::GetVkDevice(), s_DescriptorSetLayout, g_VulkanAllocationCallback);
 
-		for (uint32_t i = 0; i < maxFramesInFlight; i++)
+		uint32_t i = 0;
+		for (auto memory : m_BufferMemories)
 		{
 			vkDestroyBuffer(VulkanDevice::GetVkDevice(), m_Buffers[i], g_VulkanAllocationCallback);
 			vkFreeMemory(VulkanDevice::GetVkDevice(), m_BufferMemories[i], g_VulkanAllocationCallback);
-		}
 
-		vkDestroyDescriptorSetLayout(VulkanDevice::GetVkDevice(), s_DescriptorSetLayout, g_VulkanAllocationCallback);
+			i++;
+		}
 	}
 
 	void VulkanUniformBuffer::Bind() const
