@@ -3,6 +3,10 @@
 
 namespace Hyro {
 
+	VulkanVertexArray::VulkanVertexArray()
+	{
+	}
+
 	void VulkanVertexArray::AddVertexBuffer(Ref<VertexBuffer> buffer)
 	{
 		m_VerexBuffers.push_back(buffer);

@@ -13,16 +13,17 @@ namespace Hyro {
 		void Bind() const override;
 		void Bind(void* commandBuffer) const override {}
 
-		void SetVertexAttribPointer(uint32_t index, int size, TYPE type, int stride, int pointer) override;
-		void EnableVertexAttribArray(uint16_t index) override;
-
 		void AddVertexBuffer(Ref<VertexBuffer> buffer) override;
 		void SetIndexBuffer(Ref<IndexBuffer> buffer) override;
 
+		void SetLayout(const VertexLayout& layout) override;
+
+	private:
+		int AttributeTypeToOpenGLEnum(VertexAttributeType type) const;
+		uint32_t AttributeTypeToAttributeSize(VertexAttributeType type) const;
+
 	private:
 		uint32_t m_ID;
-
-		int InternalTypeToGLType(TYPE type);
 	};
 	
 }

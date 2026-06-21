@@ -8,7 +8,7 @@ namespace Hyro {
 	OpenGLVertexArray::OpenGLVertexArray()
 		: m_ID(0)
 	{
-		glCreateVertexArrays(1, &m_ID);
+		glGenVertexArrays(1, &m_ID);
 		Bind();
 	}
 
@@ -20,18 +20,6 @@ namespace Hyro {
 	void OpenGLVertexArray::Bind() const
 	{
 		glBindVertexArray(m_ID);
-	}
-
-	void OpenGLVertexArray::SetVertexAttribPointer(uint32_t index, int size, TYPE type, int stride, int pointer)
-	{
-		Bind();
-		glVertexAttribPointer(index, size, InternalTypeToGLType(type), GL_FALSE, stride, (void*)pointer);
-	}
-
-	void OpenGLVertexArray::EnableVertexAttribArray(uint16_t index)
-	{
-		Bind();
-		glEnableVertexAttribArray(index);
 	}
 
 	void OpenGLVertexArray::AddVertexBuffer(Ref<VertexBuffer> buffer)
@@ -46,12 +34,53 @@ namespace Hyro {
 		buffer->Bind();
 	}
 
-	int OpenGLVertexArray::InternalTypeToGLType(TYPE type)
+	void OpenGLVertexArray::SetLayout(const VertexLayout& layout)
+	{
+		uint32_t i = 0;
+		uint32_t offset = 0;
+		for (const auto type : layout.GetVertexAttributes()) {
+			glVertexAttribPointer(i, AttributeTypeToAttributeSize(type), AttributeTypeToOpenGLEnum(type), GL_FALSE, layout.GetStride(), (void*)offset);
+			glEnableVertexAttribArray(i);
+
+			offset += layout.GetVertexAttributeSize(type);
+			i++;
+		}
+	}
+
+	int OpenGLVertexArray::AttributeTypeToOpenGLEnum(VertexAttributeType type) const
 	{
 		switch (type)
 		{
-		case VertexArray::FLOAT:
+		case Hyro::VertexAttributeType::FLOAT:
 			return GL_FLOAT;
+			break;
+		case Hyro::VertexAttributeType::FLOAT2:
+			return GL_FLOAT;
+			break;
+		case Hyro::VertexAttributeType::FLOAT3:
+			return GL_FLOAT;
+			break;
+		case Hyro::VertexAttributeType::FLOAT4:
+			return GL_FLOAT;
+			break;
+		}
+	}
+
+	uint32_t OpenGLVertexArray::AttributeTypeToAttributeSize(VertexAttributeType type) const
+	{
+		switch (type)
+		{
+		case Hyro::VertexAttributeType::FLOAT:
+			return 1;
+			break;
+		case Hyro::VertexAttributeType::FLOAT2:
+			return 2;
+			break;
+		case Hyro::VertexAttributeType::FLOAT3:
+			return 3;
+			break;
+		case Hyro::VertexAttributeType::FLOAT4:
+			return 4;
 			break;
 		}
 	}

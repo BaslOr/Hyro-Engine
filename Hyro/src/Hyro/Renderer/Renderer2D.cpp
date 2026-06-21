@@ -9,25 +9,23 @@ namespace Hyro {
 
 	void Renderer2D::Init(const GraphicsPipelineSettings& settings)
 	{
-		m_Data.Shader = Shader::Create(settings);
 		m_Data.VAO = VertexArray::Create();
 		m_Data.VBO = VertexBuffer::Create(m_Data.MaxVerticesCount * sizeof(Vertex));//It may be possible that this won't work when implementing dynamic Vertex Layout in the future
 		m_Data.Vertices.resize(m_Data.MaxVerticesCount);
 		m_Data.IBO = IndexBuffer::Create(m_Data.MaxIndicesCount * sizeof(uint32_t));
 		m_Data.Indices.resize(m_Data.MaxIndicesCount);
 
-		//Set dynamic Layout
+		m_Data.VAO->AddVertexBuffer(m_Data.VBO);
+		m_Data.VAO->SetIndexBuffer(m_Data.IBO);
 
-		if (m_Data.VAO != nullptr) {
-			m_Data.VAO->SetIndexBuffer(m_Data.IBO);
-			m_Data.VAO->AddVertexBuffer(m_Data.VBO);
-			m_Data.VAO->SetVertexAttribPointer(0, 3, VertexArray::TYPE::FLOAT, 9 * sizeof(float), 0);
-			m_Data.VAO->SetVertexAttribPointer(1, 2, VertexArray::TYPE::FLOAT, 9 * sizeof(float), offsetof(Vertex, UV));
-			m_Data.VAO->SetVertexAttribPointer(2, 4, VertexArray::TYPE::FLOAT, 9 * sizeof(float), offsetof(Vertex, Color));
-			m_Data.VAO->EnableVertexAttribArray(0);
-			m_Data.VAO->EnableVertexAttribArray(1);
-			m_Data.VAO->EnableVertexAttribArray(2);
-		}
+		VertexLayout vertexLayout{};
+		vertexLayout.Push<VertexAttributeType::FLOAT3>();
+		vertexLayout.Push<VertexAttributeType::FLOAT2>();
+		vertexLayout.Push<VertexAttributeType::FLOAT4>();
+		m_Data.VAO->SetLayout(vertexLayout);
+
+
+		m_Data.Shader = Shader::Create(settings);
 
 		RenderCommand::SetClearColor(glm::vec4(0.2f, 0.5f, 0.8f, 1.f));
 

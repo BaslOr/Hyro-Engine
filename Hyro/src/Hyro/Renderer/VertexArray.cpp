@@ -25,4 +25,25 @@ namespace Hyro {
 		}
 	}
 
+
+
+	uint32_t VertexLayout::GetVertexAttributeSize(VertexAttributeType type) const
+	{
+		switch (type)
+		{
+		case Hyro::VertexAttributeType::FLOAT:
+			return 4;
+			break;
+		case Hyro::VertexAttributeType::FLOAT2:
+			return 8;
+			break;
+		case Hyro::VertexAttributeType::FLOAT3:
+			return 12;
+			break;
+		case Hyro::VertexAttributeType::FLOAT4:
+			return 16;
+			break;
+		}
+	}
+
 }
