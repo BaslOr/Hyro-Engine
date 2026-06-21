@@ -8,7 +8,7 @@
 
 namespace Hyro {
 
-	Ref<IndexBuffer> Hyro::IndexBuffer::Create()
+	Ref<IndexBuffer> Hyro::IndexBuffer::Create(uint32_t size)
 	{
 		switch (Renderer::GetAPI())
 		{
@@ -20,7 +20,7 @@ namespace Hyro {
 			return CreateRef<OpenGLIndexBuffer>();
 			break;
 		case GraphicsAPIType::Vulkan:
-			return CreateRef<VulkanIndexBuffer>();
+			return CreateRef<VulkanIndexBuffer>(size);
 			break;
 		}
 	}

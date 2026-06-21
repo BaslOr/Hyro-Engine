@@ -71,32 +71,31 @@ namespace Hyro {
 	//////////////////////////Vertex Buffer////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
-	VulkanVertexBuffer::VulkanVertexBuffer()
+	VulkanVertexBuffer::VulkanVertexBuffer(uint32_t size)
+		: m_Size(size)
 	{
-		//Query Max Size
-		VkDeviceSize bufferSize = 100000;
-		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
 	}
 
 	VulkanVertexBuffer::VulkanVertexBuffer(const std::vector<Vertex>& vertices)
 	{
-		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+		m_Size = sizeof(vertices[0]) * vertices.size();
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingMemory;
-		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
 
 		void* data;
-		vkMapMemory(VulkanDevice::GetVkDevice(), m_Memory, 0, bufferSize, 0, &data);
-			memcpy(data, vertices.data(), bufferSize);
+		vkMapMemory(VulkanDevice::GetVkDevice(), m_Memory, 0, m_Size, 0, &data);
+			memcpy(data, vertices.data(), m_Size);
 		vkUnmapMemory(VulkanDevice::GetVkDevice(), m_Memory);
 
-		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
 
-		CopyBuffer(stagingBuffer, m_Buffer, bufferSize);
+		CopyBuffer(stagingBuffer, m_Buffer, m_Size);
 
 		vkDestroyBuffer(VulkanDevice::GetVkDevice(), stagingBuffer, g_VulkanAllocationCallback);
 		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);
@@ -110,20 +109,18 @@ namespace Hyro {
 
 	void VulkanVertexBuffer::SetData(const std::vector<Vertex>& vertices)
 	{
-		VkDeviceSize bufferSize = 100000;
-
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingMemory;
-		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
 
 		//Query Max Size
 		void* data;
-		vkMapMemory(VulkanDevice::GetVkDevice(), stagingMemory, 0, bufferSize, 0, &data);
-			memcpy(data, vertices.data(), bufferSize);
+		vkMapMemory(VulkanDevice::GetVkDevice(), stagingMemory, 0, m_Size, 0, &data);
+			memcpy(data, vertices.data(), m_Size);
 		vkUnmapMemory(VulkanDevice::GetVkDevice(), stagingMemory);
 
-		CopyBuffer(stagingBuffer, m_Buffer, bufferSize);
+		CopyBuffer(stagingBuffer, m_Buffer, m_Size);
 
 		vkDestroyBuffer(VulkanDevice::GetVkDevice(), stagingBuffer, g_VulkanAllocationCallback);
 		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);
@@ -181,32 +178,31 @@ namespace Hyro {
 	//////////////////////////Index Buffer/////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
-	VulkanIndexBuffer::VulkanIndexBuffer()
+	VulkanIndexBuffer::VulkanIndexBuffer(uint32_t size)
+		:m_Size(size)
 	{
-		//Query Max Size
-		VkDeviceSize bufferSize = 100000;
-		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
 	}
 
 	VulkanIndexBuffer::VulkanIndexBuffer(const std::vector<uint32_t>& indices)
 	{
-		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+		m_Size = sizeof(indices[0]) * indices.size();
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingMemory;
-		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
 
 		void* data;
-		vkMapMemory(VulkanDevice::GetVkDevice(), m_Memory, 0, bufferSize, 0, &data);
-		memcpy(data, indices.data(), bufferSize);
+		vkMapMemory(VulkanDevice::GetVkDevice(), m_Memory, 0, m_Size, 0, &data);
+		memcpy(data, indices.data(), m_Size);
 		vkUnmapMemory(VulkanDevice::GetVkDevice(), m_Memory);
 
-		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
 
-		CopyBuffer(stagingBuffer, m_Buffer, bufferSize);
+		CopyBuffer(stagingBuffer, m_Buffer, m_Size);
 
 		vkDestroyBuffer(VulkanDevice::GetVkDevice(), stagingBuffer, g_VulkanAllocationCallback);
 		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);
@@ -231,20 +227,18 @@ namespace Hyro {
 
 	void VulkanIndexBuffer::SetData(const std::vector<uint32_t>& indices)
 	{
-		VkDeviceSize bufferSize = 100000;
-
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingMemory;
-		CreateBufer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
 
 		//Query Max Size
 		void* data;
-		vkMapMemory(VulkanDevice::GetVkDevice(), stagingMemory, 0, bufferSize, 0, &data);
-			memcpy(data, indices.data(), bufferSize);
+		vkMapMemory(VulkanDevice::GetVkDevice(), stagingMemory, 0, m_Size, 0, &data);
+			memcpy(data, indices.data(), m_Size);
 		vkUnmapMemory(VulkanDevice::GetVkDevice(), stagingMemory);
 
-		CopyBuffer(stagingBuffer, m_Buffer, bufferSize);
+		CopyBuffer(stagingBuffer, m_Buffer, m_Size);
 
 		vkDestroyBuffer(VulkanDevice::GetVkDevice(), stagingBuffer, g_VulkanAllocationCallback);
 		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);

@@ -11,8 +11,10 @@ namespace Hyro {
 	{
 		m_Data.Shader = Shader::Create("Assets/Shaders/vertex.glsl", "Assets/Shaders/fragment.glsl");
 		m_Data.VAO = VertexArray::Create();
-		m_Data.VBO = VertexBuffer::Create();
-		m_Data.IBO = IndexBuffer::Create();
+		m_Data.VBO = VertexBuffer::Create(m_Data.MaxVerticesCount * sizeof(Vertex));//It may be possible that this won't work when implementing dynamic Vertex Layout in the future
+		m_Data.Vertices.resize(m_Data.MaxVerticesCount);
+		m_Data.IBO = IndexBuffer::Create(m_Data.MaxIndicesCount * sizeof(uint32_t));
+		m_Data.Indices.resize(m_Data.MaxIndicesCount);
 		m_Data.UBO = UniformBuffer::Create();
 
 		if (m_Data.VAO != nullptr) {
@@ -62,6 +64,13 @@ namespace Hyro {
 
 	void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
 	{
+		if (m_Data.Vertices.size() + 4 > m_Data.MaxVerticesCount) {
+			HYRO_ASSERT(false);
+		}
+		if (m_Data.Indices.size() + 6 > m_Data.MaxIndicesCount) {
+			HYRO_ASSERT(false);
+		}
+
 		//Bottom, Left
 		m_Data.Vertices.push_back({ position.x, position.y, 0.0f,
 			0.f, 0.f,

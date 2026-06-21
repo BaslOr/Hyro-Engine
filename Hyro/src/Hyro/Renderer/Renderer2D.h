@@ -18,12 +18,14 @@ namespace Hyro {
 		std::vector<Vertex> Vertices;
 		std::vector<uint32_t> Indices;
 		uint32_t Count = 0;
+
+		uint32_t MaxVerticesCount = 2000;
+		uint32_t MaxIndicesCount = 6000;
 	};
+
 
 	class Renderer2D {
 	public:
-
-
 		static void DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	private:

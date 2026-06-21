@@ -9,6 +9,12 @@ namespace Hyro {
 		glm::vec2 UV;
 		glm::vec4 Color;
 
+		Vertex()
+			: Position(0.f, 0.f, 0.f), UV(0.f, 0.f), Color(0.f, 0.f, 0.f, 0.f)
+		{
+
+		}
+
 		Vertex(const glm::vec3& position, const glm::vec2& uv, const glm::vec4& color)
 			: Position(position), UV(uv), Color(color)
 		{

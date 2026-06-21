@@ -8,7 +8,7 @@ namespace Hyro {
 
 	class VulkanVertexBuffer : public VertexBuffer {
 	public:
-		VulkanVertexBuffer();
+		VulkanVertexBuffer(uint32_t size);
 		VulkanVertexBuffer(const std::vector<Vertex>& vertices);
 		~VulkanVertexBuffer();
 
@@ -23,13 +23,16 @@ namespace Hyro {
 	private:
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_Memory;
+		uint32_t m_Size;
 	};
+
+
 
 
 
 	class VulkanIndexBuffer : public IndexBuffer {
 	public:
-		VulkanIndexBuffer();
+		VulkanIndexBuffer(uint32_t size);
 		VulkanIndexBuffer(const std::vector<uint32_t>& indices);
 		~VulkanIndexBuffer();
 
@@ -40,8 +43,11 @@ namespace Hyro {
 	private:
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_Memory;
-
+		uint32_t m_Size;
 	};
+
+
+
 
 	class VulkanUniformBuffer : public UniformBuffer {
 	public:

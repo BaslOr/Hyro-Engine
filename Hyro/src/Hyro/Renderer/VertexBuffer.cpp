@@ -9,7 +9,7 @@
 
 namespace Hyro {
 
-	Ref<VertexBuffer> VertexBuffer::Create()
+	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
 	{
 		switch (Renderer::GetAPI())
 		{
@@ -21,7 +21,7 @@ namespace Hyro {
 			return CreateRef<OpenGLVertexBuffer>();
 			break;
 		case GraphicsAPIType::Vulkan:
-			return CreateRef<VulkanVertexBuffer>();
+			return CreateRef<VulkanVertexBuffer>(size);
 			break;
 		}
 	}

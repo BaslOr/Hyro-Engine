@@ -7,7 +7,7 @@ namespace Hyro {
 
 	class IndexBuffer {
 	public:
-		static Ref<IndexBuffer> Create();
+		static Ref<IndexBuffer> Create(uint32_t size);
 		static Ref<IndexBuffer> Create(const std::vector<uint32_t>& indices);
 
 		virtual void Bind() const = 0;

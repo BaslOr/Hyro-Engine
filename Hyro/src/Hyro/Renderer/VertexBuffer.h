@@ -11,7 +11,7 @@ namespace Hyro {
 		virtual void Bind() const = 0;
 		virtual void Bind(void* commandBuffer) const = 0;
 
-		static Ref<VertexBuffer> Create();
+		static Ref<VertexBuffer> Create(uint32_t size);
 		static Ref<VertexBuffer> Create(const std::vector<Vertex>& vertices);
 
 	private:
