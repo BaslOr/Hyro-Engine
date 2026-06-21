@@ -28,6 +28,8 @@ namespace Hyro {
         auto vertShaderCode = ReadFile(settings.VertexShaderPath);
         auto fragShaderCode = ReadFile(settings.FragmentShaderPath);
 
+        //Reflections here
+
         VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
 

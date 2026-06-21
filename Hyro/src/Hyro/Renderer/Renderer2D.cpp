@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Hyro/Renderer/RenderCommand.h"
 #include "Hyro/Renderer/Renderer.h"
+#include "Hyro/Core/Application.h"
 
 namespace Hyro {
 
@@ -51,7 +52,14 @@ namespace Hyro {
 		m_Data.IBO->SetData(m_Data.Indices);
 
 		//TODO: Get size from Framebuffer
-		glm::mat4 projection = glm::ortho(0.f, 1280.f, 720.f, 0.f);
+		Application& app = Application::Get();
+		float width = static_cast<float>(app.GetWindow()->GetWidth());
+		float height = static_cast<float>(app.GetWindow()->GetHeight());
+		glm::mat4 projection;
+		if (Renderer::GetAPI() == GraphicsAPIType::Vulkan)
+			projection = glm::ortho(0.f, width, height, 0.f);
+		else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
+			projection = glm::ortho(0.f, width, 0.f, height);
 		m_Data.Shader->setUniformMat4("u_ProjectionMatrix", projection);
 
 		RenderCommand::Submit(m_Data.VAO, m_Data.Shader, static_cast<uint32_t>(m_Data.Indices.size()));
