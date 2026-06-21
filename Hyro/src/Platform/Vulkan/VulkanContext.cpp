@@ -1,6 +1,8 @@
 #pragma once
 #include "pch.h"
 #include "Platform/Vulkan/VulkanContext.h"
+#include "Platform/Vulkan/VulkanCommandPool.h"
+#include "Platform/Vulkan/VulkanDescriptorPool.h"
 
 namespace Hyro {
 
@@ -12,6 +14,8 @@ namespace Hyro {
 		m_Surface = CreateRef<VulkanSurface>(m_Instance, windowHandle);
 		VulkanDevice::Init(m_Instance, m_Surface);
 		m_Swapchain = CreateRef<VulkanSwapchain>(m_Surface);
+		VulkanCommandPool::Init();
+		VulkanDescriptorPool::Init();
 	}
 
 	VulkanContext::~VulkanContext()

@@ -7,6 +7,7 @@ namespace Hyro {
 	class VulkanCommandPool {
 	public:		
 		static void Init();
+		static void Destroy();
 
 		static std::vector<VkCommandBuffer> AllocateCommandBuffers(uint32_t count, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 		static void FreeCommandBuffers(const std::vector<VkCommandBuffer>& commandBuffers);

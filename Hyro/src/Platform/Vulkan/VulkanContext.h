@@ -23,6 +23,10 @@ namespace Hyro {
 		VkFormat GetSwapchainImageFormat() const { return m_Swapchain->GetImageFormat(); } //Later move to modern pipeline thing, look up on claude ;)
 		VkRenderPass GetRenderPass() const { return m_Swapchain->GetRenderPass(); }
 
+		inline uint16_t GetMaxFramesInFlight() const { return m_MaxFramesInFlight; }
+		inline uint16_t GetCurrentFrameIndex() const { return m_CurrentFrame; }
+		inline void IncreaseImageIndex() { m_CurrentFrame = (m_CurrentFrame + 1) % m_MaxFramesInFlight; }
+
 
 		//Temporary until we have a better way to pass the Vulkan objects to the ImGui Vulkan backend
 		inline VkInstance GetInstance() const { return m_Instance->GetVkInstance(); }
@@ -42,6 +46,11 @@ namespace Hyro {
 		Ref<VulkanInstance> m_Instance; //Sets up Debug Messenger as well
 		Ref<VulkanSurface> m_Surface;
 		Ref<VulkanSwapchain> m_Swapchain;
+
+
+		size_t m_MaxFramesInFlight = 2;
+		size_t m_CurrentFrame = 0;
+
 	};
 
 }

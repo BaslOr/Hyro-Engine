@@ -15,8 +15,7 @@ namespace Hyro {
 		static void BeginScene();
 		static void EndScene();
 
-		static void Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count);
-		static void Submit(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader, uint32_t count);
+		static void Submit(Ref<VertexArray> vertexArray, Ref<UniformBuffer> ubo, Ref<Shader> shader, uint32_t count);
 
 		static void SetClearColor(const glm::vec4& color);
 

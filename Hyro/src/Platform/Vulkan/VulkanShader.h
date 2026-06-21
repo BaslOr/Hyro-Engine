@@ -16,5 +16,8 @@ namespace Hyro::Vulkan {
 		void setUniformVec3(const std::string& name, const glm::vec3& value) const override {}
 		void SetUniformVec4(const std::string& name, const glm::vec4& value) const override {}
 		void setUniformMat4(const std::string& name, const glm::mat4& value) const override {}
+
+	private:
+
 	};
 }

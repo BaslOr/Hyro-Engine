@@ -1,9 +1,10 @@
 #pragma once
 
-#include "VertexArray.h"
-#include "Shader.h"
-#include "Vertex.h"
 #include "Hyro/Core/Memory.h"
+#include "Hyro/Renderer/VertexArray.h"
+#include "Hyro/Renderer/Shader.h"
+#include "Hyro/Renderer/Vertex.h"
+#include "Hyro/Renderer/UniformBuffer.h"
 
 namespace Hyro {
 
@@ -11,6 +12,7 @@ namespace Hyro {
 		Ref<VertexArray> VAO;
 		Ref<VertexBuffer> VBO;
 		Ref<IndexBuffer> IBO;
+		Ref<UniformBuffer> UBO;
 		Ref<Shader> Shader;
 
 		std::vector<Vertex> Vertices;

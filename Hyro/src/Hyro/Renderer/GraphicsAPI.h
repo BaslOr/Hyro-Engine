@@ -5,6 +5,7 @@
 #include "Hyro/Renderer/GraphicsPipeline.h"
 #include "Hyro/Renderer/Shader.h"
 #include "Hyro/Renderer/VertexArray.h"
+#include "Hyro/Renderer/UniformBuffer.h"
 
 namespace Hyro {
 
@@ -22,7 +23,7 @@ namespace Hyro {
 		virtual void BeginScene() = 0;
 		virtual void EndScene() = 0;
 
-		virtual void Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count) = 0;
+		virtual void Submit(Ref<VertexArray> vertexArray, Ref<UniformBuffer> uniformBuffer, Ref<Shader> shader, uint32_t count) = 0;
 
 		virtual void SetClearColor(const glm::vec4&	color) = 0;
 	};

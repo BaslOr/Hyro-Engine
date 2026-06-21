@@ -12,7 +12,7 @@
 #include "Platform/Vulkan/VulkanCommandPool.h"//Temporary include until we have a better solution for passing command buffers to the ImGui Vulkan backend
 #include <GLFW/glfw3.h>
 #include <Platform/Vulkan/VulkanContext.h>
-#include <Platform/Vulkan/VulkanAPI.h>
+#include <Platform/Vulkan/VulkanDescriptorPool.h>
 
 
 namespace Hyro {
@@ -197,28 +197,6 @@ namespace Hyro {
             ImGui_ImplGlfw_InitForVulkan(window, true);
 
             VulkanContext* context = &VulkanContext::Get();
-            VkDescriptorPool descriptorPool;
-
-            // Create Descriptor Pool
-            // If you wish to load e.g. additional textures you may need to alter pools sizes and maxSets.
-            {
-                VkDescriptorPoolSize pool_sizes[] =
-                {
-                    { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE },
-                };
-                VkDescriptorPoolCreateInfo pool_info = {};
-                pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-                pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-                pool_info.maxSets = 0;
-                for (VkDescriptorPoolSize& pool_size : pool_sizes)
-                    pool_info.maxSets += pool_size.descriptorCount;
-                pool_info.poolSizeCount = (uint32_t)IM_COUNTOF(pool_sizes);
-                pool_info.pPoolSizes = pool_sizes;
-                if (vkCreateDescriptorPool(VulkanDevice::GetVkDevice(), &pool_info, nullptr, &descriptorPool)) {
-                    HYRO_ASSERT(false, "Failed to create ImGui descriptor pool!");
-                }
-
-            }
 
             uint32_t graphicsFamily = VulkanDevice::GetQueueFamilyIndices().GraphcisQueueFamily.value();
 
@@ -230,10 +208,10 @@ namespace Hyro {
             initInfo.QueueFamily = graphicsFamily;
             initInfo.Queue = VulkanDevice::GetGraphicsQueue();
             initInfo.PipelineCache = VK_NULL_HANDLE;
-            initInfo.DescriptorPool = descriptorPool;
+            initInfo.DescriptorPool = VulkanDescriptorPool::GetVkPool();
             initInfo.MinImageCount = context->GetMinImageCount();
             initInfo.ImageCount = context->GetImageCount();
-            initInfo.Allocator = nullptr;
+            initInfo.Allocator = g_VulkanAllocationCallback;
             initInfo.PipelineInfoMain.RenderPass = context->GetRenderPass();
             initInfo.PipelineInfoMain.Subpass = 0;
             initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;

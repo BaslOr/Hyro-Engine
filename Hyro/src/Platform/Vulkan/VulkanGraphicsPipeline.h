@@ -12,8 +12,10 @@ namespace Hyro {
 		~VulkanGraphicsPipeline();
 
 		inline VkPipeline GetVkPipeline() const { return m_Pipeline; }
+		inline VkPipelineLayout GetVkPipelineLayout() const { return m_PipelineLayout; }
 
 	private:
+		void CreatePipeline(const GraphicsPipelineSettings& settings);
 
 		std::vector<char> ReadFile(const std::string& filepath);
 		VkShaderModule CreateShaderModule(const std::vector<char>& code);

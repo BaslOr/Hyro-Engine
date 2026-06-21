@@ -13,6 +13,7 @@ namespace Hyro {
 		m_Data.VAO = VertexArray::Create();
 		m_Data.VBO = VertexBuffer::Create();
 		m_Data.IBO = IndexBuffer::Create();
+		m_Data.UBO = UniformBuffer::Create();
 
 		if (m_Data.VAO != nullptr) {
 			m_Data.VAO->SetIndexBuffer(m_Data.IBO);
@@ -45,27 +46,18 @@ namespace Hyro {
 
 	void Renderer2D::EndScene()
 	{
-		//For test purposes only
-		//Rest to m_Data.Vertices when uniforms are implemted in vulkan
-		const std::vector<Vertex> vertices = {
-			{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-			{{0.5f, -0.5f , 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-			{{0.5f, 0.5f  , 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}},
-			{{-0.5f, 0.5f , 0.0f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}
-		};
-		m_Data.VBO->SetData(vertices);
-		//The same goes for indices
-		const std::vector<uint32_t> indices = {
-			0, 1, 2, 2, 3, 0
-		};
-		m_Data.IBO->SetData(indices);
-
+		m_Data.VBO->SetData(m_Data.Vertices);
+		m_Data.IBO->SetData(m_Data.Indices);
 
 		//TODO: Get size from Framebuffer
-		glm::mat4 projection = glm::ortho(0.f, 1280.f, 0.f, 720.f);
+		glm::mat4 projection = glm::ortho(0.f, 1280.f, 720.f, 0.f);
 		m_Data.Shader->setUniformMat4("u_ProjectionMatrix", projection);
 
-		RenderCommand::Submit(m_Data.VAO, m_Data.Shader, static_cast<uint32_t>(m_Data.Indices.size()));
+		UniformBufferData data{};
+		data.Projection = projection;
+		m_Data.UBO->SetData(data);
+
+		RenderCommand::Submit(m_Data.VAO, m_Data.UBO, m_Data.Shader, static_cast<uint32_t>(m_Data.Indices.size()));
 	}
 
 	void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)

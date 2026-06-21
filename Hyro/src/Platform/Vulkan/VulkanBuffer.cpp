@@ -1,8 +1,10 @@
 #include "pch.h"
 #include "Platform/Vulkan/VulkanBuffer.h"
 
+#include "Platform/Vulkan/VulkanContext.h"
 #include "Platform/Vulkan/VulkanDevice.h"
 #include "Platform/Vulkan/VulkanCommandPool.h"
+#include "Platform/Vulkan/VulkanDescriptorPool.h"
 
 namespace Hyro {
 	
@@ -212,6 +214,8 @@ namespace Hyro {
 
 	VulkanIndexBuffer::~VulkanIndexBuffer()
 	{
+		vkDestroyBuffer(VulkanDevice::GetVkDevice(), m_Buffer, g_VulkanAllocationCallback);
+		vkFreeMemory(VulkanDevice::GetVkDevice(), m_Memory, g_VulkanAllocationCallback);
 	}
 
 	void VulkanIndexBuffer::Bind() const
@@ -244,6 +248,112 @@ namespace Hyro {
 
 		vkDestroyBuffer(VulkanDevice::GetVkDevice(), stagingBuffer, g_VulkanAllocationCallback);
 		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);
+	}
+
+	VulkanUniformBuffer::VulkanUniformBuffer()
+	{
+		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
+
+		m_Buffers.resize(maxFramesInFlight);
+		m_DescriptorSets.resize(maxFramesInFlight);
+		m_MappedMemories.resize(maxFramesInFlight);
+		m_BufferMemories.resize(maxFramesInFlight);
+
+		m_DescriptorSets = VulkanDescriptorPool::AllocateDescriptorSets(s_DescriptorSetLayout, maxFramesInFlight);
+
+		VkDeviceSize bufferSize = sizeof(UniformBufferData);
+
+		for (size_t i = 0; i < maxFramesInFlight; i++)
+		{
+			CreateBufer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_Buffers[i], m_BufferMemories[i]);
+
+			VkDeviceSize offset = 0;
+			vkMapMemory(VulkanDevice::GetVkDevice(), m_BufferMemories[i], offset, bufferSize, 0, &m_MappedMemories[i]);
+
+
+			VkDescriptorBufferInfo bufferInfo{};
+			bufferInfo.buffer = m_Buffers[i];
+			bufferInfo.offset = 0;
+			bufferInfo.range = bufferSize;
+
+			VkWriteDescriptorSet descriptorWrite{};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = m_DescriptorSets[i];
+			descriptorWrite.dstBinding = 0;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.pBufferInfo = &bufferInfo;
+			descriptorWrite.pImageInfo = nullptr; // Optional
+			descriptorWrite.pTexelBufferView = nullptr; // Optional
+
+			vkUpdateDescriptorSets(VulkanDevice::GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
+		}
+	}
+
+	VulkanUniformBuffer::~VulkanUniformBuffer()
+	{
+		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
+
+
+		for (uint32_t i = 0; i < maxFramesInFlight; i++)
+		{
+			vkDestroyBuffer(VulkanDevice::GetVkDevice(), m_Buffers[i], g_VulkanAllocationCallback);
+			vkFreeMemory(VulkanDevice::GetVkDevice(), m_BufferMemories[i], g_VulkanAllocationCallback);
+		}
+
+		vkDestroyDescriptorSetLayout(VulkanDevice::GetVkDevice(), s_DescriptorSetLayout, g_VulkanAllocationCallback);
+	}
+
+	void VulkanUniformBuffer::Bind() const
+	{
+		HYRO_LOG_CORE_WARN("Tried to bind Unifrom Buffer without commandBuffer. This may indicate a bug!");
+	}
+
+	void VulkanUniformBuffer::Bind(void* commandBuffer, void* pipelineLayout) const
+	{
+		uint32_t currentFrame = VulkanContext::Get().GetCurrentFrameIndex();
+
+		vkCmdBindDescriptorSets((VkCommandBuffer)commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, 
+			(VkPipelineLayout)pipelineLayout, 0, 1, &m_DescriptorSets[currentFrame], 0, nullptr);
+	}
+
+	void VulkanUniformBuffer::SetData(const UniformBufferData& ubo)
+	{
+		uint32_t index = VulkanContext::Get().GetCurrentFrameIndex();
+		memcpy(m_MappedMemories[index], &ubo, sizeof(UniformBufferData));
+	}
+
+	VkDescriptorSet VulkanUniformBuffer::GetDescriptorSet() const
+	{
+		uint32_t index = VulkanContext::Get().GetCurrentFrameIndex();
+		return m_DescriptorSets[index];
+	}
+
+	VkDescriptorSetLayout VulkanUniformBuffer::GetDescriptorSetLayout()
+	{
+		if (s_DescriptorSetLayout != nullptr) {
+			return s_DescriptorSetLayout;
+		}
+
+		VkDescriptorSetLayoutBinding uboLayoutBinding{};
+		uboLayoutBinding.binding = 0;
+		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uboLayoutBinding.descriptorCount = 1;
+		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		uboLayoutBinding.pImmutableSamplers = nullptr;
+
+		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = 1;
+		layoutInfo.pBindings = &uboLayoutBinding;
+
+		if (vkCreateDescriptorSetLayout(VulkanDevice::GetVkDevice(), &layoutInfo, g_VulkanAllocationCallback, &s_DescriptorSetLayout) != VK_SUCCESS) {
+			HYRO_LOG_CORE_ERROR("Failed to create Descriptor Set Layout!");
+		}
+
+		return s_DescriptorSetLayout;
 	}
 
 }

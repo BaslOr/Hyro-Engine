@@ -15,6 +15,10 @@ namespace Hyro {
 		}
 	}
 
+	void VulkanCommandPool::Destroy() {
+		vkDestroyCommandPool(VulkanDevice::GetVkDevice(), m_CommandPool, g_VulkanAllocationCallback);
+	}
+
 	std::vector<VkCommandBuffer> VulkanCommandPool::AllocateCommandBuffers(uint32_t count, VkCommandBufferLevel level)
 	{
 		std::vector<VkCommandBuffer> commandBuffers(count);

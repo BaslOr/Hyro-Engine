@@ -19,9 +19,9 @@ namespace Hyro {
 		m_API->EndScene();
 	}
 
-	void RenderCommand::Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count)
+	void RenderCommand::Submit(Ref<VertexArray> vertexArray, Ref<UniformBuffer> ubo, Ref<Shader> shader, uint32_t count)
 	{
-		m_API->Submit(vertexArray, shader, count);
+		m_API->Submit(vertexArray, ubo, shader, count);
 	}
 
 	void RenderCommand::SetClearColor(const glm::vec4& color)

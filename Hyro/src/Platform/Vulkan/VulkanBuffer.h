@@ -2,6 +2,7 @@
 #include "Platform/Vulkan/VulkanBase.h"
 #include "Hyro/Renderer/VertexBuffer.h"
 #include "Hyro/Renderer/IndexBuffer.h"
+#include "Hyro/Renderer/UniformBuffer.h"
 
 namespace Hyro {
 
@@ -25,8 +26,6 @@ namespace Hyro {
 	};
 
 
-	
-
 
 	class VulkanIndexBuffer : public IndexBuffer {
 	public:
@@ -42,6 +41,29 @@ namespace Hyro {
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_Memory;
 
+	};
+
+	class VulkanUniformBuffer : public UniformBuffer {
+	public:
+		VulkanUniformBuffer();
+		~VulkanUniformBuffer();
+
+		void Bind() const override;
+		void Bind(void* commandBuffer, void* pipelineLayout) const override;
+
+		void SetData(const UniformBufferData& ubo) override;
+
+		VkDescriptorSet GetDescriptorSet() const;
+
+		static VkDescriptorSetLayout GetDescriptorSetLayout();
+
+	private:
+		std::vector<VkDescriptorSet> m_DescriptorSets;
+		std::vector<VkBuffer> m_Buffers;
+		std::vector<VkDeviceMemory> m_BufferMemories;
+		std::vector<void*> m_MappedMemories;
+
+		static inline VkDescriptorSetLayout s_DescriptorSetLayout;
 	};
 
 }

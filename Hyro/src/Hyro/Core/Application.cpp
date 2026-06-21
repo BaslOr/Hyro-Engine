@@ -39,7 +39,7 @@ namespace Hyro {
 		m_ImGuiLayer = new ImGuiLayer;
 		PushOverlay(m_ImGuiLayer);
 
-		HYRO_LOG_CORE_TRACE("Created Application class");
+		HYRO_LOG_CORE_TRACE("Created Application");
 	}
 
 	Application::~Application() {
