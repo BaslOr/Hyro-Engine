@@ -9,9 +9,8 @@
 
 namespace Hyro {
 
-	VulkanAPI::VulkanAPI(const GraphicsPipelineSettings& settings)
+	VulkanAPI::VulkanAPI()
 	{
-		m_Pipeline = CreateScope<VulkanGraphicsPipeline>(settings);
 		m_CommandBuffers = VulkanCommandPool::AllocateCommandBuffers(VulkanContext::Get().GetMaxFramesInFlight());
 
 		CreateSyncObjects();
@@ -37,7 +36,7 @@ namespace Hyro {
         VulkanDescriptorPool::Destroy();
         VulkanCommandPool::Destroy();
 	}
-
+    
     void VulkanAPI::BeginScene()
     {
         VulkanContext& context = VulkanContext::Get();
@@ -86,22 +85,6 @@ namespace Hyro {
         renderPassInfo.pClearValues = &clearColor;
 
         vkCmdBeginRenderPass(m_CommandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-        vkCmdBindPipeline(m_CommandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->GetVkPipeline());
-
-        VkViewport viewport{};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = static_cast<float>(context.GetSwapchainExtent().width);
-        viewport.height = static_cast<float>(context.GetSwapchainExtent().height);
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(m_CommandBuffers[currentFrame], 0, 1, &viewport);
-
-        VkRect2D scissor{};
-        scissor.offset = { 0, 0 };
-        scissor.extent = context.GetSwapchainExtent();
-        vkCmdSetScissor(m_CommandBuffers[currentFrame], 0, 1, &scissor);
     }
 
     void VulkanAPI::EndScene()
@@ -153,15 +136,12 @@ namespace Hyro {
         VulkanContext::Get().IncreaseImageIndex();
     }
 
-    void VulkanAPI::Submit(Ref<VertexArray> vertexArray, Ref<UniformBuffer> uniformBuffer, Ref<Shader> shader, uint32_t count)
+    void VulkanAPI::Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count)
     {
         uint32_t currentFrame = VulkanContext::Get().GetCurrentFrameIndex();
 
-        vkCmdBindPipeline(m_CommandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->GetVkPipeline());
-
         vertexArray->Bind(m_CommandBuffers[currentFrame]);
-        VulkanUniformBuffer* vulkanUBO = static_cast<VulkanUniformBuffer*>(uniformBuffer.get());        
-        uniformBuffer->Bind(m_CommandBuffers[currentFrame], m_Pipeline->GetVkPipelineLayout());
+        shader->Bind(m_CommandBuffers[currentFrame]);
 
         vkCmdDrawIndexed(m_CommandBuffers[currentFrame], count, 1, 0, 0, 0);
     }

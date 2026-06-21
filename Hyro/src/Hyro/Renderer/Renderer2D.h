@@ -12,7 +12,6 @@ namespace Hyro {
 		Ref<VertexArray> VAO;
 		Ref<VertexBuffer> VBO;
 		Ref<IndexBuffer> IBO;
-		Ref<UniformBuffer> UBO;
 		Ref<Shader> Shader;
 
 		std::vector<Vertex> Vertices;
@@ -29,7 +28,7 @@ namespace Hyro {
 		static void DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	private:
-		static void Init();
+		static void Init(const GraphicsPipelineSettings& settings);
 		static void Shutdown();
 
 		static void BeginScene();

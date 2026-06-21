@@ -11,8 +11,8 @@ namespace Hyro {
 
 		//Some kind of API description should be passed here
 		//To determine blend func, sample count, ...
-		RenderCommand::Init(m_GraphicsAPIType, settings.PipelineSettings);
-		Renderer2D::Init();
+		RenderCommand::Init(m_GraphicsAPIType);
+		Renderer2D::Init(settings.PipelineSettings);
 	}
 
 	void Renderer::Shutdown()

@@ -7,15 +7,16 @@
 
 namespace Hyro {
 
-	void Renderer2D::Init()
+	void Renderer2D::Init(const GraphicsPipelineSettings& settings)
 	{
-		m_Data.Shader = Shader::Create("Assets/Shaders/vertex.glsl", "Assets/Shaders/fragment.glsl");
+		m_Data.Shader = Shader::Create(settings);
 		m_Data.VAO = VertexArray::Create();
 		m_Data.VBO = VertexBuffer::Create(m_Data.MaxVerticesCount * sizeof(Vertex));//It may be possible that this won't work when implementing dynamic Vertex Layout in the future
 		m_Data.Vertices.resize(m_Data.MaxVerticesCount);
 		m_Data.IBO = IndexBuffer::Create(m_Data.MaxIndicesCount * sizeof(uint32_t));
 		m_Data.Indices.resize(m_Data.MaxIndicesCount);
-		m_Data.UBO = UniformBuffer::Create();
+
+		//Set dynamic Layout
 
 		if (m_Data.VAO != nullptr) {
 			m_Data.VAO->SetIndexBuffer(m_Data.IBO);
@@ -55,11 +56,7 @@ namespace Hyro {
 		glm::mat4 projection = glm::ortho(0.f, 1280.f, 720.f, 0.f);
 		m_Data.Shader->setUniformMat4("u_ProjectionMatrix", projection);
 
-		UniformBufferData data{};
-		data.Projection = projection;
-		m_Data.UBO->SetData(data);
-
-		RenderCommand::Submit(m_Data.VAO, m_Data.UBO, m_Data.Shader, static_cast<uint32_t>(m_Data.Indices.size()));
+		RenderCommand::Submit(m_Data.VAO, m_Data.Shader, static_cast<uint32_t>(m_Data.Indices.size()));
 	}
 
 	void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)

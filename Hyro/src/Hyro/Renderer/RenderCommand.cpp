@@ -4,9 +4,9 @@
 
 namespace Hyro {
 
-	void RenderCommand::Init(GraphicsAPIType type, const GraphicsPipelineSettings& pipelineSettings)
+	void RenderCommand::Init(GraphicsAPIType type)
 	{
-		m_API = GraphicsAPI::Create(type, pipelineSettings);
+		m_API = GraphicsAPI::Create(type);
 	}
 
 	void RenderCommand::BeginScene()
@@ -19,9 +19,9 @@ namespace Hyro {
 		m_API->EndScene();
 	}
 
-	void RenderCommand::Submit(Ref<VertexArray> vertexArray, Ref<UniformBuffer> ubo, Ref<Shader> shader, uint32_t count)
+	void RenderCommand::Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count)
 	{
-		m_API->Submit(vertexArray, ubo, shader, count);
+		m_API->Submit(vertexArray, shader, count);
 	}
 
 	void RenderCommand::SetClearColor(const glm::vec4& color)

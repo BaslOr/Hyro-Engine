@@ -7,7 +7,7 @@
 namespace Hyro {
 
 
-	Scope<GraphicsAPI> GraphicsAPI::Create(GraphicsAPIType api, const GraphicsPipelineSettings& settings)
+	Scope<GraphicsAPI> GraphicsAPI::Create(GraphicsAPIType api)
 	{
 		switch (api)
 		{
@@ -17,7 +17,7 @@ namespace Hyro {
 			return CreateScope<OpenGLGraphicsAPI>();
 			break;
 		case Hyro::GraphicsAPIType::Vulkan:
-			return CreateScope<VulkanAPI>(settings);
+			return CreateScope<VulkanAPI>();
 			break;
 		}
 	}

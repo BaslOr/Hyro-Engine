@@ -18,12 +18,12 @@ namespace Hyro {
 	//Sending Commands to GPU
 	class GraphicsAPI {
 	public:
-		static Scope<GraphicsAPI> Create(GraphicsAPIType api, const GraphicsPipelineSettings& settings);
+		static Scope<GraphicsAPI> Create(GraphicsAPIType api);
 
 		virtual void BeginScene() = 0;
 		virtual void EndScene() = 0;
 
-		virtual void Submit(Ref<VertexArray> vertexArray, Ref<UniformBuffer> uniformBuffer, Ref<Shader> shader, uint32_t count) = 0;
+		virtual void Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count) = 0;
 
 		virtual void SetClearColor(const glm::vec4&	color) = 0;
 	};

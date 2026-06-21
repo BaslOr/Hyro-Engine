@@ -4,12 +4,14 @@
 
 #include "Hyro/Core/Memory.h"
 
+#include "Hyro/Renderer/GraphicsPipeline.h"
+
 namespace Hyro {
 
 	class Shader {
 	public:
 		virtual void Bind() const = 0;
-		virtual void UnBind() const = 0;
+		virtual void Bind(void* commandBuffer) const = 0;
 
 		virtual void SetUniformInt(const std::string& name, int vlaue) const = 0;
 		virtual void SetUniformFloat(const std::string& name, float value) const = 0;
@@ -18,7 +20,7 @@ namespace Hyro {
 		virtual void SetUniformVec4(const std::string& name, const glm::vec4& value) const = 0;
 		virtual void setUniformMat4(const std::string& name, const glm::mat4& value) const = 0;
 
-		static Ref<Shader> Create(const std::string& vertexPath, const std::string& fragmentPath);
+		static Ref<Shader> Create(const GraphicsPipelineSettings& settings);
 	};
 
 }

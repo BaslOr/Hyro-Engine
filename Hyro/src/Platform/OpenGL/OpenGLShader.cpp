@@ -41,9 +41,9 @@ namespace Hyro {
 		glUseProgram(m_Program);
 	}
 
-	void OpenGLShader::UnBind() const
+	void OpenGLShader::Bind(void* commandBuffer) const
 	{
-		glUseProgram(0);
+		HYRO_LOG_CORE_WARN("Tried to bind Shader with Command Buffer. This may indicate a bug.");
 	}
 
 	void OpenGLShader::SetUniformInt(const std::string& name, int value) const

@@ -11,15 +11,15 @@ namespace Hyro {
 		OpenGLShader(const std::string& vertexPath, const std::string& fragPath);
 		~OpenGLShader();
 
-		virtual void Bind() const override;
-		virtual void UnBind() const override;
+		void Bind() const override;
+		void Bind(void* commandBuffer) const override;
 
-		virtual void SetUniformInt(const std::string& name, int vlaue) const override;
-		virtual void SetUniformFloat(const std::string& name, float value) const override;
-		virtual void SetUnifromBool(const std::string& name, bool value) const override;
-		virtual void setUniformVec3(const std::string& name, const glm::vec3& value) const override;
-		virtual void SetUniformVec4(const std::string& name, const glm::vec4& value) const override;
-		virtual void setUniformMat4(const std::string& name, const glm::mat4& value) const override;
+		void SetUniformInt(const std::string& name, int vlaue) const override;
+		void SetUniformFloat(const std::string& name, float value) const override;
+		void SetUnifromBool(const std::string& name, bool value) const override;
+		void setUniformVec3(const std::string& name, const glm::vec3& value) const override;
+		void SetUniformVec4(const std::string& name, const glm::vec4& value) const override;
+		void setUniformMat4(const std::string& name, const glm::mat4& value) const override;
 
 	private:
 		uint32_t m_Program;

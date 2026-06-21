@@ -25,8 +25,14 @@ namespace Hyro {
 
 
 		Renderer::Settings settings{};
-		settings.PipelineSettings.VertexShaderPath = "Assets/Shaders/vert.spv";
-		settings.PipelineSettings.FragmentShaderPath = "Assets/Shaders/frag.spv";
+		if (Renderer::GetAPI() == GraphicsAPIType::Vulkan) {
+			settings.PipelineSettings.VertexShaderPath = "Assets/Shaders/vert.spv";
+			settings.PipelineSettings.FragmentShaderPath = "Assets/Shaders/frag.spv";
+		} else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
+		{
+			settings.PipelineSettings.VertexShaderPath = "Assets/Shaders/vertex.glsl";
+			settings.PipelineSettings.FragmentShaderPath = "Assets/Shaders/fragment.glsl";
+		}
 		settings.PipelineSettings.EnableBlending = true;
 		settings.PipelineSettings.SampleCount = 4;
 		WindowProps props(name, width, height, settings.PipelineSettings.SampleCount);

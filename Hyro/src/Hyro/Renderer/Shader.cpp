@@ -8,20 +8,19 @@
 
 namespace Hyro {
 
-	Ref<Shader> Shader::Create(const std::string& vertexPath, const std::string& fragmentPath)
+	Ref<Shader> Shader::Create(const GraphicsPipelineSettings& settings)
 	{
 		switch (Renderer::GetAPI())
 		{
 		case GraphicsAPIType::None:
-			HYRO_LOG_CORE_FATAL("No Graphics API selected! ");
+			HYRO_LOG_CORE_FATAL("No Graphics API selected!");
 			return nullptr;
 			break;
 		case GraphicsAPIType::OpenGL:
-			return CreateRef<OpenGLShader>(vertexPath, fragmentPath);
+			return CreateRef<OpenGLShader>(settings.VertexShaderPath, settings.FragmentShaderPath);
 			break;
 		case GraphicsAPIType::Vulkan:
-			HYRO_LOG_CORE_INFO("Vulkan Shader is not implemented yet");
-			return CreateRef<Vulkan::VulkanShader>();
+			return CreateRef<VulkanShader>(settings);
 			break;
 		}
 	}
