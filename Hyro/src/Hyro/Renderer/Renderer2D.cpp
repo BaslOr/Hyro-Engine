@@ -23,6 +23,7 @@ namespace Hyro {
 		vertexLayout.Push<VertexAttributeType::FLOAT3>();
 		vertexLayout.Push<VertexAttributeType::FLOAT2>();
 		vertexLayout.Push<VertexAttributeType::FLOAT4>();
+		vertexLayout.Push<VertexAttributeType::FLOAT>();
 		m_Data.VAO->SetLayout(vertexLayout);
 
 
@@ -89,7 +90,7 @@ namespace Hyro {
 		//Bottom, Right
 		m_Data.Vertices.push_back({ position.x + size.x, position.y, 0.0f,
 			1.f, 0.f,
-			color.r, color.g, color.b, color.a });
+			color.r, color.g, color.b, color.a});
 
 		m_Data.Indices.push_back(0 + m_Data.Count);
 		m_Data.Indices.push_back(1 + m_Data.Count);
@@ -99,6 +100,12 @@ namespace Hyro {
 		m_Data.Indices.push_back(3 + m_Data.Count);
 
 		m_Data.Count += 4;
+	}
+
+	void Renderer2D::DrawSprite(const Ref<Texture>& texture, const glm::vec2& position, const glm::vec2& size)
+	{
+		texture->Bind();
+		DrawRect(position, size, { 1.0f, 1.0f, 1.0f, 1.0f });
 	}
 
 }

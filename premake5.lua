@@ -50,6 +50,7 @@ include "Hyro/vendor/GLFW"
 include "Hyro/vendor/glad"
 include "Hyro/vendor/ImGui"
 include "Hyro/vendor/spdlog"
+include "Hyro/vendor/stb_image"
 group ""
 
 
@@ -81,6 +82,7 @@ project "Hyro"
        "Hyro/vendor/glm",
        "Hyro/vendor/KHR",
        "Hyro/vendor/glad",
+       "Hyro/vendor/stb_image",
        "Hyro/vendor/glad/include",
        "Hyro/vendor/GLFW/include",
        "Hyro/vendor/ImGui",
@@ -124,6 +126,7 @@ project "Sandbox"
    includedirs { 
        "Hyro/vendor/glm",
        "Hyro/vendor/KHR",
+       "Hyro/vendor/stb_image",
        "Hyro/vendor/glad",
        "Hyro/vendor/glad/include",
        "Hyro/vendor/GLFW/include",

@@ -4,14 +4,15 @@
 
 SandboxLayer::SandboxLayer()
 {
-
+	m_Texture = Hyro::Texture::Load("Assets/Textures/Cow.png");
 }
 
 void SandboxLayer::OnUpdate(const Hyro::TimeStep deltaTime)
 {
 	Hyro::Renderer::BeginScene();
 
-	Hyro::Renderer2D::DrawRect({ 100.0f, 100.0f }, { 200.0f, 200.0f }, { 0.1f, 0.1f, 0.8f, 1.0f });
+	//For Test Purpose only
+	Hyro::Renderer2D::DrawSprite(m_Texture, { 100.0f, 100.0f }, { 200.0f, 200.0f });
 
 	Hyro::Renderer::EndScene();
 }

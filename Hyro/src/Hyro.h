@@ -7,6 +7,7 @@
 //Rendering
 #include "Hyro/Renderer/Renderer.h"
 #include "Hyro/Renderer/Renderer2D.h"
+#include "Hyro/Renderer/Texture.h"
 #include "Hyro/Core/Window.h"
 
 //Core

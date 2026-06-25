@@ -4,7 +4,7 @@
 #include "Hyro/Renderer/VertexArray.h"
 #include "Hyro/Renderer/Shader.h"
 #include "Hyro/Renderer/Vertex.h"
-#include "Hyro/Renderer/UniformBuffer.h"
+#include "Hyro/Renderer/Texture.h"
 
 namespace Hyro {
 
@@ -26,6 +26,7 @@ namespace Hyro {
 	class Renderer2D {
 	public:
 		static void DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+		static void DrawSprite(const Ref<Texture>& texture, const glm::vec2& position, const glm::vec2& size);
 
 	private:
 		static void Init(const GraphicsPipelineSettings& settings);
