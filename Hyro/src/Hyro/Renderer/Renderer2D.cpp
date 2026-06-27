@@ -62,6 +62,8 @@ namespace Hyro {
 		else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
 			projection = glm::ortho(0.f, width, 0.f, height);
 		m_Data.Shader->setUniformMat4("u_ProjectionMatrix", projection);
+		std::vector<int> textureSlots = { 0, 1 };
+		m_Data.Shader->SetUnifromIntArray("u_Textures", textureSlots);
 
 		RenderCommand::Submit(m_Data.VAO, m_Data.Shader, static_cast<uint32_t>(m_Data.Indices.size()));
 	}
@@ -78,19 +80,23 @@ namespace Hyro {
 		//Bottom, Left
 		m_Data.Vertices.push_back({ position.x, position.y, 0.0f,
 			0.f, 0.f,
-			color.r, color.g, color.b, color.a });
+			color.r, color.g, color.b, color.a,
+			1.0f});
 		//Top, Left
 		m_Data.Vertices.push_back({ position.x, position.y + size.y, 0.0f,
 			0.f, 1.f,
-			color.r, color.g, color.b, color.a });
+			color.r, color.g, color.b, color.a,
+			1.0f});
 		//Top, Right
 		m_Data.Vertices.push_back({ position.x + size.x, position.y + size.y, 0.0f,
 			1.f, 1.f,
-			color.r, color.g, color.b, color.a });
+			color.r, color.g, color.b, color.a,
+			1.0f});
 		//Bottom, Right
 		m_Data.Vertices.push_back({ position.x + size.x, position.y, 0.0f,
 			1.f, 0.f,
-			color.r, color.g, color.b, color.a});
+			color.r, color.g, color.b, color.a,
+			1.0f});
 
 		m_Data.Indices.push_back(0 + m_Data.Count);
 		m_Data.Indices.push_back(1 + m_Data.Count);
@@ -105,7 +111,46 @@ namespace Hyro {
 	void Renderer2D::DrawSprite(const Ref<Texture>& texture, const glm::vec2& position, const glm::vec2& size)
 	{
 		texture->Bind();
-		DrawRect(position, size, { 1.0f, 1.0f, 1.0f, 1.0f });
+
+		if (m_Data.Vertices.size() + 4 > m_Data.MaxVerticesCount) {
+			HYRO_ASSERT(false);
+		}
+		if (m_Data.Indices.size() + 6 > m_Data.MaxIndicesCount) {
+			HYRO_ASSERT(false);
+		}
+
+		float spriteIndex = static_cast<float>(texture->GetSpriteIndex());
+		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		//Bottom, Left
+		m_Data.Vertices.push_back({ position.x, position.y, 0.0f,
+			0.f, 0.f,
+			color.r, color.g, color.b, color.a,
+			spriteIndex });
+		//Top, Left
+		m_Data.Vertices.push_back({ position.x, position.y + size.y, 0.0f,
+			0.f, 1.f,
+			color.r, color.g, color.b, color.a,
+			spriteIndex });
+		//Top, Right
+		m_Data.Vertices.push_back({ position.x + size.x, position.y + size.y, 0.0f,
+			1.f, 1.f,
+			color.r, color.g, color.b, color.a,
+			spriteIndex });
+		//Bottom, Right
+		m_Data.Vertices.push_back({ position.x + size.x, position.y, 0.0f,
+			1.f, 0.f,
+			color.r, color.g, color.b, color.a,
+			spriteIndex });
+
+		m_Data.Indices.push_back(0 + m_Data.Count);
+		m_Data.Indices.push_back(1 + m_Data.Count);
+		m_Data.Indices.push_back(3 + m_Data.Count);
+		m_Data.Indices.push_back(1 + m_Data.Count);
+		m_Data.Indices.push_back(2 + m_Data.Count);
+		m_Data.Indices.push_back(3 + m_Data.Count);
+
+		m_Data.Count += 4;
 	}
 
 }

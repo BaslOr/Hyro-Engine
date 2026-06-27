@@ -89,6 +89,14 @@ namespace Hyro {
 		glUniformMatrix4fv(location, 1, false, glm::value_ptr(value));
 	}
 
+
+	void OpenGLShader::SetUnifromIntArray(const std::string& name, const std::vector<int>& values) const
+	{
+		Bind();
+		int location = getUniformLocation(name);
+		glUniform1iv(location, values.size(), values.data());
+	}
+
 	int OpenGLShader::getUniformLocation(const std::string& name) const
 	{
 		if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())

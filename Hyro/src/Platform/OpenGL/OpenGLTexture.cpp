@@ -8,6 +8,13 @@
 
 namespace Hyro {
 
+	static uint32_t NumChannelsToOpenGLFormat(int nrChannels) {
+		if (nrChannels == 4)
+			return GL_RGBA;
+		else
+			return GL_RGB;
+	}
+
 	OpenGLTexture::OpenGLTexture(const std::string& filePath)
 	{
 		m_SpriteIndex = s_NextSpriteIndex;
@@ -16,9 +23,8 @@ namespace Hyro {
 		int width, height, nrChannels;
 		const char* path = filePath.c_str();
 		stbi_set_flip_vertically_on_load(true);
-		stbi_uc* data = stbi_load(path, &width, &height, &nrChannels, 0);
+		stbi_uc* data = stbi_load(path, &width, &height, &nrChannels, 4);
 
-		//glActiveTexture(GL_TEXTURE0 + m_SpriteIndex);
 		glGenTextures(1, &m_Texture);
 		glBindTexture(GL_TEXTURE_2D, m_Texture);
 
@@ -46,8 +52,7 @@ namespace Hyro {
 
 	void OpenGLTexture::Bind() const
 	{
-		//glActiveTexture(GL_TEXTURE0 + m_SpriteIndex);
-		glBindTexture(GL_TEXTURE_2D, m_Texture);
+		glBindTextureUnit(m_SpriteIndex, m_Texture);
 	}
 
 	void OpenGLTexture::Bind(void* commandBuffer) const

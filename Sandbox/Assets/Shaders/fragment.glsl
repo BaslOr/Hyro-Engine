@@ -6,9 +6,10 @@ in vec4 o_Color;
 in vec2 o_UV;
 in float o_SpriteIndex;
 
-uniform sampler2D[] u_Textures;
+uniform sampler2D u_Textures[16];
 
 void main()
 {
-	FragColor = texture(u_Textures[int(o_SpriteIndex)], o_UV);
+	int index = int(o_SpriteIndex);
+	FragColor = texture(u_Textures[index], o_UV);
 }

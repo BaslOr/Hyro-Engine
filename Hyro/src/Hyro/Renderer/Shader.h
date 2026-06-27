@@ -19,6 +19,7 @@ namespace Hyro {
 		virtual void setUniformVec3(const std::string& name, const glm::vec3& value) const = 0;
 		virtual void SetUniformVec4(const std::string& name, const glm::vec4& value) const = 0;
 		virtual void setUniformMat4(const std::string& name, const glm::mat4& value) const = 0;
+		virtual void SetUnifromIntArray(const std::string& name, const std::vector<int>& values) const = 0;
 
 		static Ref<Shader> Create(const GraphicsPipelineSettings& settings);
 	};
