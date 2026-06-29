@@ -16,6 +16,8 @@ namespace Hyro {
 		m_Data.IBO = IndexBuffer::Create(m_Data.MaxIndicesCount * sizeof(uint32_t));
 		m_Data.Indices.resize(m_Data.MaxIndicesCount);
 
+		//m_Data.UBO = UniformBuffer::Create();
+
 		m_Data.VAO->AddVertexBuffer(m_Data.VBO);
 		m_Data.VAO->SetIndexBuffer(m_Data.IBO);
 

@@ -76,6 +76,9 @@ namespace Hyro {
 		const auto layers = VulkanGetValidationLayers();
 		const auto extensions = VulkanGetRequiredDeviceExtensions();
 
+		VkPhysicalDeviceFeatures features{};
+		features.samplerAnisotropy = VK_TRUE;
+
 		VkDeviceCreateInfo deviceInfo{};
 		deviceInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
@@ -84,7 +87,7 @@ namespace Hyro {
 		deviceInfo.ppEnabledLayerNames = layers.data();
 		deviceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 		deviceInfo.ppEnabledExtensionNames = extensions.data();
-		deviceInfo.pEnabledFeatures = nullptr;
+		deviceInfo.pEnabledFeatures = &features;
 
 		VkCheck(vkCreateDevice(m_PhysicalDevice, &deviceInfo, g_VulkanAllocationCallback, &m_Device));
 
@@ -97,7 +100,10 @@ namespace Hyro {
    {
 	   QueueFamilyIndices indices = FindQueueFamilies(device);
 
-	   return indices.IsComplete();
+	   VkPhysicalDeviceFeatures features{};
+	   vkGetPhysicalDeviceFeatures(device, &features);
+
+	   return indices.IsComplete() && features.samplerAnisotropy;
    }
 
    int VulkanDevice::GetPhysicalDeviceScore(VkPhysicalDevice device)

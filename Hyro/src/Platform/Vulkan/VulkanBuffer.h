@@ -18,7 +18,7 @@ namespace Hyro {
 
 		//Since the Vertex Layout fixed it is ok to put this here for the moment
 		static VkVertexInputBindingDescription GetBindingDescription();
-		static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescription();
+		static std::array<VkVertexInputAttributeDescription, 4> GetAttributeDescription();
 
 	private:
 		VkBuffer m_Buffer;

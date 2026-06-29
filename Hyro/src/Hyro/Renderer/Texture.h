@@ -13,7 +13,6 @@ namespace Hyro {
 		virtual void Bind(void* commandBuffer) const = 0;
 
 		virtual uint32_t GetSpriteIndex() const = 0;
-
 	};
 
 }

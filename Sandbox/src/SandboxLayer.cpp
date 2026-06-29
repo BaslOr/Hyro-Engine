@@ -12,7 +12,6 @@ void SandboxLayer::OnUpdate(const Hyro::TimeStep deltaTime)
 {
 	Hyro::Renderer::BeginScene();
 
-	//For Test Purpose only
 	auto texture1 = Hyro::ResourceManager::GetTexture("Sample1");
 	auto texture2 = Hyro::ResourceManager::GetTexture("Sample2");
 	Hyro::Renderer2D::DrawSprite(texture1, { 100.0f, 100.0f }, { 200.0f, 200.0f });

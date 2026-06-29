@@ -5,6 +5,7 @@
 #include "Hyro/Renderer/Shader.h"
 #include "Hyro/Renderer/Vertex.h"
 #include "Hyro/Renderer/Texture.h"
+#include "Hyro/Renderer/UniformBuffer.h"
 
 namespace Hyro {
 
@@ -12,6 +13,8 @@ namespace Hyro {
 		Ref<VertexArray> VAO;
 		Ref<VertexBuffer> VBO;
 		Ref<IndexBuffer> IBO;
+		Ref<UniformBuffer> UBO;
+
 		Ref<Shader> Shader;
 
 		std::vector<Vertex> Vertices;

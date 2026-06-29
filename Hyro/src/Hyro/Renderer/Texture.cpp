@@ -4,6 +4,7 @@
 #include "Hyro/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLTexture.h"
+#include "Platform/Vulkan/VulkanTexture.h"
 
 
 namespace Hyro {
@@ -19,8 +20,7 @@ namespace Hyro {
 			return CreateRef<OpenGLTexture>(filePath);
 			break;
 		case GraphicsAPIType::Vulkan:
-			HYRO_LOG_CORE_ERROR("Vulkan textures are not implemented yet!");
-			return nullptr;
+			return CreateRef<VulkanTexture>(filePath);
 			break;
 		}
     }

@@ -23,7 +23,7 @@ namespace Hyro {
 		inline static GraphicsAPIType GetAPI() { return m_GraphicsAPIType; }
 
 	private:
-		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::OpenGL;
+		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::Vulkan;
 	};
 
 }
