@@ -59,12 +59,11 @@ namespace Hyro {
 
 		void SetData(const UniformBufferData& ubo) override;
 
-		VkDescriptorSet GetDescriptorSet() const;
+		inline VkBuffer GetBufferAtIndex(size_t index) const { return m_Buffers[index]; }
 
 		static VkDescriptorSetLayout GetDescriptorSetLayout();
 
 	private:
-		std::vector<VkDescriptorSet> m_DescriptorSets;
 		std::vector<VkBuffer> m_Buffers;
 		std::vector<VkDeviceMemory> m_BufferMemories;
 		std::vector<void*> m_MappedMemories;

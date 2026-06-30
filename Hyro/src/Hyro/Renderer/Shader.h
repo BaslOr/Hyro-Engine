@@ -4,6 +4,7 @@
 
 #include "Hyro/Core/Memory.h"
 
+#include "Hyro/Renderer/UniformBuffer.h"
 #include "Hyro/Renderer/GraphicsPipeline.h"
 
 namespace Hyro {
@@ -12,6 +13,8 @@ namespace Hyro {
 	public:
 		virtual void Bind() const = 0;
 		virtual void Bind(void* commandBuffer) const = 0;
+
+		virtual void BindUBO(const Ref<UniformBuffer>& ubo) = 0;
 
 		static Ref<Shader> Create(const GraphicsPipelineSettings& settings);
 	};

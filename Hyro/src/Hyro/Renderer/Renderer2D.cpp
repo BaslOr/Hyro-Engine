@@ -30,6 +30,7 @@ namespace Hyro {
 
 
 		m_Data.Shader = Shader::Create(settings);
+		m_Data.Shader->BindUBO(m_Data.UBO);
 
 		RenderCommand::SetClearColor(glm::vec4(0.2f, 0.5f, 0.8f, 1.f));
 

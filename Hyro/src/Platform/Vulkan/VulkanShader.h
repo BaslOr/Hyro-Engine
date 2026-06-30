@@ -15,9 +15,11 @@ namespace Hyro {
 		void Bind() const override;
 		void Bind(void* commandBuffer) const override;
 
+		void BindUBO(const Ref<UniformBuffer>& ubo) override;
+
 	private:
 		Ref<VulkanGraphicsPipeline> m_Pipeline;
-		Ref<UniformBuffer> m_UniformBuffer;
 
+		std::vector<VkDescriptorSet> m_DescriptorSets;
 	};
 }

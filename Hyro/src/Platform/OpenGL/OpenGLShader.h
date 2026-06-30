@@ -15,6 +15,8 @@ namespace Hyro {
 		void Bind() const override;
 		void Bind(void* commandBuffer) const override;
 
+		void BindUBO(const Ref<UniformBuffer>& ubo) override { }
+
 	private:
 		void CheckShaderCompilation(uint32_t shader);
 		void CheckLinkingErrors();
