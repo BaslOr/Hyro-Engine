@@ -5,16 +5,16 @@ namespace Hyro {
 
 	class OpenGLUniformBuffer : public UniformBuffer {
 	public:
-		OpenGLUniformBuffer() = default;
-		~OpenGLUniformBuffer() = default;
+		OpenGLUniformBuffer();
+		~OpenGLUniformBuffer();
 
-		void SetData(const UniformBufferData& ubo) override {}
+		void SetData(const UniformBufferData& ubo) override;
 
-		void Bind() const override {}
-		void Bind(void* commandBuffer, void* pipelineLayout) const override {}
+		void Bind() const override;
+		void Bind(void* commandBuffer, void* pipelineLayout) const override;
 
 	private:
-
+		uint32_t m_Buffer;
 	};
 
 }

@@ -4,7 +4,9 @@ layout (location = 1) in vec2 aUV;
 layout (location = 2) in vec4 aColor;
 layout (location = 3) in float aSpriteIndex;
 
-uniform mat4 u_ProjectionMatrix;
+layout (std140, binding = 0) uniform Transformations {
+	mat4 Projection;
+};
 
 out vec4 o_Color;
 out vec2 o_UV;
@@ -14,5 +16,5 @@ void main()  {
 	o_Color = aColor;
 	o_UV = aUV;
 	o_SpriteIndex = aSpriteIndex;
-    gl_Position = u_ProjectionMatrix * vec4(aPos.x, aPos.y, aPos.z, 1.0);  
+    gl_Position = Projection * vec4(aPos.x, aPos.y, aPos.z, 1.0);  
 }

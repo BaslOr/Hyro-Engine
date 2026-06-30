@@ -16,7 +16,7 @@ namespace Hyro {
 		m_Data.IBO = IndexBuffer::Create(m_Data.MaxIndicesCount * sizeof(uint32_t));
 		m_Data.Indices.resize(m_Data.MaxIndicesCount);
 
-		//m_Data.UBO = UniformBuffer::Create();
+		m_Data.UBO = UniformBuffer::Create();
 
 		m_Data.VAO->AddVertexBuffer(m_Data.VBO);
 		m_Data.VAO->SetIndexBuffer(m_Data.IBO);
@@ -58,14 +58,13 @@ namespace Hyro {
 		Application& app = Application::Get();
 		float width = static_cast<float>(app.GetWindow()->GetWidth());
 		float height = static_cast<float>(app.GetWindow()->GetHeight());
-		glm::mat4 projection;
+
+		UniformBufferData data;
 		if (Renderer::GetAPI() == GraphicsAPIType::Vulkan)
-			projection = glm::ortho(0.f, width, height, 0.f);
+			data.Projection = glm::ortho(0.f, width, height, 0.f);
 		else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
-			projection = glm::ortho(0.f, width, 0.f, height);
-		m_Data.Shader->setUniformMat4("u_ProjectionMatrix", projection);
-		std::vector<int> textureSlots = { 0, 1 };
-		m_Data.Shader->SetUnifromIntArray("u_Textures", textureSlots);
+			data.Projection = glm::ortho(0.f, width, 0.f, height);
+		m_Data.UBO->SetData(data);
 
 		RenderCommand::Submit(m_Data.VAO, m_Data.Shader, static_cast<uint32_t>(m_Data.Indices.size()));
 	}
@@ -151,7 +150,7 @@ namespace Hyro {
 		m_Data.Indices.push_back(1 + m_Data.Count);
 		m_Data.Indices.push_back(2 + m_Data.Count);
 		m_Data.Indices.push_back(3 + m_Data.Count);
-
+		
 		m_Data.Count += 4;
 	}
 

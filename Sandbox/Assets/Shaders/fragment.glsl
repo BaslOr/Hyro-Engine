@@ -8,6 +8,7 @@ in float o_SpriteIndex;
 
 uniform sampler2D u_Textures[16];
 
+
 void main()
 {
 	int index = int(o_SpriteIndex);

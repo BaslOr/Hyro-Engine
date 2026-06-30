@@ -38,11 +38,11 @@ namespace Hyro {
 		vkCmdSetScissor((VkCommandBuffer)commandBuffer, 0, 1, &scissor);
 	}
 
-	void VulkanShader::setUniformMat4(const std::string& name, const glm::mat4& value) const
-	{
-		UniformBufferData data{};
-		data.Projection = value;
-		m_UniformBuffer->SetData(data);
-	}
+	//void VulkanShader::setUniformMat4(const std::string& name, const glm::mat4& value) const
+	//{
+	//	UniformBufferData data{};
+	//	data.Projection = value;
+	//	m_UniformBuffer->SetData(data);
+	//}
 
 }

@@ -13,19 +13,25 @@ namespace Hyro {
 	OpenGLShader::OpenGLShader(const std::string& vertexPath, const std::string& fragPath)
 		: m_Program(0)
 	{
-		std::string vertexSource = readShaderFromFile(vertexPath);
-		std::string fragmentSource = readShaderFromFile(fragPath);
+		std::string vertexSource = ReadShaderFromFile(vertexPath);
+		std::string fragmentSource = ReadShaderFromFile(fragPath);
 
 		const char* vertexShaderSourceCStr = vertexSource.c_str();
 		const char* fragmentShaderSourceCStr = fragmentSource.c_str();
-		uint32_t vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderSourceCStr);
-		uint32_t fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderSourceCStr);
+		uint32_t vertexShader = CreateShader(GL_VERTEX_SHADER, vertexShaderSourceCStr);
+		uint32_t fragmentShader = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderSourceCStr);
 
 		m_Program = glCreateProgram();
 		glAttachShader(m_Program, vertexShader);
 		glAttachShader(m_Program, fragmentShader);
 		glLinkProgram(m_Program);
-		checkLinkingErrors();
+		CheckLinkingErrors();
+
+		Bind();
+		std::array<int, 16> textureSlots = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+		int location = GetUniformLocation("u_Textures");
+		glUniform1iv(location, textureSlots.size(), textureSlots.data());
+
 
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
@@ -46,68 +52,7 @@ namespace Hyro {
 		HYRO_LOG_CORE_WARN("Tried to bind Shader with Command Buffer. This may indicate a bug.");
 	}
 
-	void OpenGLShader::SetUniformInt(const std::string& name, int value) const
-	{
-		Bind();
-		int location = getUniformLocation(name);
-		checkLocation(location);
-		glUniform1i(location, value);
-	}
-
-	void OpenGLShader::SetUniformFloat(const std::string& name, float value) const
-	{
-		Bind();
-		int location = getUniformLocation(name);
-		glUniform1f(location, value);
-	}
-
-	void OpenGLShader::SetUnifromBool(const std::string& name, bool value) const
-	{
-		Bind();
-		int location = getUniformLocation(name);
-		glUniform1i(location, (int)value);
-	}
-
-	void OpenGLShader::setUniformVec3(const std::string& name, const glm::vec3& value) const
-	{
-		Bind();
-		int location = getUniformLocation(name);
-		glUniform3f(location, value.x, value.y, value.z);
-	}
-
-	void OpenGLShader::SetUniformVec4(const std::string& name, const glm::vec4& value) const
-	{
-		Bind();
-		int location = getUniformLocation(name);
-		glUniform4f(location, value.x, value.y, value.z, value.w);
-	}
-
-	void OpenGLShader::setUniformMat4(const std::string& name, const glm::mat4& value) const
-	{
-		Bind();
-		int location = getUniformLocation(name);
-		glUniformMatrix4fv(location, 1, false, glm::value_ptr(value));
-	}
-
-
-	void OpenGLShader::SetUnifromIntArray(const std::string& name, const std::vector<int>& values) const
-	{
-		Bind();
-		int location = getUniformLocation(name);
-		glUniform1iv(location, values.size(), values.data());
-	}
-
-	int OpenGLShader::getUniformLocation(const std::string& name) const
-	{
-		if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
-			return m_UniformLocationCache[name];
-
-		int location = glGetUniformLocation(m_Program, name.c_str());
-		m_UniformLocationCache[name] = location;
-		return location;
-	}
-
-	void OpenGLShader::checkShaderCompilation(uint32_t shader)
+	void OpenGLShader::CheckShaderCompilation(uint32_t shader)
 	{
 		int  success;
 		char infoLog[512];
@@ -119,7 +64,7 @@ namespace Hyro {
 		}
 	}
 
-	void OpenGLShader::checkLinkingErrors()
+	void OpenGLShader::CheckLinkingErrors()
 	{
 		int success;
 		char infoLog[512];
@@ -130,24 +75,36 @@ namespace Hyro {
 		}
 	}
 
-	void OpenGLShader::checkLocation(int location) const
+	uint32_t OpenGLShader::CreateShader(uint32_t shaderType, const char* shaderSource)
+	{
+		uint32_t shader = glCreateShader(shaderType);
+		glShaderSource(shader, 1, &shaderSource, NULL);
+		glCompileShader(shader);
+		CheckShaderCompilation(shader);
+
+		return shader;
+	}
+
+	int OpenGLShader::GetUniformLocation(const std::string& name) const
+	{
+		if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
+			return m_UniformLocationCache[name];
+
+		int location = glGetUniformLocation(m_Program, name.c_str());
+		m_UniformLocationCache[name] = location;
+
+		CheckLocation(location);
+		return location;
+	}
+
+	void OpenGLShader::CheckLocation(int location) const
 	{
 		if (location == -1) {
 			HYRO_LOG_CORE_ERROR("Tried to access invalid Uniform Location");
 		}
 	}
 
-	uint32_t OpenGLShader::createShader(uint32_t shaderType, const char* shaderSource)
-	{
-		uint32_t shader = glCreateShader(shaderType);
-		glShaderSource(shader, 1, &shaderSource, NULL);
-		glCompileShader(shader);
-		checkShaderCompilation(shader);
-
-		return shader;
-	}
-
-	std::string OpenGLShader::readShaderFromFile(const std::string& filePath)
+	std::string OpenGLShader::ReadShaderFromFile(const std::string& filePath)
 	{
 		std::ifstream file(filePath);
 

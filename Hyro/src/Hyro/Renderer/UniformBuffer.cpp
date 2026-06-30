@@ -4,6 +4,7 @@
 #include "Hyro/Renderer/Renderer.h"
 
 #include "Platform/Vulkan/VulkanBuffer.h"
+#include "Platform/OpenGL/OpenGLUniformBuffer.h"
 
 namespace Hyro {
 
@@ -16,8 +17,7 @@ namespace Hyro {
             return nullptr;
             break;
         case GraphicsAPIType::OpenGL:
-            HYRO_LOG_CORE_WARN("Unifrom Buffers are not implemented yet on OpenGL side");
-            return nullptr;
+            return CreateRef<OpenGLUniformBuffer>();
             break;
         case GraphicsAPIType::Vulkan:
             return CreateRef<VulkanUniformBuffer>();
