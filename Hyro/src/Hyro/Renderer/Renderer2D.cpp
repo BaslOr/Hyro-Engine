@@ -30,7 +30,8 @@ namespace Hyro {
 
 
 		m_Data.Shader = Shader::Create(settings);
-		m_Data.Shader->BindUBO(m_Data.UBO);
+		m_Data.Material = Material::Create(m_Data.Shader);
+		m_Data.Material->SetUnifromBuffer(m_Data.UBO, 0);
 
 		RenderCommand::SetClearColor(glm::vec4(0.2f, 0.5f, 0.8f, 1.f));
 
@@ -67,7 +68,7 @@ namespace Hyro {
 			data.Projection = glm::ortho(0.f, width, 0.f, height);
 		m_Data.UBO->SetData(data);
 
-		RenderCommand::Submit(m_Data.VAO, m_Data.Shader, static_cast<uint32_t>(m_Data.Indices.size()));
+		RenderCommand::Submit(m_Data.VAO, m_Data.Material, static_cast<uint32_t>(m_Data.Indices.size()));
 	}
 
 	void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -112,7 +113,7 @@ namespace Hyro {
 
 	void Renderer2D::DrawSprite(const Ref<Texture>& texture, const glm::vec2& position, const glm::vec2& size)
 	{
-		texture->Bind();
+		m_Data.Material->SetTexture(texture, 1, 0);
 
 		if (m_Data.Vertices.size() + 4 > m_Data.MaxVerticesCount) {
 			HYRO_ASSERT(false);

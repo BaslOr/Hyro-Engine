@@ -84,10 +84,10 @@ namespace Hyro {
         glClear(GL_COLOR_BUFFER_BIT /* | GL_DEPTH_BUFFER_BIT */);
     }
 
-    void OpenGLGraphicsAPI::Submit(Ref<VertexArray> vao, Ref<Shader> shader, uint32_t count)
+    void OpenGLGraphicsAPI::Submit(Ref<VertexArray> vao, Ref<Material> material, uint32_t count)
 	{
         vao->Bind();
-        shader->Bind();
+        material->Bind();
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 

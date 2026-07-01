@@ -1,9 +1,7 @@
 #pragma once
 #include "Hyro/Renderer/GraphicsAPI.h"
-#include "Hyro/Renderer/VertexBuffer.h"
-#include "Hyro/Renderer/IndexBuffer.h"
 #include "Hyro/Renderer/VertexArray.h"
-#include "Hyro/Renderer/Shader.h"
+#include "Hyro/Renderer/Material.h"
 #include <glm/fwd.hpp>
 
 namespace Hyro {
@@ -15,7 +13,7 @@ namespace Hyro {
 		static void BeginScene();
 		static void EndScene();
 
-		static void Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count);
+		static void Submit(Ref<VertexArray> vertexArray, Ref<Material> material, uint32_t count);
 
 		static void SetClearColor(const glm::vec4& color);
 

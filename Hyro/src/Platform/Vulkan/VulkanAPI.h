@@ -4,7 +4,6 @@
 #include "Platform/Vulkan/VulkanGraphicsPipeline.h"
 #include "Platform/Vulkan/VulkanBuffer.h"
 #include "Hyro/Core/Memory.h"
-#include <cstdint>
 
 
 namespace Hyro {
@@ -17,7 +16,7 @@ namespace Hyro {
 		void BeginScene() override;
 		void EndScene() override;
 
-		void Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count) override;
+		void Submit(Ref<VertexArray> vertexArray, Ref<Material> material, uint32_t count) override;
 
 		void SetClearColor(const glm::vec4& color) override;
 

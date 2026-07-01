@@ -137,12 +137,13 @@ namespace Hyro {
         VulkanContext::Get().IncreaseImageIndex();
     }
 
-    void VulkanAPI::Submit(Ref<VertexArray> vertexArray, Ref<Shader> shader, uint32_t count)
+    void VulkanAPI::Submit(Ref<VertexArray> vertexArray, Ref<Material> material, uint32_t count)
     {
         uint32_t currentFrame = VulkanContext::Get().GetCurrentFrameIndex();
 
         vertexArray->Bind(m_CommandBuffers[currentFrame]);
-        shader->Bind(m_CommandBuffers[currentFrame]);
+
+        //material->Bind(m_CommandBuffers[currentFrame]);
 
         vkCmdDrawIndexed(m_CommandBuffers[currentFrame], count, 1, 0, 0, 0);
     }

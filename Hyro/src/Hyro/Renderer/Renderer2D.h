@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 
 #include "Hyro/Core/Memory.h"
 #include "Hyro/Renderer/VertexArray.h"
@@ -6,6 +7,7 @@
 #include "Hyro/Renderer/Vertex.h"
 #include "Hyro/Renderer/Texture.h"
 #include "Hyro/Renderer/UniformBuffer.h"
+#include "Hyro/Renderer/Material.h"
 
 namespace Hyro {
 
@@ -14,8 +16,10 @@ namespace Hyro {
 		Ref<VertexBuffer> VBO;
 		Ref<IndexBuffer> IBO;
 		Ref<UniformBuffer> UBO;
+		std::array<Ref<Texture>, 16> Textures;
 
 		Ref<Shader> Shader;
+		Ref<Material> Material;
 
 		std::vector<Vertex> Vertices;
 		std::vector<uint32_t> Indices;

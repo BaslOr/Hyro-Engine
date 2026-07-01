@@ -46,31 +46,31 @@ namespace Hyro {
 		vkCmdSetScissor((VkCommandBuffer)commandBuffer, 0, 1, &scissor);
 	}
 
-	void VulkanShader::BindUBO(const Ref<UniformBuffer>& ubo)
-	{
-		uint16_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
-		auto vulkanUBO = static_cast<VulkanUniformBuffer*>(ubo.get());
+	//void VulkanShader::BindUBO(const Ref<UniformBuffer>& ubo)
+	//{
+	//	uint16_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
+	//	auto vulkanUBO = static_cast<VulkanUniformBuffer*>(ubo.get());
 
-		for (size_t i = 0; i < maxFramesInFlight; i++)
-		{
-			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = vulkanUBO->GetBufferAtIndex(i);
-			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(UniformBufferData);
+	//	for (size_t i = 0; i < maxFramesInFlight; i++)
+	//	{
+	//		VkDescriptorBufferInfo bufferInfo{};
+	//		bufferInfo.buffer = vulkanUBO->GetBufferAtIndex(i);
+	//		bufferInfo.offset = 0;
+	//		bufferInfo.range = sizeof(UniformBufferData);
 
-			VkWriteDescriptorSet descriptorWrite{};
-			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrite.dstSet = m_DescriptorSets[i];
-			descriptorWrite.dstBinding = 0;
-			descriptorWrite.dstArrayElement = 0;
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrite.descriptorCount = 1;
-			descriptorWrite.pBufferInfo = &bufferInfo;
-			descriptorWrite.pImageInfo = nullptr; // Optional
-			descriptorWrite.pTexelBufferView = nullptr; // Optional
+	//		VkWriteDescriptorSet descriptorWrite{};
+	//		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	//		descriptorWrite.dstSet = m_DescriptorSets[i];
+	//		descriptorWrite.dstBinding = 0;
+	//		descriptorWrite.dstArrayElement = 0;
+	//		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	//		descriptorWrite.descriptorCount = 1;
+	//		descriptorWrite.pBufferInfo = &bufferInfo;
+	//		descriptorWrite.pImageInfo = nullptr; // Optional
+	//		descriptorWrite.pTexelBufferView = nullptr; // Optional
 
-			vkUpdateDescriptorSets(VulkanDevice::GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
-		}
-	}
+	//		vkUpdateDescriptorSets(VulkanDevice::GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
+	//	}
+	//}
 
 }

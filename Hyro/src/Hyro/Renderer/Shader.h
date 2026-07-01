@@ -14,8 +14,6 @@ namespace Hyro {
 		virtual void Bind() const = 0;
 		virtual void Bind(void* commandBuffer) const = 0;
 
-		virtual void BindUBO(const Ref<UniformBuffer>& ubo) = 0;
-
 		static Ref<Shader> Create(const GraphicsPipelineSettings& settings);
 	};
 
