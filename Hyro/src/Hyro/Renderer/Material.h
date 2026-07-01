@@ -10,7 +10,7 @@ namespace Hyro {
 		static Ref<Material> Create(Ref<Shader> shader);
 
 		virtual void SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) = 0;
-		virtual void SetTexture(Ref<Texture> texture, uint32_t binding, uint32_t slot) = 0;
+		virtual void SetTexture(Ref<Texture> texture, uint32_t slot) = 0;
 
 		virtual void Bind() = 0;
 	};

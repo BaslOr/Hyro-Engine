@@ -9,10 +9,8 @@ namespace Hyro {
 	public:
 		static Ref<Texture> Load(const std::string& filePath);
 	
-		virtual void Bind() const = 0;
+		virtual void Bind(uint32_t slot) const = 0;
 		virtual void Bind(void* commandBuffer) const = 0;
-
-		virtual uint32_t GetSpriteIndex() const = 0;
 	};
 
 }

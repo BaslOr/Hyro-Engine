@@ -15,10 +15,10 @@ namespace Hyro {
 		m_UniformBuffers[binding] = uniformBuffer;
 	}
 
-	void OpenGLMaterial::SetTexture(Ref<Texture> texture, uint32_t binding, uint32_t slot)
+	void OpenGLMaterial::SetTexture(Ref<Texture> texture, uint32_t slot)
 	{
-		m_Textures[binding] = texture;
-		texture->Bind();
+		m_Textures[slot] = texture;
+		texture->Bind(slot);
 	}
 
 	void OpenGLMaterial::Bind()
@@ -27,9 +27,9 @@ namespace Hyro {
 		{
 			ubo->Bind();
 		}
-		for (auto& [binding, texture] : m_Textures)
+		for (auto& [slot, texture] : m_Textures)
 		{
-			texture->Bind();
+			texture->Bind(slot);
 		}
 	}
 

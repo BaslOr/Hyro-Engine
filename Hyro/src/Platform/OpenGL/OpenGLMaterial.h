@@ -9,7 +9,7 @@ namespace Hyro {
 		OpenGLMaterial(Ref<Shader> shader);
 
 		void SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) override;
-		void SetTexture(Ref<Texture> texture, uint32_t binding, uint32_t slot) override;
+		void SetTexture(Ref<Texture> texture, uint32_t slot) override;
 
 		void Bind() override;
 

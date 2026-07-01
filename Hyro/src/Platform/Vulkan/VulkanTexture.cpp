@@ -139,9 +139,6 @@ namespace Hyro {
 
 	VulkanTexture::VulkanTexture(const std::string& filePath)
 	{
-		m_SpriteIndex = s_NextSpriteIndex;
-		s_NextSpriteIndex++;
-
 		auto device = VulkanDevice::GetVkDevice();
 
 		int width, height, nrChannels;
@@ -238,7 +235,7 @@ namespace Hyro {
 		vkFreeMemory(device, m_Memory, g_VulkanAllocationCallback);
 	}
 
-	void VulkanTexture::Bind() const
+	void VulkanTexture::Bind(uint32_t slot) const
 	{
 		HYRO_LOG_CORE_WARN("Tried to bind Vulkan Texture without commandBuffer. This may indicate a bug.");
 	}

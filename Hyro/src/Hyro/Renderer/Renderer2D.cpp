@@ -113,7 +113,31 @@ namespace Hyro {
 
 	void Renderer2D::DrawSprite(const Ref<Texture>& texture, const glm::vec2& position, const glm::vec2& size)
 	{
-		m_Data.Material->SetTexture(texture, 1, 0);
+		int textureIndex = 0;
+
+		//Check if Texture is already in the slots
+		for (uint32_t i = 1; i < 16; i++)
+		{
+			if (m_Data.TexturesSlots[i] == texture) {
+				textureIndex = i;
+				m_Data.Material->SetTexture(texture, textureIndex);
+				break;
+			}
+		}
+
+		if (textureIndex == 0) {
+			if (textureIndex >= 15) {
+				//TODO: Flush and reset batch
+				HYRO_ASSERT(false);
+			}
+
+			textureIndex = static_cast<float>(m_Data.CurrentTextureSlot);
+			m_Data.TexturesSlots[m_Data.CurrentTextureSlot] = texture;
+			m_Data.CurrentTextureSlot++;
+			m_Data.Material->SetTexture(texture, static_cast<uint32_t>(textureIndex));
+		}
+
+		m_Data.Material->SetTexture(texture, static_cast<uint32_t>(textureIndex));
 
 		if (m_Data.Vertices.size() + 4 > m_Data.MaxVerticesCount) {
 			HYRO_ASSERT(false);
@@ -122,29 +146,28 @@ namespace Hyro {
 			HYRO_ASSERT(false);
 		}
 
-		float spriteIndex = static_cast<float>(texture->GetSpriteIndex());
 		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		//Bottom, Left
 		m_Data.Vertices.push_back({ position.x, position.y, 0.0f,
 			0.f, 0.f,
 			color.r, color.g, color.b, color.a,
-			spriteIndex });
+			static_cast<float>(textureIndex) });
 		//Top, Left
 		m_Data.Vertices.push_back({ position.x, position.y + size.y, 0.0f,
 			0.f, 1.f,
 			color.r, color.g, color.b, color.a,
-			spriteIndex });
+			static_cast<float>(textureIndex) });
 		//Top, Right
 		m_Data.Vertices.push_back({ position.x + size.x, position.y + size.y, 0.0f,
 			1.f, 1.f,
 			color.r, color.g, color.b, color.a,
-			spriteIndex });
+			static_cast<float>(textureIndex) });
 		//Bottom, Right
 		m_Data.Vertices.push_back({ position.x + size.x, position.y, 0.0f,
 			1.f, 0.f,
 			color.r, color.g, color.b, color.a,
-			spriteIndex });
+			static_cast<float>(textureIndex) });
 
 		m_Data.Indices.push_back(0 + m_Data.Count);
 		m_Data.Indices.push_back(1 + m_Data.Count);

@@ -10,11 +10,8 @@ namespace Hyro {
 		~VulkanTexture();
 
 
-		void Bind() const override;
+		void Bind(uint32_t slot) const override;
 		inline void Bind(void* commandBuffer) const override {}
-
-		inline uint32_t GetSpriteIndex() const override { return m_SpriteIndex; }
-
 
 		inline VkImageView GetImageView() const { return m_View; }
 
@@ -26,9 +23,6 @@ namespace Hyro {
 		VkDeviceMemory m_Memory;
 		VkImageView m_View;
 		VkSampler m_Sampler;
-
-		uint32_t m_SpriteIndex = 0;
-		static inline uint32_t s_NextSpriteIndex = 0;
 	};
 
 }

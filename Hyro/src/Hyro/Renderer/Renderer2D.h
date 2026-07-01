@@ -16,7 +16,9 @@ namespace Hyro {
 		Ref<VertexBuffer> VBO;
 		Ref<IndexBuffer> IBO;
 		Ref<UniformBuffer> UBO;
-		std::array<Ref<Texture>, 16> Textures;
+
+		size_t CurrentTextureSlot = 0;
+		std::array<Ref<Texture>, 16> TexturesSlots;
 
 		Ref<Shader> Shader;
 		Ref<Material> Material;

@@ -17,9 +17,6 @@ namespace Hyro {
 
 	OpenGLTexture::OpenGLTexture(const std::string& filePath)
 	{
-		m_SpriteIndex = s_NextSpriteIndex;
-		s_NextSpriteIndex++;
-
 		int width, height, nrChannels;
 		const char* path = filePath.c_str();
 		stbi_set_flip_vertically_on_load(true);
@@ -50,9 +47,9 @@ namespace Hyro {
 		glDeleteTextures(1, &m_Texture);
 	}
 
-	void OpenGLTexture::Bind() const
+	void OpenGLTexture::Bind(uint32_t slot) const
 	{
-		glBindTextureUnit(m_SpriteIndex, m_Texture);
+		glBindTextureUnit(slot, m_Texture);
 	}
 
 	void OpenGLTexture::Bind(void* commandBuffer) const
