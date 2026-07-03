@@ -10,8 +10,8 @@ namespace Hyro {
 	public:
 		static void Init(GraphicsAPIType type);
 
-		static void BeginScene();
-		static void EndScene();
+		static void BeginRenderPass();
+		static void EndRenderPass();
 
 		static void Submit(Ref<VertexArray> vertexArray, Ref<Material> material, uint32_t count);
 
@@ -19,7 +19,7 @@ namespace Hyro {
 
 
 	private:
-		static inline Scope <GraphicsAPI> m_API;
+		static inline Scope<GraphicsAPI> m_API;
 	};
 
 }

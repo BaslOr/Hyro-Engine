@@ -38,7 +38,7 @@ namespace Hyro {
         VulkanCommandPool::Destroy();
 	}
     
-    void VulkanAPI::BeginScene()
+    void VulkanAPI::BeginRenderPass()
     {
         VulkanContext& context = VulkanContext::Get();
         VkDevice device = VulkanDevice::GetVkDevice();
@@ -88,7 +88,7 @@ namespace Hyro {
         vkCmdBeginRenderPass(m_CommandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     }
 
-    void VulkanAPI::EndScene()
+    void VulkanAPI::EndRenderPass()
     {
         VulkanContext& context = VulkanContext::Get();
         VkDevice device = VulkanDevice::GetVkDevice();

@@ -4,9 +4,10 @@
 //This file is meant to be included ONLY by the Client
 /////////////////////////////////////////////
 
+//Project
+#include "Hyro/Project/Scene.h"
+
 //Rendering
-#include "Hyro/Renderer/Renderer.h"
-#include "Hyro/Renderer/Renderer2D.h"
 #include "Hyro/Renderer/Texture.h"
 #include "Hyro/Renderer/ResourceManager.h"
 #include "Hyro/Core/Window.h"

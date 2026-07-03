@@ -19,8 +19,8 @@ namespace Hyro {
 	public:
 		static Scope<GraphicsAPI> Create(GraphicsAPIType api);
 
-		virtual void BeginScene() = 0;
-		virtual void EndScene() = 0;
+		virtual void BeginRenderPass() = 0;
+		virtual void EndRenderPass() = 0;
 
 		virtual void Submit(Ref<VertexArray> vertexArray, Ref<Material> material, uint32_t count) = 0;
 

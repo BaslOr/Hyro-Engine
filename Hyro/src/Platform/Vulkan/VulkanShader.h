@@ -10,7 +10,7 @@ namespace Hyro {
 	class VulkanShader : public Shader {
 	public: 
 		VulkanShader(const GraphicsPipelineSettings& settings);
-		~VulkanShader() = default;
+		~VulkanShader();
 
 		void Bind() const override;
 		void Bind(void* commandBuffer) const override;

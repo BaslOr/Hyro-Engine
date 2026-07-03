@@ -9,14 +9,13 @@ namespace Hyro {
 		m_API = GraphicsAPI::Create(type);
 	}
 
-	void RenderCommand::BeginScene()
+	void RenderCommand::BeginRenderPass()
 	{
-		m_API->BeginScene();
+		m_API->BeginRenderPass();
 	}
 
-	void RenderCommand::EndScene()
-	{
-		m_API->EndScene();
+	void RenderCommand::EndRenderPass() {
+		m_API->EndRenderPass();
 	}
 
 	void RenderCommand::Submit(Ref<VertexArray> vertexArray, Ref<Material> material, uint32_t count)

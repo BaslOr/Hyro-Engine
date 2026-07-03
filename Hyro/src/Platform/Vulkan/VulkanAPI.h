@@ -13,8 +13,8 @@ namespace Hyro {
 		VulkanAPI();
 		~VulkanAPI();
 
-		void BeginScene() override;
-		void EndScene() override;
+		void BeginRenderPass() override;
+		void EndRenderPass() override;
 
 		void Submit(Ref<VertexArray> vertexArray, Ref<Material> material, uint32_t count) override;
 

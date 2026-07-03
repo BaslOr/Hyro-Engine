@@ -79,7 +79,7 @@ namespace Hyro {
             SetupDebugCallback();
     }
 
-    void OpenGLGraphicsAPI::BeginScene()
+    void OpenGLGraphicsAPI::BeginRenderPass()
     {
         glClear(GL_COLOR_BUFFER_BIT /* | GL_DEPTH_BUFFER_BIT */);
     }

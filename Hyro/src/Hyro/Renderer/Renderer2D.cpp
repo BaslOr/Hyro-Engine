@@ -111,16 +111,16 @@ namespace Hyro {
 		m_Data.Count += 4;
 	}
 
-	void Renderer2D::DrawSprite(const Ref<Texture>& texture, const glm::vec2& position, const glm::vec2& size)
+	void Renderer2D::DrawSprite(const Ref<Sprite>& sprite, const glm::vec2& position, const glm::vec2& size)
 	{
 		int textureIndex = 0;
 
 		//Check if Texture is already in the slots
 		for (uint32_t i = 1; i < 16; i++)
 		{
-			if (m_Data.TexturesSlots[i] == texture) {
+			if (m_Data.TexturesSlots[i] == sprite->Texture) {
 				textureIndex = i;
-				m_Data.Material->SetTexture(texture, textureIndex);
+				m_Data.Material->SetTexture(sprite->Texture, textureIndex);
 				break;
 			}
 		}
@@ -132,12 +132,12 @@ namespace Hyro {
 			}
 
 			textureIndex = static_cast<float>(m_Data.CurrentTextureSlot);
-			m_Data.TexturesSlots[m_Data.CurrentTextureSlot] = texture;
+			m_Data.TexturesSlots[m_Data.CurrentTextureSlot] = sprite->Texture;
 			m_Data.CurrentTextureSlot++;
-			m_Data.Material->SetTexture(texture, static_cast<uint32_t>(textureIndex));
+			m_Data.Material->SetTexture(sprite->Texture, static_cast<uint32_t>(textureIndex));
 		}
 
-		m_Data.Material->SetTexture(texture, static_cast<uint32_t>(textureIndex));
+		m_Data.Material->SetTexture(sprite->Texture, static_cast<uint32_t>(textureIndex));
 
 		if (m_Data.Vertices.size() + 4 > m_Data.MaxVerticesCount) {
 			HYRO_ASSERT(false);

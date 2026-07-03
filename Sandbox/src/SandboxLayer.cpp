@@ -1,23 +1,30 @@
 #include "SandboxLayer.h"
 #include <imgui.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 
 SandboxLayer::SandboxLayer()
 {
 	Hyro::ResourceManager::LoadTexture("Sample1", "Assets/Textures/Cow.png");
 	Hyro::ResourceManager::LoadTexture("Sample2", "Assets/Textures/Texture.jpg");
+
+	m_Scene = Hyro::Scene::Create();
+
+	//Prepare scene
+	Hyro::Ref<Hyro::Sprite> sprite1 = Hyro::CreateRef<Hyro::Sprite>();
+	sprite1->Texture = Hyro::ResourceManager::GetTexture("Sample1");
+	Hyro::Ref<Hyro::Sprite> sprite2 = Hyro::CreateRef<Hyro::Sprite>();
+	sprite2->Texture = Hyro::ResourceManager::GetTexture("Sample2");
+	glm::mat4 transform1 = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(200.0f, 200.0f, 1.0f));
+	glm::mat4 transform2 = glm::translate(glm::mat4(1.0f), glm::vec3(400.0f, 100.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(200.0f, 200.0f, 1.0f));
+
+	m_Scene->AddSprite(sprite1, transform1);
+	m_Scene->AddSprite(sprite2, transform2);
 }
 
 void SandboxLayer::OnUpdate(const Hyro::TimeStep deltaTime)
 {
-	Hyro::Renderer::BeginScene();
-
-	auto texture1 = Hyro::ResourceManager::GetTexture("Sample1");
-	auto texture2 = Hyro::ResourceManager::GetTexture("Sample2");
-	Hyro::Renderer2D::DrawSprite(texture1, { 100.0f, 100.0f }, { 200.0f, 200.0f });
-	Hyro::Renderer2D::DrawSprite(texture2, { 400.0f, 100.0f }, { 200.0f, 200.0f });
-
-	Hyro::Renderer::EndScene();
+	m_Scene->Render();
 }
 
 void SandboxLayer::OnImGuiRender()

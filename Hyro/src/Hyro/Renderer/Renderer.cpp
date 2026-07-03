@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Hyro/Renderer/Renderer.h"
 
-#include "Hyro/Renderer/RenderCommand.h"
 #include "Hyro/Renderer/Renderer2D.h"
 
 namespace Hyro {
@@ -22,16 +21,14 @@ namespace Hyro {
 
 	void Renderer::BeginScene()
 	{
-		RenderCommand::BeginScene();
-
-		Renderer2D::BeginScene();
 	}
 
 	void Renderer::EndScene()
 	{
-		Renderer2D::EndScene();
+	}
 
-		RenderCommand::EndScene();
+	void Renderer::DrawMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
+	{
 	}
 
 }

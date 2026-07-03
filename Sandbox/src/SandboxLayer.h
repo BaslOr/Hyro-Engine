@@ -13,4 +13,5 @@ public:
 	virtual void OnEvent(Hyro::Event& event) override {};
 
 private:
+	Hyro::Ref<Hyro::Scene> m_Scene;
 };

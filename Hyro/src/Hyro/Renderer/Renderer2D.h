@@ -8,6 +8,7 @@
 #include "Hyro/Renderer/Texture.h"
 #include "Hyro/Renderer/UniformBuffer.h"
 #include "Hyro/Renderer/Material.h"
+#include "Hyro/Renderer/RenderPrimitives.h"
 
 namespace Hyro {
 
@@ -35,7 +36,9 @@ namespace Hyro {
 	class Renderer2D {
 	public:
 		static void DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-		static void DrawSprite(const Ref<Texture>& texture, const glm::vec2& position, const glm::vec2& size);
+		static void DrawSprite(const Ref<Sprite>& sprite, const glm::vec2& position, const glm::vec2& size);
+
+
 
 	private:
 		static void Init(const GraphicsPipelineSettings& settings);
@@ -47,6 +50,7 @@ namespace Hyro {
 	private:
 		inline static Renderer2DData m_Data;
 
+		friend class Scene;
 		friend class Renderer;
 	};
 

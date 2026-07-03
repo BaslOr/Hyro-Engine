@@ -10,6 +10,11 @@ namespace Hyro {
 		m_Pipeline = CreateRef<VulkanGraphicsPipeline>(settings);
 	}
 
+	VulkanShader::~VulkanShader()
+	{
+		vkDeviceWaitIdle(VulkanDevice::GetVkDevice());
+	}
+
 	void VulkanShader::Bind() const
 	{
 		HYRO_LOG_CORE_WARN("Tried to bind OpenGL Shader on Vulkan side. This may indicate a bug.");
