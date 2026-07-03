@@ -6,7 +6,7 @@
 
 namespace Hyro {
 
-	class ResourceManager {
+	class AssetManager {
 	public:
 		static void LoadTexture(const std::string& key, const std::string& path);
 		static Ref<Texture> GetTexture(const std::string& key);

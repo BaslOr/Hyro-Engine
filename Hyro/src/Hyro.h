@@ -9,7 +9,7 @@
 
 //Rendering
 #include "Hyro/Renderer/Texture.h"
-#include "Hyro/Renderer/ResourceManager.h"
+#include "Hyro/Project/AssetManager.h"
 #include "Hyro/Core/Window.h"
 
 //Core

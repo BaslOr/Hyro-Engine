@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "ResourceManager.h"
+#include "Hyro/Project/AssetManager.h"
 
 
 namespace Hyro {
 
-	void ResourceManager::LoadTexture(const std::string& key, const std::string& path)
+	void AssetManager::LoadTexture(const std::string& key, const std::string& path)
 	{
 		if (s_Textures.find(key) == s_Textures.end()) {
 			s_Textures[key] = Texture::Load(path);
@@ -14,7 +14,7 @@ namespace Hyro {
 		}
 	}
 
-	Ref<Texture> ResourceManager::GetTexture(const std::string& key)
+	Ref<Texture> AssetManager::GetTexture(const std::string& key)
 	{
 		if (s_Textures.find(key) != s_Textures.end()) {
 			return s_Textures[key];
