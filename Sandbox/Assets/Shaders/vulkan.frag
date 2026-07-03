@@ -2,9 +2,13 @@
 
 layout(location = 0) in vec4 fragColor;
 layout(location = 1) in float fragSpriteIndex;
+layout(location = 2) in vec2 fragUV;
 
 layout(location = 0) out vec4 outColor;
 
+layout(binding = 1) uniform sampler2D uTexture[16];
+
 void main() {
-    outColor = vec4(fragSpriteIndex, fragSpriteIndex, fragSpriteIndex, 1.f);
+    int spriteIndex = int(fragSpriteIndex);
+    outColor = texture(uTexture[spriteIndex], fragUV);
 }

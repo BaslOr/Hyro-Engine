@@ -4,6 +4,8 @@
 #include "Platform/Vulkan/VulkanSurface.h"
 #include "Platform/Vulkan/VulkanSwapchain.h"
 
+#include "Platform/Vulkan/VulkanTexture.h"
+
 namespace Hyro {
 
 	class VulkanContext : public GraphicsContext {
@@ -37,6 +39,8 @@ namespace Hyro {
 		inline uint32_t GetImageCount() const { return static_cast<uint32_t>(m_Swapchain->GetImageViews().size()); }
 		inline VkExtent2D GetSwapchainExtent() const { return m_Swapchain->GetExtent(); }
 
+		inline Ref<VulkanTexture> GetFallbackTexture() const { return m_FallbackTexture; }
+
 		inline static VulkanContext& Get() { return *s_Instance; }
 
 	private:
@@ -47,6 +51,7 @@ namespace Hyro {
 		Ref<VulkanSurface> m_Surface;
 		Ref<VulkanSwapchain> m_Swapchain;
 
+		Ref<VulkanTexture> m_FallbackTexture;
 
 		size_t m_MaxFramesInFlight = 2;
 		size_t m_CurrentFrame = 0;

@@ -11,15 +11,22 @@ namespace Hyro {
 
 	void VulkanDescriptorPool::Init()
 	{
-		std::array<VkDescriptorPoolSize, 2> poolSizes = { {
-			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,          100 },
-			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,  100 },  // ← ImGui!
+		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
+		std::array<VkDescriptorPoolSize, 3> poolSizes = { {
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,          maxFramesInFlight },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,  16 * maxFramesInFlight },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,  IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE }  // ← ImGui!
 		} };
+
+		uint32_t maxSets = 0;
+		for (const auto& poolSize : poolSizes) {
+			maxSets += poolSize.descriptorCount;
+		};
 
 		VkDescriptorPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; // optional aber praktisch
-		poolInfo.maxSets = 200;
+		poolInfo.maxSets = maxSets;
 		poolInfo.poolSizeCount = poolSizes.size();
 		poolInfo.pPoolSizes = poolSizes.data();
 

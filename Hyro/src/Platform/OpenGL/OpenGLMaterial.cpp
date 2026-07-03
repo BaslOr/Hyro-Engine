@@ -33,4 +33,9 @@ namespace Hyro {
 		}
 	}
 
+	void OpenGLMaterial::Bind(void* commandBuffer)
+	{
+		HYRO_LOG_CORE_WARN("OpenGLMaterial::Bind(void* commandBuffer) is not implemented. Command buffers are not used in OpenGL.");
+	}
+
 }

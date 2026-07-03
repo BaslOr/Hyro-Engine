@@ -7,6 +7,7 @@ layout(location = 3) in float inSpriteIndex;
 
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out float fragSpriteIndex;
+layout(location = 2) out vec2 fragUV;
 
 layout(std140, binding = 0) uniform UniformBufferObject {
     mat4 Projection;
@@ -17,4 +18,5 @@ void main() {
     gl_Position = ubo.Projection * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragSpriteIndex = inSpriteIndex;
+    fragUV = inUV;
 }

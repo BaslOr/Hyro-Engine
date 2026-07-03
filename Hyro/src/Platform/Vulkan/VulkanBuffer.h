@@ -61,14 +61,10 @@ namespace Hyro {
 
 		inline VkBuffer GetBufferAtIndex(size_t index) const { return m_Buffers[index]; }
 
-		static VkDescriptorSetLayout GetDescriptorSetLayout();
-
 	private:
 		std::vector<VkBuffer> m_Buffers;
 		std::vector<VkDeviceMemory> m_BufferMemories;
 		std::vector<void*> m_MappedMemories;
-
-		static inline VkDescriptorSetLayout s_DescriptorSetLayout;
 	};
 
 }

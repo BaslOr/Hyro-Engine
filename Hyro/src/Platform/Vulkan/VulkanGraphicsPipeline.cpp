@@ -19,6 +19,7 @@ namespace Hyro {
 		VkDevice device = VulkanDevice::GetVkDevice();
 		vkDestroyPipeline(device, m_Pipeline, g_VulkanAllocationCallback);
 		vkDestroyPipelineLayout(device, m_PipelineLayout, g_VulkanAllocationCallback);
+		vkDestroyDescriptorSetLayout(device, m_DescriptorSetLayout, g_VulkanAllocationCallback);
 	}
 
     void VulkanGraphicsPipeline::CreatePipeline(const GraphicsPipelineSettings& settings)
@@ -107,11 +108,11 @@ namespace Hyro {
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicState.pDynamicStates = dynamicStates.data();
 
+        CreateDescriptorSetLayout();
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
-        auto descriptorSetLayout = VulkanUniformBuffer::GetDescriptorSetLayout();
-        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+        pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
 
         if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS) {
@@ -143,6 +144,34 @@ namespace Hyro {
 
         vkDestroyShaderModule(device, vertShaderModule, g_VulkanAllocationCallback);
         vkDestroyShaderModule(device, fragShaderModule, g_VulkanAllocationCallback);
+    }
+
+    void VulkanGraphicsPipeline::CreateDescriptorSetLayout()
+    {
+        //Should later be reflected from shader
+
+		std::array<VkDescriptorSetLayoutBinding, 2> bindings{};
+        bindings[0].binding = 0;
+        bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        bindings[0].descriptorCount = 1;
+        bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        bindings[0].pImmutableSamplers = nullptr;
+
+        bindings[1].binding = 1;
+        bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        bindings[1].descriptorCount = 16;
+        bindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        bindings[1].pImmutableSamplers = nullptr;
+        
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+        layoutInfo.pBindings = bindings.data();
+
+        if (vkCreateDescriptorSetLayout(VulkanDevice::GetVkDevice(), &layoutInfo, g_VulkanAllocationCallback, &m_DescriptorSetLayout) != VK_SUCCESS) {
+            HYRO_LOG_CORE_ERROR("Failed to create Descriptor Set Layout!");
+        }
     }
 
     std::vector<char> VulkanGraphicsPipeline::ReadFile(const std::string& filepath)

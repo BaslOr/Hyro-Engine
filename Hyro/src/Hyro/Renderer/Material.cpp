@@ -4,7 +4,7 @@
 #include "Hyro/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLMaterial.h"
-//#include "Platform/Vulkan/VulkanMaterial.h"
+#include "Platform/Vulkan/VulkanMaterial.h"
 
 
 namespace Hyro {
@@ -19,8 +19,7 @@ namespace Hyro {
 		case GraphicsAPIType::OpenGL:
 			return CreateRef<OpenGLMaterial>(shader);
 		case GraphicsAPIType::Vulkan:
-			HYRO_LOG_CORE_ERROR("Vulkan is not supported yet!");
-			//return CreateRef<VulkanMaterial>(shader);
+			return CreateRef<VulkanMaterial>(shader);
 		}
 	}
 

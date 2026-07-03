@@ -16,6 +16,8 @@ namespace Hyro {
 		m_Swapchain = CreateRef<VulkanSwapchain>(m_Surface);
 		VulkanCommandPool::Init();
 		VulkanDescriptorPool::Init();
+
+		m_FallbackTexture = CreateRef<VulkanTexture>("Assets/Textures/Fallback.png");
 	}
 
 	VulkanContext::~VulkanContext()

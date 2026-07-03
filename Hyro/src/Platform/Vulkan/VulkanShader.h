@@ -15,10 +15,10 @@ namespace Hyro {
 		void Bind() const override;
 		void Bind(void* commandBuffer) const override;
 
+		VkPipelineLayout GetVkPipelineLayout() const { return m_Pipeline->GetVkPipelineLayout(); }
+		VkDescriptorSetLayout GetVkDescriptorSetLayout() const { return m_Pipeline->GetVkDescriptorSetLayout(); }
 
 	private:
 		Ref<VulkanGraphicsPipeline> m_Pipeline;
-
-		std::vector<VkDescriptorSet> m_DescriptorSets;
 	};
 }

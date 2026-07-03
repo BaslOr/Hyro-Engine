@@ -13,6 +13,7 @@ namespace Hyro {
 		virtual void SetTexture(Ref<Texture> texture, uint32_t slot) = 0;
 
 		virtual void Bind() = 0;
+		virtual void Bind(void* commandBuffer) = 0;
 	};
 
 }

@@ -13,7 +13,8 @@ namespace Hyro {
 		void Bind(uint32_t slot) const override;
 		inline void Bind(void* commandBuffer) const override {}
 
-		inline VkImageView GetImageView() const { return m_View; }
+		inline VkImageView GetVkImageView() const { return m_View; }
+		inline VkSampler GetVkSampler() const { return m_Sampler; }
 
 	private:
 		void CreateSampler();

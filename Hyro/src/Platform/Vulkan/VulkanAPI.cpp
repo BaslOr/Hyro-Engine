@@ -143,7 +143,7 @@ namespace Hyro {
 
         vertexArray->Bind(m_CommandBuffers[currentFrame]);
 
-        //material->Bind(m_CommandBuffers[currentFrame]);
+        material->Bind(m_CommandBuffers[currentFrame]);
 
         vkCmdDrawIndexed(m_CommandBuffers[currentFrame], count, 1, 0, 0, 0);
     }
