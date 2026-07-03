@@ -9,7 +9,7 @@ namespace Hyro {
 
 	class VulkanShader : public Shader {
 	public: 
-		VulkanShader(const GraphicsPipelineSettings& settings);
+		VulkanShader(const std::string& vertexPath, const std::string& fragmentPath);
 		~VulkanShader();
 
 		void Bind() const override;

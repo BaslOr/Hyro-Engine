@@ -23,24 +23,12 @@ namespace Hyro {
 
 		Logger::Init();
 
-
-		Renderer::Settings settings{};
-		if (Renderer::GetAPI() == GraphicsAPIType::Vulkan) {
-			settings.PipelineSettings.VertexShaderPath = "Assets/Shaders/vert.spv";
-			settings.PipelineSettings.FragmentShaderPath = "Assets/Shaders/frag.spv";
-		} else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
-		{
-			settings.PipelineSettings.VertexShaderPath = "Assets/Shaders/vertex.glsl";
-			settings.PipelineSettings.FragmentShaderPath = "Assets/Shaders/fragment.glsl";
-		}
-		settings.PipelineSettings.EnableBlending = true;
-		settings.PipelineSettings.SampleCount = 4;
-		WindowProps props(name, width, height, settings.PipelineSettings.SampleCount);
+		WindowProps props(name, width, height, 4);
 
 		m_Window = WindowsWindow::Create(props);
 		m_Window->SetEventCallback(HYRO_BIND_EVENT_FN(Application::OnEvent));
 
-		Renderer::Init(settings);
+		Renderer::Init();
 
 		m_ImGuiLayer = new ImGuiLayer;
 		PushOverlay(m_ImGuiLayer);

@@ -1,5 +1,4 @@
 #pragma once
-#include "Hyro/Renderer/GraphicsPipeline.h"
 
 #include <vulkan/vulkan.h>
 
@@ -8,7 +7,7 @@ namespace Hyro {
 
 	class VulkanGraphicsPipeline {
 	public:
-		VulkanGraphicsPipeline(const GraphicsPipelineSettings& settings);
+		VulkanGraphicsPipeline(const std::string& vertexPath, const std::string& fragmentPath);
 		~VulkanGraphicsPipeline();
 
 		inline VkPipeline GetVkPipeline() const { return m_Pipeline; }
@@ -16,7 +15,7 @@ namespace Hyro {
 		inline VkPipelineLayout GetVkPipelineLayout() const { return m_PipelineLayout; }
 
 	private:
-		void CreatePipeline(const GraphicsPipelineSettings& settings);
+		void CreatePipeline(const std::string& vertexPath, const std::string& fragmentPath);
 		void CreateDescriptorSetLayout();
 
 		std::vector<char> ReadFile(const std::string& filepath);

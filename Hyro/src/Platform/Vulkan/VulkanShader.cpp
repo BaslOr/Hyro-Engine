@@ -5,9 +5,9 @@
 
 namespace Hyro {
 
-	VulkanShader::VulkanShader(const GraphicsPipelineSettings& settings)
+	VulkanShader::VulkanShader(const std::string& vertexPath, const std::string& fragmentPath)
 	{
-		m_Pipeline = CreateRef<VulkanGraphicsPipeline>(settings);
+		m_Pipeline = CreateRef<VulkanGraphicsPipeline>(vertexPath, fragmentPath);
 	}
 
 	VulkanShader::~VulkanShader()

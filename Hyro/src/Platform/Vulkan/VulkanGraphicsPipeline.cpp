@@ -7,9 +7,9 @@
 
 namespace Hyro {
 
-	VulkanGraphicsPipeline::VulkanGraphicsPipeline(const GraphicsPipelineSettings& settings)
+	VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::string& vertexPath, const std::string& fragmentPath)
 	{
-		CreatePipeline(settings);
+		CreatePipeline(vertexPath, fragmentPath);
 
 		HYRO_LOG_CORE_INFO("Graphics pipeline created successfully");
 	}
@@ -22,12 +22,12 @@ namespace Hyro {
 		vkDestroyDescriptorSetLayout(device, m_DescriptorSetLayout, g_VulkanAllocationCallback);
 	}
 
-    void VulkanGraphicsPipeline::CreatePipeline(const GraphicsPipelineSettings& settings)
+    void VulkanGraphicsPipeline::CreatePipeline(const std::string& vertexPath, const std::string& fragmentPath)
     {
 
         VkDevice device = VulkanDevice::GetVkDevice();
-        auto vertShaderCode = ReadFile(settings.VertexShaderPath);
-        auto fragShaderCode = ReadFile(settings.FragmentShaderPath);
+        auto vertShaderCode = ReadFile(vertexPath);
+        auto fragShaderCode = ReadFile(fragmentPath);
 
         //Reflections here
 

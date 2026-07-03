@@ -5,7 +5,7 @@ namespace Hyro {
 
 	class OpenGLGraphicsPipeline {
 	public:
-		OpenGLGraphicsPipeline(const GraphicsPipelineSettings& settings);
+		OpenGLGraphicsPipeline();
 		~OpenGLGraphicsPipeline();
 
 	private:

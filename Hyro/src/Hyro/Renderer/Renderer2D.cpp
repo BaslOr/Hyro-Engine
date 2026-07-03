@@ -5,10 +5,11 @@
 #include "Hyro/Renderer/RenderCommand.h"
 #include "Hyro/Renderer/Renderer.h"
 #include "Hyro/Core/Application.h"
+#include "Hyro/Project/AssetManager.h"
 
 namespace Hyro {
 
-	void Renderer2D::Init(const GraphicsPipelineSettings& settings)
+	void Renderer2D::Init()
 	{
 		m_Data.VAO = VertexArray::Create();
 		m_Data.VBO = VertexBuffer::Create(m_Data.MaxVerticesCount * sizeof(Vertex));//It may be possible that this won't work when implementing dynamic Vertex Layout in the future
@@ -29,7 +30,7 @@ namespace Hyro {
 		m_Data.VAO->SetLayout(vertexLayout);
 
 
-		m_Data.Shader = Shader::Create(settings);
+		m_Data.Shader = AssetManager::GetShader("Default2D");
 		m_Data.Material = Material::Create(m_Data.Shader);
 		m_Data.Material->SetUnifromBuffer(m_Data.UBO, 0);
 

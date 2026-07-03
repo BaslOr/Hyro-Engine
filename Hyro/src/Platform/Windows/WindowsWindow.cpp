@@ -74,7 +74,7 @@ namespace Hyro {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            glfwWindowHint(GLFW_SAMPLES, 4);
+            //glfwWindowHint(GLFW_SAMPLES, 4);
             break;
         case GraphicsAPIType::Vulkan:
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
