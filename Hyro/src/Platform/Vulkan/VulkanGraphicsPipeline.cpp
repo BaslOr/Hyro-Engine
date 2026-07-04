@@ -3,7 +3,16 @@
 
 #include "Platform/Vulkan/VulkanContext.h"
 #include "Platform/Vulkan/VulkanBuffer.h"
-#include "Platform/Vulkan/VulkanBuffer.h"
+#include "Hyro/Core/Core.h"
+
+
+#include <fstream>
+#include <cstdlib>
+
+#ifdef HYRO_PLATFORM_WINDOWS
+    #include <windows.h>
+#endif
+
 
 namespace Hyro {
 
@@ -26,13 +35,20 @@ namespace Hyro {
     {
 
         VkDevice device = VulkanDevice::GetVkDevice();
-        auto vertShaderCode = ReadFile(vertexPath);
-        auto fragShaderCode = ReadFile(fragmentPath);
+
+		auto vertexCode = ReadFile(vertexPath);
+		auto fragmentCode = ReadFile(fragmentPath);
+
+        std::cout << vertexCode << std::endl << std::endl;
+        std::cout << fragmentCode << std::endl;
+
+        auto vertexSpirV = ShaderCompiler::CompileToSpirv(vertexPath, ShaderStage::Vertex);
+        auto fragmentSpirV = ShaderCompiler::CompileToSpirv(fragmentPath, ShaderStage::Fragment);
 
         //Reflections here
 
-        VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
-        VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
+        VkShaderModule vertShaderModule = CreateShaderModule(vertexSpirV);
+        VkShaderModule fragShaderModule = CreateShaderModule(fragmentSpirV);
 
         VkPipelineShaderStageCreateInfo vertexStageInfo{};
         vertexStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -174,9 +190,12 @@ namespace Hyro {
         }
     }
 
-    std::vector<char> VulkanGraphicsPipeline::ReadFile(const std::string& filepath)
+    std::string VulkanGraphicsPipeline::ReadFile(const std::string& filepath)
 	{
-		std::ifstream file(filepath, std::ios::ate | std::ios::binary);
+		std::ifstream file(filepath, std::ios::ate);
+		if (!file.is_open()) {
+			HYRO_LOG_CORE_ERROR("Failed to read Shader: " + filepath);
+		}
 		size_t fileSize = (size_t)file.tellg();
 		std::vector<char> buffer(fileSize);
 
@@ -185,14 +204,16 @@ namespace Hyro {
 		
 		file.close();
 
-		return buffer;
+        std::string output(buffer.data());
+
+		return output;
 	}
 
-	VkShaderModule VulkanGraphicsPipeline::CreateShaderModule(const std::vector<char>& code)
+	VkShaderModule VulkanGraphicsPipeline::CreateShaderModule(const std::vector<uint32_t>& code)
 	{
 		VkShaderModuleCreateInfo moduleInfo{};
 		moduleInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		moduleInfo.codeSize = code.size();
+		moduleInfo.codeSize = code.size() * sizeof(uint32_t);
 		moduleInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
 		VkDevice device = VulkanDevice::GetVkDevice();
@@ -201,5 +222,109 @@ namespace Hyro {
 
 		return shaderModule;
 	}
+
+
+
+
+
+
+    //ShaderCompiler
+    std::filesystem::path ShaderCompiler::GetGlslcPath() {
+        const char* sdkPath = std::getenv("VULKAN_SDK");
+        if (!sdkPath) {
+            HYRO_LOG_CORE_ERROR("VULKAN_SDK Umgebungsvariable nicht gesetzt.");
+        }
+		if (g_CurrentPlatform == PlatformType::Windows)
+            return std::filesystem::path(sdkPath) / "Bin" / "glslc.exe";
+        else 
+            return std::filesystem::path(sdkPath) / "bin" / "glslc";
+    }
+
+    const char* ShaderCompiler::StageToFlag(ShaderStage stage) {
+        switch (stage) {
+        case ShaderStage::Vertex:   return "vertex";
+        case ShaderStage::Fragment: return "fragment";
+        case ShaderStage::Compute:  return "compute";
+        }
+        HYRO_LOG_CORE_ERROR("Unbekannter ShaderStage.");
+    }
+
+    std::vector<uint32_t> ShaderCompiler::CompileToSpirv(const std::filesystem::path& sourcePath, ShaderStage stage) {
+        auto tempDir = std::filesystem::temp_directory_path();
+        auto outputPath = tempDir / (sourcePath.filename().string() + ".spv");
+        auto logPath = tempDir / (sourcePath.filename().string() + ".log");
+
+        std::string cmd = "\"" + GetGlslcPath().string() + "\""
+            + " -fshader-stage=" + StageToFlag(stage)
+            + " --target-env=vulkan1.3"
+            + " \"" + sourcePath.string() + "\""
+            + " -o \"" + outputPath.string() + "\"";
+
+#ifdef HYRO_PLATFORM_WINDOWS
+        // Log-Datei als Ziel für stdout+stderr des Kindprozesses
+        SECURITY_ATTRIBUTES sa{};
+        sa.nLength = sizeof(sa);
+        sa.bInheritHandle = TRUE;
+
+        HANDLE logHandle = CreateFileA(
+            logPath.string().c_str(), GENERIC_WRITE, FILE_SHARE_READ,
+            &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+        STARTUPINFOA si{};
+        si.cb = sizeof(si);
+        si.dwFlags = STARTF_USESTDHANDLES;
+        si.hStdOutput = logHandle;
+        si.hStdError = logHandle;
+
+        PROCESS_INFORMATION pi{};
+
+        // CREATE_NO_WINDOW verhindert das Konsolenfenster-Flackern
+        BOOL ok = CreateProcessA(
+            nullptr, cmd.data(), nullptr, nullptr, TRUE,
+            CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi);
+
+        CloseHandle(logHandle);
+
+        if (!ok) {
+            HYRO_LOG_CORE_ERROR("glslc konnte nicht gestartet werden.");
+        }
+
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        DWORD exitCode = 0;
+        GetExitCodeProcess(pi.hProcess, &exitCode);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+
+        if (exitCode != 0) {
+            std::ifstream logFile(logPath);
+            std::string log((std::istreambuf_iterator<char>(logFile)), std::istreambuf_iterator<char>());
+            std::filesystem::remove(logPath);
+            HYRO_LOG_CORE_ERROR("Shader-Kompilierung fehlgeschlagen (" + sourcePath.string() + "):\n" + log);
+        }
+#else
+        int result = std::system((cmd + " > \"" + logPath.string() + "\" 2>&1").c_str());
+        if (result != 0) {
+            std::ifstream logFile(logPath);
+            std::string log((std::istreambuf_iterator<char>(logFile)), std::istreambuf_iterator<char>());
+            std::filesystem::remove(logPath);
+            HYRO_LOG_CORE_ERROR("Shader-Kompilierung fehlgeschlagen (" + sourcePath.string() + "):\n" + log);
+        }
+#endif
+        std::filesystem::remove(logPath);
+
+        // .spv-Datei einlesen
+        std::ifstream file(outputPath, std::ios::binary | std::ios::ate);
+        if (!file) {
+            HYRO_LOG_CORE_ERROR("SPIR-V Ausgabedatei konnte nicht gelesen werden: " + outputPath.string());
+        }
+        size_t size = static_cast<size_t>(file.tellg());
+        std::vector<uint32_t> spirv(size / sizeof(uint32_t));
+        file.seekg(0);
+        file.read(reinterpret_cast<char*>(spirv.data()), size);
+        file.close();
+
+        std::filesystem::remove(outputPath);
+        return spirv;
+    }
 
 }

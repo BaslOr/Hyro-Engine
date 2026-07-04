@@ -1,5 +1,8 @@
 #include "pch.h"
-#include "OpenGLMaterial.h"
+#include "Platform/OpenGL/OpenGLMaterial.h"
+#include "Platform/OpenGL/OpenGLShader.h"
+
+#include <glad/glad.h>
 
 
 namespace Hyro {
@@ -7,7 +10,11 @@ namespace Hyro {
 	OpenGLMaterial::OpenGLMaterial(Ref<Shader> shader)
 		: m_Shader(shader)
 	{
-
+		m_Shader->Bind();
+		std::array<int, 16> textureSlots = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+		OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
+		int location = openGLShader->GetUniformLocation("u_Textures");
+		glUniform1iv(location, textureSlots.size(), textureSlots.data());
 	}
 
 	void OpenGLMaterial::SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding)

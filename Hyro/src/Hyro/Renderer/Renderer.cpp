@@ -12,17 +12,8 @@ namespace Hyro {
 
 		//Some kind of API description should be passed here
 		//To determine blend func, sample count, ...
-		std::string vertexShaderPath;
-		std::string fragmentShaderPath;
-		if (Renderer::GetAPI() == GraphicsAPIType::Vulkan) {
-			vertexShaderPath = "Assets/Shaders/vert.spv";
-			fragmentShaderPath = "Assets/Shaders/frag.spv";
-		}
-		else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
-		{
-			vertexShaderPath = "Assets/Shaders/vertex.glsl";
-			fragmentShaderPath = "Assets/Shaders/fragment.glsl";
-		}
+		std::string vertexShaderPath = "Assets/Shaders/shader.vert";
+		std::string fragmentShaderPath = "Assets/Shaders/shader.frag";
 		AssetManager::LoadShader("Default2D", vertexShaderPath, fragmentShaderPath);
 
 		RenderCommand::Init(m_GraphicsAPIType);

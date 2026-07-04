@@ -71,11 +71,11 @@ project "Hyro"
 
 
    links { 
-       "GLFW",
-       "glad",
-       "ImGui",
-       "spdlog",
-       "vulkan-1.lib"
+      "GLFW",
+      "glad",
+      "ImGui",
+      "spdlog",
+      "vulkan-1.lib"
    }
 
    includedirs { 

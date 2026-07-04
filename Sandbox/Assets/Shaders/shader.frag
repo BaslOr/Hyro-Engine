@@ -6,9 +6,9 @@ layout(location = 2) in vec2 fragUV;
 
 layout(location = 0) out vec4 outColor;
 
-layout(binding = 1) uniform sampler2D uTexture[16];
+layout(binding = 1) uniform sampler2D u_Textures[16];
 
 void main() {
     int spriteIndex = int(fragSpriteIndex);
-    outColor = texture(uTexture[spriteIndex], fragUV);
+    outColor = texture(u_Textures[spriteIndex], fragUV);
 }

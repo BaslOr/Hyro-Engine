@@ -1,9 +1,29 @@
 #pragma once
-
 #include <vulkan/vulkan.h>
+
+#include <filesystem>
+#include <string>
+#include <vector>
 
 
 namespace Hyro {
+
+	enum class ShaderStage {
+		Vertex,
+		Fragment,
+		Compute
+	};
+
+	class ShaderCompiler {
+	public:
+		static std::vector<uint32_t> CompileToSpirv(const std::filesystem::path& sourcePath, ShaderStage stage);
+
+	private:
+		static std::filesystem::path GetGlslcPath();
+		static const char* StageToFlag(ShaderStage stage);
+	};
+
+		
 
 	class VulkanGraphicsPipeline {
 	public:
@@ -18,8 +38,8 @@ namespace Hyro {
 		void CreatePipeline(const std::string& vertexPath, const std::string& fragmentPath);
 		void CreateDescriptorSetLayout();
 
-		std::vector<char> ReadFile(const std::string& filepath);
-		VkShaderModule CreateShaderModule(const std::vector<char>& code);
+		std::string ReadFile(const std::string& filepath);
+		VkShaderModule CreateShaderModule(const std::vector<uint32_t>& code);
 
 	private:
 		VkDescriptorSetLayout m_DescriptorSetLayout;

@@ -15,15 +15,19 @@ namespace Hyro {
 		void Bind() const override;
 		void Bind(void* commandBuffer) const override;
 
+		uint32_t GetProgram() const { return m_Program; }
+
 
 	private:
+		friend class OpenGLMaterial;
+
 		void CheckShaderCompilation(uint32_t shader);
 		void CheckLinkingErrors();
 
 		uint32_t CreateShader(uint32_t shaderType, const char* shaderSource);
 
 		int GetUniformLocation(const std::string& name) const;
-		void CheckLocation(int location) const;
+		bool CheckLocation(int location) const;
 
 		std::string ReadShaderFromFile(const std::string& filePath);
 

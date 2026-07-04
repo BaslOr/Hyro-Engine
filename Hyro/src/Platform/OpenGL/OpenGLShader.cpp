@@ -27,12 +27,6 @@ namespace Hyro {
 		glLinkProgram(m_Program);
 		CheckLinkingErrors();
 
-		Bind();
-		std::array<int, 16> textureSlots = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-		int location = GetUniformLocation("u_Textures");
-		glUniform1iv(location, textureSlots.size(), textureSlots.data());
-
-
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
 	}
@@ -93,15 +87,19 @@ namespace Hyro {
 		int location = glGetUniformLocation(m_Program, name.c_str());
 		m_UniformLocationCache[name] = location;
 
-		CheckLocation(location);
+		if (!CheckLocation(location))
+		{
+			HYRO_LOG_CORE_ERROR("Failed to get uniform location for: {}", name);
+		}
 		return location;
 	}
 
-	void OpenGLShader::CheckLocation(int location) const
+	bool OpenGLShader::CheckLocation(int location) const
 	{
 		if (location == -1) {
-			HYRO_LOG_CORE_ERROR("Tried to access invalid Uniform Location");
+			return false;
 		}
+		return true;
 	}
 
 	std::string OpenGLShader::ReadShaderFromFile(const std::string& filePath)
@@ -110,6 +108,7 @@ namespace Hyro {
 
 		if (!file.is_open()) {
 			std::cerr << "Failed to open File: " << filePath << std::endl;
+			return "";
 		}
 
 		std::stringstream buffer;
