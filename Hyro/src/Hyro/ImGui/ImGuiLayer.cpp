@@ -188,11 +188,11 @@ namespace Hyro {
 
         Application& app = Application::Get();
         GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow()->GetNative());
-        if (Renderer::GetAPI() == GraphicsAPIType::OpenGL) {
+        if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL) {
             ImGui_ImplGlfw_InitForOpenGL(window, true);
             ImGui_ImplOpenGL3_Init("#version 460");
         }
-        else if (Renderer::GetAPI() == GraphicsAPIType::Vulkan) {
+        else if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan) {
             // Setup Platform/Renderer backends
             ImGui_ImplGlfw_InitForVulkan(window, true);
 
@@ -222,10 +222,10 @@ namespace Hyro {
 
 	void ImGuiLayer::OnDetach()
 	{
-        if (Renderer::GetAPI() == GraphicsAPIType::OpenGL) {
+        if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL) {
             ImGui_ImplOpenGL3_Shutdown();
         }
-        else if (Renderer::GetAPI() == GraphicsAPIType::Vulkan) {
+        else if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan) {
             ImGui_ImplVulkan_Shutdown();
         }
 
@@ -236,10 +236,10 @@ namespace Hyro {
     void ImGuiLayer::Begin()
     {
         // Start the Dear ImGui frame
-        if (Renderer::GetAPI() == GraphicsAPIType::OpenGL) {
+        if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL) {
             ImGui_ImplOpenGL3_NewFrame();
         }
-        else if (Renderer::GetAPI() == GraphicsAPIType::Vulkan) {
+        else if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan) {
             ImGui_ImplVulkan_NewFrame();
         }
 
@@ -254,10 +254,10 @@ namespace Hyro {
         io.DisplaySize = { static_cast<float>(app.GetWindow()->GetWidth()), static_cast<float>(app.GetWindow()->GetHeight()) };
 
         ImGui::Render();
-        if (Renderer::GetAPI() == GraphicsAPIType::OpenGL) {
+        if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL) {
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
-        else if (Renderer::GetAPI() == GraphicsAPIType::Vulkan) {
+        else if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan) {
             //ImGui is rendererd inside the main render pass, so we don't call ImGui_ImplVulkan_RenderDrawData here. Instead,
             // we call ImGui_ImplVulkan_RenderDrawData in the VulkanAPI::Submit() function after rendering the main scene,
             // and before submitting the command buffer. This is because the ImGui Vulkan backend needs to record its draw commands inside the main render pass,

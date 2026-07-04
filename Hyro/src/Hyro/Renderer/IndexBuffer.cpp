@@ -10,7 +10,7 @@ namespace Hyro {
 
 	Ref<IndexBuffer> Hyro::IndexBuffer::Create(uint32_t size)
 	{
-		switch (Renderer::GetAPI())
+		switch (SceneRenderer::GetAPI())
 		{
 		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API selected! ");
@@ -27,7 +27,7 @@ namespace Hyro {
 
 	Ref<IndexBuffer> Hyro::IndexBuffer::Create(const std::vector<uint32_t>& indices)
 	{
-		switch (Renderer::GetAPI())
+		switch (SceneRenderer::GetAPI())
 		{
 		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API selected! ");

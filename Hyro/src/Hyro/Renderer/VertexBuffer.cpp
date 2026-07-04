@@ -11,7 +11,7 @@ namespace Hyro {
 
 	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
 	{
-		switch (Renderer::GetAPI())
+		switch (SceneRenderer::GetAPI())
 		{
 		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API selected! ");
@@ -28,7 +28,7 @@ namespace Hyro {
 
 	Ref<VertexBuffer> Hyro::VertexBuffer::Create(const std::vector<Vertex>& vertices)
     {
-		switch (Renderer::GetAPI())
+		switch (SceneRenderer::GetAPI())
 		{
 		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API selected! ");

@@ -16,8 +16,6 @@ namespace Hyro {
 		static void BeginScene();
 		static void EndScene();
 
-		static void DrawMesh(const Ref<Mesh>& mesh, const glm::mat4& transform);
-
 		static inline void BeginRenderPass() { RenderCommand::BeginRenderPass(); }
 		static inline void EndRenderPass() { RenderCommand::EndRenderPass(); }
 

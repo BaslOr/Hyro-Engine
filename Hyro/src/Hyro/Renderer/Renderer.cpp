@@ -12,9 +12,12 @@ namespace Hyro {
 
 		//Some kind of API description should be passed here
 		//To determine blend func, sample count, ...
-		std::string vertexShaderPath = "Assets/Shaders/shader.vert";
-		std::string fragmentShaderPath = "Assets/Shaders/shader.frag";
+		std::string vertexShaderPath = "Assets/Shaders/Shader2D.vert";
+		std::string fragmentShaderPath = "Assets/Shaders/Shader2D.frag";
 		AssetManager::LoadShader("Default2D", vertexShaderPath, fragmentShaderPath);
+		vertexShaderPath = "Assets/Shaders/Shader3D.vert";
+		fragmentShaderPath = "Assets/Shaders/Shader3D.frag";
+		AssetManager::LoadShader("Default3D", vertexShaderPath, fragmentShaderPath);
 
 		RenderCommand::Init(m_GraphicsAPIType);
 		Renderer2D::Init();
@@ -30,10 +33,6 @@ namespace Hyro {
 	}
 
 	void Renderer::EndScene()
-	{
-	}
-
-	void Renderer::DrawMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
 	{
 	}
 

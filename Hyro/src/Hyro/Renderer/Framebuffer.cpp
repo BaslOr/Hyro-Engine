@@ -8,7 +8,7 @@ namespace Hyro {
 	//It is questionable if this is even required to be implemented on global level
     Ref<Framebuffer> Framebuffer::Create(uint32_t width, uint32_t height)
     {
-		switch (Renderer::GetAPI())
+		switch (SceneRenderer::GetAPI())
 		{
 		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API selected! ");

@@ -11,7 +11,7 @@ namespace Hyro {
 
 	Ref<Material> Material::Create(Ref<Shader> shader)
 	{
-		switch (Renderer::GetAPI())
+		switch (SceneRenderer::GetAPI())
 		{
 		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API is selected!");

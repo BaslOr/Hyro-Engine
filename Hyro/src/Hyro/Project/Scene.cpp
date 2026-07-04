@@ -37,7 +37,7 @@ namespace Hyro {
 
     void Scene::Render()
     {
-		Renderer::BeginRenderPass();
+		SceneRenderer::BeginRenderPass();
 
 		Renderer2D::BeginScene();
         for (auto& spriteInstance : m_Sprites)
@@ -49,14 +49,14 @@ namespace Hyro {
         Renderer2D::EndScene();
 
 
-        Renderer::BeginScene();
+        SceneRenderer::BeginScene();
 		for (auto& meshInstance : m_Meshes)
 		{
-			Renderer::DrawMesh(meshInstance.Mesh, meshInstance.Transform);
+			SceneRenderer::DrawMesh(meshInstance.Mesh, meshInstance.Transform);
 		}
-		Renderer::EndScene();
+		SceneRenderer::EndScene();
 
-        Renderer::EndRenderPass();
+        SceneRenderer::EndRenderPass();
     }
 
 
