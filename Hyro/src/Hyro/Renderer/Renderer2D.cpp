@@ -1,7 +1,6 @@
 #include "pch.h"
-#include "Renderer2D.h"
+#include "Hyro/Renderer/Renderer2D.h"
 
-#include <glm/gtc/matrix_transform.hpp>
 #include "Hyro/Renderer/RenderCommand.h"
 #include "Hyro/Renderer/Renderer.h"
 #include "Hyro/Core/Application.h"
@@ -41,29 +40,21 @@ namespace Hyro {
 	{
 	}
 
-	void Renderer2D::BeginScene()
+	void Renderer2D::BeginScene(const glm::mat4& mvp)
 	{
 		m_Data.Vertices.clear();
 		m_Data.Indices.clear();
 		m_Data.Count = 0;
+
+		UniformBufferData data{};
+		data.MVP = mvp;
+		m_Data.UBO->SetData(data);
 	}
 
 	void Renderer2D::EndScene()
 	{
 		m_Data.VBO->SetData(m_Data.Vertices);
 		m_Data.IBO->SetData(m_Data.Indices);
-
-		//TODO: Get size from Framebuffer
-		Application& app = Application::Get();
-		float width = static_cast<float>(app.GetWindow()->GetWidth());
-		float height = static_cast<float>(app.GetWindow()->GetHeight());
-
-		UniformBufferData data;
-		if (Renderer::GetAPI() == GraphicsAPIType::Vulkan)
-			data.Projection = glm::ortho(0.f, width, height, 0.f);
-		else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
-			data.Projection = glm::ortho(0.f, width, 0.f, height);
-		m_Data.UBO->SetData(data);
 
 		RenderCommand::Submit(m_Data.VAO, m_Data.Material, static_cast<uint32_t>(m_Data.Indices.size()));
 	}

@@ -77,11 +77,13 @@ namespace Hyro {
     {
         if (g_CurrentBuildConfig == BuildConfig::Debug)
             SetupDebugCallback();
+
+        glEnable(GL_DEPTH_TEST);
     }
 
     void OpenGLGraphicsAPI::BeginRenderPass()
     {
-        glClear(GL_COLOR_BUFFER_BIT /* | GL_DEPTH_BUFFER_BIT */);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void OpenGLGraphicsAPI::Submit(Ref<VertexArray> vao, Ref<Material> material, uint32_t count)

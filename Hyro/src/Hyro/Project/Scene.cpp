@@ -2,10 +2,14 @@
 #include "Hyro/Project/Scene.h"
 
 
+#include "Hyro/Core/Application.h"
+
 #include "Hyro/Renderer/Renderer2D.h"
 #include "Hyro/Renderer/Renderer3D.h"
 #include "Hyro/Renderer/Renderer.h"
 #include "Hyro/Renderer/MeshFactory.h"
+
+#include <glm/gtc/matrix_transform.hpp>
 
 
 namespace Hyro {
@@ -46,7 +50,30 @@ namespace Hyro {
     {
 		Renderer::BeginRenderPass();
 
-		Renderer2D::BeginScene();
+        //Get framebuffer size
+        Ref <Window> window = Application::Get().GetWindow();
+        float width = static_cast<float>(window->GetWidth());
+        float height = static_cast<float>(window->GetHeight()); 
+        float aspectRatio = width / height;
+        glm::mat4 projection = glm::perspective(80.f, aspectRatio, 0.1f, 100.f);
+        
+
+        Renderer3D::BeginScene(projection);
+        for (auto& meshInstance : m_Meshes)
+        {
+            Renderer3D::DrawMesh(meshInstance.Mesh, meshInstance.Transform);
+        }
+        Renderer3D::EndScene();
+
+
+
+
+        if (Renderer::GetAPI() == GraphicsAPIType::Vulkan)
+            projection = glm::ortho(0.f, width, height, 0.f);
+        else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
+            projection = glm::ortho(0.f, width, 0.f, height);
+
+		Renderer2D::BeginScene(projection);
         for (auto& spriteInstance : m_Sprites)
         {
 			glm::vec2 position = glm::vec2(spriteInstance.Transform[3]);
@@ -54,14 +81,6 @@ namespace Hyro {
 			Renderer2D::DrawSprite(spriteInstance.Sprite, position, size);
         }
         Renderer2D::EndScene();
-
-
-        Renderer3D::BeginScene();
-		for (auto& meshInstance : m_Meshes)
-		{
-			Renderer3D::DrawMesh(meshInstance.Mesh, meshInstance.Transform);
-		}
-		Renderer3D::EndScene();
 
         Renderer::EndRenderPass();
     }

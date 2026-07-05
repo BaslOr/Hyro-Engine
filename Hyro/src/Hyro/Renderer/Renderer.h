@@ -29,7 +29,7 @@ namespace Hyro {
 		static inline Ref<UniformBuffer> GetTransfromUniformBuffer() { return m_TransformUniformBuffer; }
 
 	private:
-		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::Vulkan;
+		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::OpenGL;
 
 		//Shared UBOs
 		static inline Ref<UniformBuffer> m_TransformUniformBuffer;

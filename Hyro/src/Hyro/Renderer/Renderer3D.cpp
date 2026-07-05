@@ -5,6 +5,7 @@
 #include "Hyro/Renderer/RenderCommand.h"
 #include "Hyro/Renderer/Renderer.h"
 
+#include <glm/gtc/matrix_transform.hpp> 
 
 namespace Hyro {
 
@@ -23,7 +24,8 @@ namespace Hyro {
 	void Renderer3D::DrawMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
 	{
 		UniformBufferData data{};
-		data.Projection = transform;
+		glm::mat4 projection = glm::perspective(80.f, 16.f / 9.f, 0.1f, 100.f);
+		data.MVP = projection * transform;
 		m_Data.UBO->SetData(data);
 
 		m_Data.Material->SetTexture(mesh->Texture, 0);
@@ -31,8 +33,11 @@ namespace Hyro {
 		RenderCommand::Submit(mesh->VAO, m_Data.Material, mesh->Count);
 	}
 
-	void Renderer3D::BeginScene()
+	void Renderer3D::BeginScene(const glm::mat4& mvp)
 	{
+		UniformBufferData data{};
+		data.MVP = mvp;
+		m_Data.UBO->SetData(data);
 	}
 
 	void Renderer3D::EndScene()

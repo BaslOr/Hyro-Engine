@@ -31,7 +31,7 @@ namespace Hyro {
 		static void Init();
 		static void Shutdown();
 
-		static void BeginScene();
+		static void BeginScene(const glm::mat4& mvp);
 		static void EndScene();
 
 	private:

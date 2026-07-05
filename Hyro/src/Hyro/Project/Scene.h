@@ -41,6 +41,9 @@ namespace Hyro {
 	private:
 		std::vector<MeshInstance> m_Meshes;
 		std::vector<SpriteInstance> m_Sprites;
+
+		glm::mat4 m_Projection;
+		glm::mat4 m_View;
 	};
 
 
