@@ -73,8 +73,9 @@ namespace Hyro {
 
         vkBeginCommandBuffer(m_CommandBuffers[currentFrame], &beginInfo);
 
-        VkClearValue clearColor;
-        clearColor = { {m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, m_ClearColor.a} };
+        std::array<VkClearValue, 2> clearValues{};
+        clearValues[0].color = {{m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, m_ClearColor.a}};
+        clearValues[1].depthStencil = { 1.0f, 0 };
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -82,8 +83,8 @@ namespace Hyro {
         renderPassInfo.framebuffer = context.GetVkFramebuffer(m_ImageIndex);
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = context.GetSwapchainExtent();
-        renderPassInfo.clearValueCount = 1;
-        renderPassInfo.pClearValues = &clearColor;
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
 
         vkCmdBeginRenderPass(m_CommandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     }

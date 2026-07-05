@@ -1,58 +1,156 @@
 #include "pch.h"
 #include "Platform/Vulkan/VulkanTexture.h"
+
 #include "Platform/Vulkan/VulkanDevice.h"
 #include "Platform/Vulkan/VulkanCommandPool.h"
+#include "Platform/Vulkan/VulkanBuffer.h"
 
 #include <stb_image.h>
 
 namespace Hyro {
 
-	//Copied from Vulkan buffers. Maybe find a way to abstract this process in the future (fine for now)
-	//Utility Functions for Vulkan Buffers
-	static uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+	VulkanTexture::VulkanTexture(const std::string& filePath)
 	{
-		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(VulkanDevice::GetVkPhysicalDevice(), &memProperties);
+		auto device = VulkanDevice::GetVkDevice();
 
-		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-				return i;
+		int width, height, nrChannels;
+		const char* path = filePath.c_str();
+		stbi_set_flip_vertically_on_load(true);
+		stbi_uc* pixels = stbi_load(path, &width, &height, &nrChannels, 4);
+
+		VkDeviceSize imageSize = width * height * 4;
+
+		if (!pixels) {
+			HYRO_LOG_CORE_ERROR("Failed to load Texture! Path: {0}", filePath.c_str());
+			return;
+		}
+
+		//CreateTexture
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingMemory;
+
+		VulkanBuffer::CreateBufer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			stagingBuffer, stagingMemory);
+
+		void* data;
+		vkMapMemory(device, stagingMemory, 0, imageSize, 0, &data);
+		memcpy(data, pixels, imageSize);
+		vkUnmapMemory(device, stagingMemory);
+
+		stbi_image_free(pixels);
+
+
+		CreateImage(width, height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			m_Texture, m_Memory);
+
+		TransitionImageLayout(m_Texture, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+		CopyBufferToImage(stagingBuffer, m_Texture, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+		TransitionImageLayout(m_Texture, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+
+		vkDestroyBuffer(device, stagingBuffer, g_VulkanAllocationCallback);
+		vkFreeMemory(device, stagingMemory, g_VulkanAllocationCallback);
+
+		m_View = CreateImageView(m_Texture, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+
+		CreateSampler();
+	}
+
+	VulkanTexture::~VulkanTexture()
+	{
+		auto device = VulkanDevice::GetVkDevice();
+		vkDestroyImage(device, m_Texture, g_VulkanAllocationCallback);
+		vkFreeMemory(device, m_Memory, g_VulkanAllocationCallback);
+	}
+
+	void VulkanTexture::Bind(uint32_t slot) const
+	{
+		HYRO_LOG_CORE_WARN("Tried to bind Vulkan Texture without commandBuffer. This may indicate a bug.");
+	}
+
+	VkFormat VulkanTexture::FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+	{
+		for (VkFormat format : candidates) {
+			VkFormatProperties props;
+			vkGetPhysicalDeviceFormatProperties(VulkanDevice::GetVkPhysicalDevice(), format, &props);
+
+			if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+				return format;
+			}
+			else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+				return format;
 			}
 		}
 
-		HYRO_ASSERT(false);
+		HYRO_LOG_CORE_ERROR("Failed to find Supported Format!");
+		return VkFormat{};
 	}
 
-
-	static void CreateBufer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+	void VulkanTexture::CreateSampler()
 	{
-		VkBufferCreateInfo bufferInfo{};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = size;
-		bufferInfo.usage = usage;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VkPhysicalDeviceProperties properties{};
+		vkGetPhysicalDeviceProperties(VulkanDevice::GetVkPhysicalDevice(), &properties);
 
-		if (vkCreateBuffer(VulkanDevice::GetVkDevice(), &bufferInfo, g_VulkanAllocationCallback, &buffer) != VK_SUCCESS) {
-			HYRO_LOG_CORE_ERROR("Failed to create Vertex Buffer!");
+		VkSamplerCreateInfo samplerInfo{};
+		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		samplerInfo.minFilter = VK_FILTER_LINEAR;
+		samplerInfo.magFilter = VK_FILTER_LINEAR;
+		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.anisotropyEnable = VK_TRUE;
+		samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+		samplerInfo.unnormalizedCoordinates = VK_FALSE;
+		samplerInfo.compareEnable = VK_FALSE;
+		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		samplerInfo.mipLodBias = 0.0f;
+		samplerInfo.minLod = 0.0f;
+		samplerInfo.maxLod = 0.0f;
+
+		if (vkCreateSampler(VulkanDevice::GetVkDevice(), &samplerInfo, g_VulkanAllocationCallback, &m_Sampler) != VK_SUCCESS) {
+			HYRO_LOG_CORE_ERROR("Failed to create Sampler!");
+		}
+	}
+
+	void VulkanTexture::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
+	{
+		VkImageCreateInfo imageInfo{};
+		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		imageInfo.imageType = VK_IMAGE_TYPE_2D;
+		imageInfo.extent.width = width;
+		imageInfo.extent.height = height;
+		imageInfo.extent.depth = 1;
+		imageInfo.mipLevels = 1;
+		imageInfo.arrayLayers = 1;
+		imageInfo.format = format;
+		imageInfo.tiling = tiling;
+		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		imageInfo.usage = usage;
+		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		if (vkCreateImage(VulkanDevice::GetVkDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS) {
+			HYRO_LOG_CORE_ERROR("Failed to Create Image!");
 		}
 
 		VkMemoryRequirements memRequirements;
-		vkGetBufferMemoryRequirements(VulkanDevice::GetVkDevice(), buffer, &memRequirements);
+		vkGetImageMemoryRequirements(VulkanDevice::GetVkDevice(), image, &memRequirements);
 
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
+		allocInfo.memoryTypeIndex = VulkanBuffer::FindMemoryType(memRequirements.memoryTypeBits, properties);
 
-		if (vkAllocateMemory(VulkanDevice::GetVkDevice(), &allocInfo, g_VulkanAllocationCallback, &bufferMemory) != VK_SUCCESS) {
-			HYRO_LOG_CORE_ERROR("Failed to allocate Vertex Buffer Memory!");
+		if (vkAllocateMemory(VulkanDevice::GetVkDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+			HYRO_LOG_CORE_ERROR("Failed to Allocate Image Memory!");
 		}
 
-		vkBindBufferMemory(VulkanDevice::GetVkDevice(), buffer, bufferMemory, 0);
+		vkBindImageMemory(VulkanDevice::GetVkDevice(), image, imageMemory, 0);
 	}
 
-
-	static void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+	void VulkanTexture::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspect)
 	{
 		VkCommandBuffer commandBuffer = VulkanCommandPool::BeginSingleTimeCommands();
 
@@ -63,7 +161,7 @@ namespace Hyro {
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.image = image;
-		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.aspectMask = aspect;
 		barrier.subresourceRange.baseMipLevel = 0;
 		barrier.subresourceRange.levelCount = 1;
 		barrier.subresourceRange.baseArrayLayer = 0;
@@ -88,8 +186,16 @@ namespace Hyro {
 			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		}
+		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		}
 		else {
-			throw std::invalid_argument("unsupported layout transition!");
+			HYRO_LOG_CORE_ERROR("Failed to transition Image Layout!");
+			HYRO_ASSERT(false);
 		}
 
 		vkCmdPipelineBarrier(
@@ -104,7 +210,7 @@ namespace Hyro {
 		VulkanCommandPool::EndSingleTimeCommands(commandBuffer);
 	}
 
-	static void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
+	void VulkanTexture::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
 	{
 		VkCommandBuffer commandBuffer = VulkanCommandPool::BeginSingleTimeCommands();
 
@@ -137,135 +243,25 @@ namespace Hyro {
 		VulkanCommandPool::EndSingleTimeCommands(commandBuffer);
 	}
 
-	VulkanTexture::VulkanTexture(const std::string& filePath)
+	VkImageView VulkanTexture::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
 	{
-		auto device = VulkanDevice::GetVkDevice();
-
-		int width, height, nrChannels;
-		const char* path = filePath.c_str();
-		stbi_set_flip_vertically_on_load(true);
-		stbi_uc* pixels = stbi_load(path, &width, &height, &nrChannels, 4);
-
-		VkDeviceSize imageSize = width * height * 4;
-
-		if (!pixels) {
-			HYRO_LOG_CORE_ERROR("Failed to load Texture! Path: {0}", filePath.c_str());
-			return;
-		}
-
-		//CreateTexture
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingMemory;
-
-		CreateBufer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			stagingBuffer, stagingMemory);
-
-		void* data;
-		vkMapMemory(device, stagingMemory, 0, imageSize, 0, &data);
-		memcpy(data, pixels, imageSize);
-		vkUnmapMemory(device, stagingMemory);
-
-		stbi_image_free(pixels);
-
-
-		VkImageCreateInfo imageInfo{};
-		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = static_cast<uint32_t>(width);
-		imageInfo.extent.height = static_cast<uint32_t>(height);
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = 1;
-		imageInfo.arrayLayers = 1;
-		imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB; //Bug: Is not guaranteed to be supported
-		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; //Note: GraphicsQueue always supports transfer ops --> exclusive ;)
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-		imageInfo.flags = 0;
-
-		if (vkCreateImage(device, &imageInfo, g_VulkanAllocationCallback, &m_Texture) != VK_SUCCESS) {
-			HYRO_LOG_CORE_ERROR("Failed to Create Texture!");
-		}
-
-		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(device, m_Texture, &memRequirements);
-
-		VkMemoryAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-		if (vkAllocateMemory(device, &allocInfo, nullptr, &m_Memory) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate image memory!");
-		}
-
-		vkBindImageMemory(device, m_Texture, m_Memory, 0);
-
-		TransitionImageLayout(m_Texture, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		CopyBufferToImage(stagingBuffer, m_Texture, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
-		TransitionImageLayout(m_Texture, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-		vkDestroyBuffer(device, stagingBuffer, g_VulkanAllocationCallback);
-		vkFreeMemory(device, stagingMemory, g_VulkanAllocationCallback);
-
-		//Image view
 		VkImageViewCreateInfo viewInfo{};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = m_Texture;
+		viewInfo.image = image;
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.format = format;
+		viewInfo.subresourceRange.aspectMask = aspectFlags;
 		viewInfo.subresourceRange.baseMipLevel = 0;
 		viewInfo.subresourceRange.levelCount = 1;
 		viewInfo.subresourceRange.baseArrayLayer = 0;
 		viewInfo.subresourceRange.layerCount = 1;
 
-		if (vkCreateImageView(device, &viewInfo, g_VulkanAllocationCallback, &m_View) != VK_SUCCESS) {
-			HYRO_LOG_CORE_ERROR("Failed to create Image View for Texture!");
+		VkImageView imageView;
+		if (vkCreateImageView(VulkanDevice::GetVkDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+			HYRO_LOG_CORE_ERROR("Failed to Create Image View!");
 		}
 
-		CreateSampler();
-	}
-
-	VulkanTexture::~VulkanTexture()
-	{
-		auto device = VulkanDevice::GetVkDevice();
-		vkDestroyImage(device, m_Texture, g_VulkanAllocationCallback);
-		vkFreeMemory(device, m_Memory, g_VulkanAllocationCallback);
-	}
-
-	void VulkanTexture::Bind(uint32_t slot) const
-	{
-		HYRO_LOG_CORE_WARN("Tried to bind Vulkan Texture without commandBuffer. This may indicate a bug.");
-	}
-
-	void VulkanTexture::CreateSampler()
-	{
-		VkPhysicalDeviceProperties properties{};
-		vkGetPhysicalDeviceProperties(VulkanDevice::GetVkPhysicalDevice(), &properties);
-
-		VkSamplerCreateInfo samplerInfo{};
-		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-		samplerInfo.minFilter = VK_FILTER_LINEAR;
-		samplerInfo.magFilter = VK_FILTER_LINEAR;
-		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.anisotropyEnable = VK_TRUE;
-		samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
-		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-		samplerInfo.unnormalizedCoordinates = VK_FALSE;
-		samplerInfo.compareEnable = VK_FALSE;
-		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-		samplerInfo.mipLodBias = 0.0f;
-		samplerInfo.minLod = 0.0f;
-		samplerInfo.maxLod = 0.0f;
-
-		if (vkCreateSampler(VulkanDevice::GetVkDevice(), &samplerInfo, g_VulkanAllocationCallback, &m_Sampler) != VK_SUCCESS) {
-			HYRO_LOG_CORE_ERROR("Failed to create Sampler!");
-		}
+		return imageView;
 	}
 
 }

@@ -55,7 +55,11 @@ namespace Hyro {
         float width = static_cast<float>(window->GetWidth());
         float height = static_cast<float>(window->GetHeight()); 
         float aspectRatio = width / height;
-        glm::mat4 projection = glm::perspective(80.f, aspectRatio, 0.1f, 100.f);
+        glm::mat4 projection;
+        if (Renderer::GetAPI() == GraphicsAPIType::Vulkan)
+            projection = glm::perspectiveRH_ZO(80.f, aspectRatio, 0.1f, 100.f);
+        else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
+            projection = glm::perspectiveRH_NO(80.f, aspectRatio, 0.1f, 100.f);
         
 
         Renderer3D::BeginScene(projection);

@@ -31,6 +31,7 @@ namespace Hyro {
 	private:
 		void CreateSwapchain();
 		void CreateImageViews();
+		void CreateDepthResources();
 		void CreateRenderPass();
 		void CreateFramebuffers();
 
@@ -41,6 +42,9 @@ namespace Hyro {
 		VkSurfaceFormatKHR ChooseFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR ChoosePresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+		VkFormat FindDepthFormat();
+		bool HasStencilComponent(VkFormat format);
 
 	private:
 		VkSwapchainKHR m_Swapchain;
@@ -54,6 +58,10 @@ namespace Hyro {
 		VkFormat m_Format;
 		VkPresentModeKHR m_PresentMode;
 		VkExtent2D m_Extent;
+
+		VkImage m_DepthImage;
+		VkDeviceMemory m_DepthMemory;
+		VkImageView m_DepthView;
 
 		Ref<VulkanSurface> m_Surface;
 

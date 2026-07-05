@@ -13,10 +13,11 @@ namespace Hyro {
 		m_Instance = CreateRef<VulkanInstance>();
 		m_Surface = CreateRef<VulkanSurface>(m_Instance, windowHandle);
 		VulkanDevice::Init(m_Instance, m_Surface);
-		m_Swapchain = CreateRef<VulkanSwapchain>(m_Surface);
 		VulkanCommandPool::Init();
+		m_Swapchain = CreateRef<VulkanSwapchain>(m_Surface);
 		VulkanDescriptorPool::Init();
 
+		//TODO: Load from AssetManager
 		m_FallbackTexture = CreateRef<VulkanTexture>("Assets/Textures/Fallback.png");
 	}
 

@@ -16,8 +16,20 @@ namespace Hyro {
 		inline VkImageView GetVkImageView() const { return m_View; }
 		inline VkSampler GetVkSampler() const { return m_Sampler; }
 
+		static VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+
+		static void CreateImage(uint32_t width, uint32_t height,
+			VkFormat format, VkImageTiling tiling,
+			VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+			VkImage& image, VkDeviceMemory& imageMemory);
+		static void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspect);
+		static void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+		static VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+
+
 	private:
 		void CreateSampler();
+
 
 	private:
 		VkImage m_Texture;
