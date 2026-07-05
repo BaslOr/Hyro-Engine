@@ -25,7 +25,9 @@ namespace Hyro {
 		static Ref<Scene> Create();
 
 		MeshHandle AddMesh(const Ref<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f));
+		MeshHandle AddCube(const glm::mat4& transform = glm::mat4(1.0f));
 		void SetMeshTransform(MeshHandle handle, const glm::mat4& transform);
+
 
 		SpriteHandle AddSprite(const Ref<Sprite>& sprite, const glm::mat4& transform = glm::mat4(1.0f));
 		void SetSpriteTransform(SpriteHandle handle, const glm::mat4& transform);

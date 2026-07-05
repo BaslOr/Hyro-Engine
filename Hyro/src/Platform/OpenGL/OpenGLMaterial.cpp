@@ -24,12 +24,14 @@ namespace Hyro {
 
 	void OpenGLMaterial::SetTexture(Ref<Texture> texture, uint32_t slot)
 	{
+		m_Shader->Bind();
 		m_Textures[slot] = texture;
 		texture->Bind(slot);
 	}
 
 	void OpenGLMaterial::Bind()
 	{
+		m_Shader->Bind();
 		for (auto& [binding, ubo] : m_UniformBuffers)
 		{
 			ubo->Bind();

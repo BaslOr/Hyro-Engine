@@ -17,7 +17,7 @@ namespace Hyro {
 		m_Data.IBO = IndexBuffer::Create(m_Data.MaxIndicesCount * sizeof(uint32_t));
 		m_Data.Indices.resize(m_Data.MaxIndicesCount);
 
-		m_Data.UBO = UniformBuffer::Create();
+		m_Data.UBO = Renderer::GetTransfromUniformBuffer();
 
 		m_Data.VAO->AddVertexBuffer(m_Data.VBO);
 		m_Data.VAO->SetIndexBuffer(m_Data.IBO);
@@ -27,7 +27,7 @@ namespace Hyro {
 		vertexLayout.Push<VertexAttributeType::FLOAT2>();
 		vertexLayout.Push<VertexAttributeType::FLOAT4>();
 		vertexLayout.Push<VertexAttributeType::FLOAT>();
-		m_Data.VAO->SetLayout(vertexLayout);
+		m_Data.VAO->SetLayout(vertexLayout, m_Data.VBO);
 
 
 		m_Data.Shader = AssetManager::GetShader("Default2D");
@@ -35,14 +35,10 @@ namespace Hyro {
 		m_Data.Material->SetUnifromBuffer(m_Data.UBO, 0);
 
 		RenderCommand::SetClearColor(glm::vec4(0.2f, 0.5f, 0.8f, 1.f));
-
-
-		HYRO_LOG_CORE_TRACE("Initialized Renderer");
 	}
 
 	void Renderer2D::Shutdown()
 	{
-		HYRO_LOG_CORE_TRACE("Destroyed Renderer");
 	}
 
 	void Renderer2D::BeginScene()

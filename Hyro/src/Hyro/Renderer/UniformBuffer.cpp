@@ -10,7 +10,7 @@ namespace Hyro {
 
     Ref<UniformBuffer> UniformBuffer::Create()
     {
-        switch (SceneRenderer::GetAPI())
+        switch (Renderer::GetAPI())
         {
         case GraphicsAPIType::None:
             HYRO_LOG_CORE_FATAL("No Graphics API selected!");

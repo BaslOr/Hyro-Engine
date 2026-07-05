@@ -8,7 +8,7 @@ namespace Hyro {
 
 	OpenGLUniformBuffer::OpenGLUniformBuffer()
 	{
-		glGenBuffers(1, &m_Buffer);
+		glCreateBuffers(1, &m_Buffer);
 		Bind();
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformBufferData), nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_Buffer);

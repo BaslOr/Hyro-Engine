@@ -3,7 +3,9 @@
 
 
 #include "Hyro/Renderer/Renderer2D.h"
+#include "Hyro/Renderer/Renderer3D.h"
 #include "Hyro/Renderer/Renderer.h"
+#include "Hyro/Renderer/MeshFactory.h"
 
 
 namespace Hyro {
@@ -17,6 +19,11 @@ namespace Hyro {
     {
 		m_Meshes.emplace_back(mesh, transform);
 		return static_cast<MeshHandle>(m_Meshes.size() - 1);
+    }
+
+    MeshHandle Hyro::Scene::AddCube(const glm::mat4& transform)
+    {
+		return AddMesh(MeshFactory::CreateCube(), transform);
     }
 
     void Scene::SetMeshTransform(MeshHandle handle, const glm::mat4& transform)
@@ -37,7 +44,7 @@ namespace Hyro {
 
     void Scene::Render()
     {
-		SceneRenderer::BeginRenderPass();
+		Renderer::BeginRenderPass();
 
 		Renderer2D::BeginScene();
         for (auto& spriteInstance : m_Sprites)
@@ -49,17 +56,14 @@ namespace Hyro {
         Renderer2D::EndScene();
 
 
-        SceneRenderer::BeginScene();
+        Renderer3D::BeginScene();
 		for (auto& meshInstance : m_Meshes)
 		{
-			SceneRenderer::DrawMesh(meshInstance.Mesh, meshInstance.Transform);
+			Renderer3D::DrawMesh(meshInstance.Mesh, meshInstance.Transform);
 		}
-		SceneRenderer::EndScene();
+		Renderer3D::EndScene();
 
-        SceneRenderer::EndRenderPass();
+        Renderer::EndRenderPass();
     }
-
-
-
 
 }

@@ -44,4 +44,24 @@ namespace Hyro {
 		return nullptr;
 	}
 
+	void Hyro::AssetManager::LoadMesh(const std::string& key, const std::string& path)
+	{
+		if (s_Meshes.find(key) == s_Meshes.end()) {
+			//s_Meshes[key] = Mesh::Load(path); TODO Implement ModelLoader
+		}
+		else {
+			HYRO_LOG_CORE_ERROR("Tried to load Mesh with already existing key!");
+		}
+	}
+
+	Ref<Mesh> Hyro::AssetManager::GetMesh(const std::string& key)
+	{
+		if (s_Meshes.find(key) != s_Meshes.end()) {
+			return s_Meshes[key];
+		}
+
+		HYRO_LOG_CORE_ERROR("Failed to find Mesh with key: {0}!", key.c_str());
+		return nullptr;
+	}
+
 }

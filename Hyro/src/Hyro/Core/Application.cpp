@@ -28,7 +28,7 @@ namespace Hyro {
 		m_Window = WindowsWindow::Create(props);
 		m_Window->SetEventCallback(HYRO_BIND_EVENT_FN(Application::OnEvent));
 
-		SceneRenderer::Init();
+		Renderer::Init();
 
 		m_ImGuiLayer = new ImGuiLayer;
 		PushOverlay(m_ImGuiLayer);

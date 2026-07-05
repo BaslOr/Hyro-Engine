@@ -20,6 +20,9 @@ SandboxLayer::SandboxLayer()
 
 	m_Scene->AddSprite(sprite1, transform1);
 	m_Scene->AddSprite(sprite2, transform2);
+	
+	glm::mat4 cubeTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(100.f, 100.f, 100.f));
+	m_Scene->AddCube(cubeTransform);
 }
 
 void SandboxLayer::OnUpdate(const Hyro::TimeStep deltaTime)

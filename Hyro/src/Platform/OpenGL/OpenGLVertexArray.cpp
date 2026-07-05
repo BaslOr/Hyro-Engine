@@ -9,7 +9,6 @@ namespace Hyro {
 		: m_ID(0)
 	{
 		glGenVertexArrays(1, &m_ID);
-		Bind();
 	}
 
 	OpenGLVertexArray::~OpenGLVertexArray()
@@ -34,8 +33,10 @@ namespace Hyro {
 		buffer->Bind();
 	}
 
-	void OpenGLVertexArray::SetLayout(const VertexLayout& layout)
+	void OpenGLVertexArray::SetLayout(const VertexLayout& layout, Ref<VertexBuffer> vertexBuffer)
 	{
+		Bind();
+		vertexBuffer->Bind();
 		uint32_t i = 0;
 		uint32_t offset = 0;
 		for (const auto type : layout.GetVertexAttributes()) {

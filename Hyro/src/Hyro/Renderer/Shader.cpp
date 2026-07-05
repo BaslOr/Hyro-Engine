@@ -10,7 +10,7 @@ namespace Hyro {
 
 	Ref<Shader> Shader::Create(const std::string& vertexPath, const std::string& fragmentPath)
 	{
-		switch (SceneRenderer::GetAPI())
+		switch (Renderer::GetAPI())
 		{
 		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API selected!");

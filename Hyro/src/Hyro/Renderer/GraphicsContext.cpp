@@ -9,7 +9,7 @@ namespace Hyro {
 
 	Scope<GraphicsContext> GraphicsContext::Create(GraphicsAPIType type, void* windowHandle)
 	{
-        switch (SceneRenderer::GetAPI())
+        switch (Renderer::GetAPI())
         {
         case GraphicsAPIType::None:
             HYRO_LOG_CORE_FATAL("No Graphics API selected!");

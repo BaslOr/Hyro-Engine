@@ -11,7 +11,7 @@ namespace Hyro {
 
     Ref<Texture> Texture::Load(const std::string & filePath)
     {
-		switch (SceneRenderer::GetAPI())
+		switch (Renderer::GetAPI())
 		{
 		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API selected!");

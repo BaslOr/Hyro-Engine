@@ -39,9 +39,6 @@ namespace Hyro {
 		auto vertexCode = ReadFile(vertexPath);
 		auto fragmentCode = ReadFile(fragmentPath);
 
-        std::cout << vertexCode << std::endl << std::endl;
-        std::cout << fragmentCode << std::endl;
-
         auto vertexSpirV = ShaderCompiler::CompileToSpirv(vertexPath, ShaderStage::Vertex);
         auto fragmentSpirV = ShaderCompiler::CompileToSpirv(fragmentPath, ShaderStage::Fragment);
 

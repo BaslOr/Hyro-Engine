@@ -88,9 +88,9 @@ namespace Hyro {
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
 
 		void* data;
-		vkMapMemory(VulkanDevice::GetVkDevice(), m_Memory, 0, m_Size, 0, &data);
+		vkMapMemory(VulkanDevice::GetVkDevice(), stagingMemory, 0, m_Size, 0, &data);
 			memcpy(data, vertices.data(), m_Size);
-		vkUnmapMemory(VulkanDevice::GetVkDevice(), m_Memory);
+		vkUnmapMemory(VulkanDevice::GetVkDevice(), stagingMemory);
 
 		CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
@@ -103,6 +103,7 @@ namespace Hyro {
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()
 	{
+		vkDeviceWaitIdle(VulkanDevice::GetVkDevice());
 		vkDestroyBuffer(VulkanDevice::GetVkDevice(), m_Buffer, g_VulkanAllocationCallback);
 		vkFreeMemory(VulkanDevice::GetVkDevice(), m_Memory, g_VulkanAllocationCallback);
 	}
@@ -200,9 +201,9 @@ namespace Hyro {
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
 
 		void* data;
-		vkMapMemory(VulkanDevice::GetVkDevice(), m_Memory, 0, m_Size, 0, &data);
+		vkMapMemory(VulkanDevice::GetVkDevice(), stagingMemory, 0, m_Size, 0, &data);
 		memcpy(data, indices.data(), m_Size);
-		vkUnmapMemory(VulkanDevice::GetVkDevice(), m_Memory);
+		vkUnmapMemory(VulkanDevice::GetVkDevice(), stagingMemory);
 
 		CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
@@ -215,6 +216,7 @@ namespace Hyro {
 
 	VulkanIndexBuffer::~VulkanIndexBuffer()
 	{
+		vkDeviceWaitIdle(VulkanDevice::GetVkDevice());
 		vkDestroyBuffer(VulkanDevice::GetVkDevice(), m_Buffer, g_VulkanAllocationCallback);
 		vkFreeMemory(VulkanDevice::GetVkDevice(), m_Memory, g_VulkanAllocationCallback);
 	}

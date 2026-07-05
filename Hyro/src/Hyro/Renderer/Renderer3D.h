@@ -14,21 +14,18 @@
 namespace Hyro {
 
 	struct Renderer3DData {
-		Ref<VertexArray> VAO;
+		Ref<Shader> Shader;
+		Ref<Material> Material;
 		Ref<UniformBuffer> UBO;
 
 		size_t CurrentTextureSlot = 0;
 		std::array<Ref<Texture>, 16> TexturesSlots;
-
-		Ref<Shader> Shader;
-		Ref<Material> Material;
 	};
 
 
 	class Renderer3D {
 	public:
 		static void DrawMesh(const Ref<Mesh>& mesh, const glm::mat4& transform);
-
 
 	private:
 		static void Init();
@@ -43,6 +40,6 @@ namespace Hyro {
 
 		friend class Scene;
 		friend class Renderer;
-	}
+	};
 
 }

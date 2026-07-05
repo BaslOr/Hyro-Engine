@@ -16,18 +16,18 @@ namespace Hyro {
 	{
 		glCreateBuffers(1, &m_ID);
 		Bind();
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.size() * sizeof(data[0]), data.data(), GL_STATIC_DRAW);
-	}
-
-	OpenGLIndexBuffer::~OpenGLIndexBuffer()
-	{
-		glDeleteBuffers(1, &m_ID);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.size() * sizeof(data[0]), data.data(), GL_DYNAMIC_DRAW);
 	}
 
 	void OpenGLIndexBuffer::SetData(const std::vector<uint32_t>& data)
 	{
 		Bind();
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.size() * sizeof(data[0]), data.data(), GL_DYNAMIC_DRAW);
+	}
+
+	OpenGLIndexBuffer::~OpenGLIndexBuffer()
+	{
+		glDeleteBuffers(1, &m_ID);
 	}
 
 	void OpenGLIndexBuffer::Bind() const

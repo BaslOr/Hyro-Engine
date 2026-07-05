@@ -40,7 +40,7 @@ namespace Hyro {
 		virtual void Bind() const = 0;
 		virtual void Bind(void* commandBuffer) const = 0;//Onyl for Vulkan
 
-		virtual void SetLayout(const VertexLayout& layout) = 0;
+		virtual void SetLayout(const VertexLayout& layout, Ref<VertexBuffer> vertexBuffer) = 0;
 
 	};
 
