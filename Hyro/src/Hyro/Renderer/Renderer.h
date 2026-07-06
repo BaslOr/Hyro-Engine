@@ -20,6 +20,9 @@ namespace Hyro {
 
 		inline static GraphicsAPIType GetAPI() { return m_GraphicsAPIType; }
 
+		static Ref<UniformBuffer> GetRenderer2DTransformUnifromBuffer();
+		static Ref<UniformBuffer> GetRenderer3DTransformUnifromBuffer();
+
 	private:
 		friend class Renderer2D;
 		friend class Renderer3D;
@@ -27,6 +30,11 @@ namespace Hyro {
 
 	private:
 		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::Vulkan;
+
+		
+		static inline Ref<UniformBuffer> m_OpenGLTransformUniformBuffer;
+		static inline Ref<UniformBuffer> m_Vulkan2DTransformUniformBuffer;
+		static inline Ref<UniformBuffer> m_Vulkan3DTransformUniformBuffer;
 
 	};
 

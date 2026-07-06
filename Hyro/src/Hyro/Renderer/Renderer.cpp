@@ -9,8 +9,6 @@ namespace Hyro {
 
 	void Renderer::Init()
 	{
-		//Set Default Vertex Layout
-
 		//Some kind of API description should be passed here
 		//To determine blend func, sample count, ...
 		AssetManager::LoadTexture("Default", "Assets/Textures/Fallback.png");
@@ -20,6 +18,15 @@ namespace Hyro {
 		vertexShaderPath = "Assets/Shaders/Shader3D.vert";
 		fragmentShaderPath = "Assets/Shaders/Shader3D.frag";
 		AssetManager::LoadShader("Default3D", vertexShaderPath, fragmentShaderPath);
+
+		if (m_GraphicsAPIType == GraphicsAPIType::OpenGL) {
+			m_OpenGLTransformUniformBuffer = UniformBuffer::Create();
+		}
+		else if (m_GraphicsAPIType == GraphicsAPIType::Vulkan) {
+			m_Vulkan2DTransformUniformBuffer = UniformBuffer::Create();
+			m_Vulkan3DTransformUniformBuffer = UniformBuffer::Create();
+
+		}
 
 		RenderCommand::Init(m_GraphicsAPIType);
 		Renderer2D::Init();
@@ -42,6 +49,29 @@ namespace Hyro {
 
 	void Renderer::EndScene()
 	{
+	}
+
+	//Find better Solution in future
+	//The problem is that OpenGL requieres one UBO while Vulkan requiers two
+	//Solve this problem when adding reflection to shader or sumn
+	Ref<UniformBuffer> Renderer::GetRenderer2DTransformUnifromBuffer()
+	{
+		if (m_GraphicsAPIType == GraphicsAPIType::OpenGL) {
+			return m_OpenGLTransformUniformBuffer;
+		}
+		else if (m_GraphicsAPIType == GraphicsAPIType::Vulkan) {
+			return m_Vulkan2DTransformUniformBuffer;
+		}
+	}
+
+	Ref<UniformBuffer> Renderer::GetRenderer3DTransformUnifromBuffer()
+	{
+		if (m_GraphicsAPIType == GraphicsAPIType::OpenGL) {
+			return m_OpenGLTransformUniformBuffer;
+		}
+		else if (m_GraphicsAPIType == GraphicsAPIType::Vulkan) {
+			return m_Vulkan3DTransformUniformBuffer;
+		}
 	}
 
 }

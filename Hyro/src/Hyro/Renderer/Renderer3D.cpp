@@ -10,7 +10,7 @@ namespace Hyro {
 
 	void Renderer3D::Init()
 	{
-		m_Data.UBO = UniformBuffer::Create();
+		m_Data.UBO = Renderer::GetRenderer3DTransformUnifromBuffer();
 		m_Data.Shader = AssetManager::GetShader("Default3D");
 		m_Data.Material = Material::Create(m_Data.Shader);
 		m_Data.Material->SetUnifromBuffer(m_Data.UBO, 0);
