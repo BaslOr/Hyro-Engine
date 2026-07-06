@@ -32,6 +32,12 @@ namespace Hyro {
 		m_IsDirty = true;
 	}
 
+	void VulkanMaterial::SetPushConstants(const PushConstants& pushConstants)
+	{
+		//Sets Push Constants lazily
+		m_PushConstants = pushConstants;
+	}
+
 	void VulkanMaterial::Bind()
 	{
 		HYRO_LOG_CORE_ERROR("Tried to bind Material without a CommandBuffer. This may Indicate a Bug.");
@@ -42,12 +48,17 @@ namespace Hyro {
 		uint32_t currentFrameIndex = VulkanContext::Get().GetCurrentFrameIndex();
 		VulkanShader* vulkanShader = static_cast<VulkanShader*>(m_Shader.get());
 
+		m_Shader->Bind(commandBuffer);
+
+		vkCmdPushConstants((VkCommandBuffer)commandBuffer, vulkanShader->GetVkPipelineLayout(),
+			VK_SHADER_STAGE_VERTEX_BIT,
+			0,
+			sizeof(PushConstants), &m_PushConstants);
+
 		if (m_IsDirty)
 		{
 			UpdateDescriptorSets();
 		}
-
-		m_Shader->Bind(commandBuffer);
 		vkCmdBindDescriptorSets((VkCommandBuffer)commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanShader->GetVkPipelineLayout(), 0, 1, &m_DescriptorSets[currentFrameIndex], 0, nullptr);
 	}
 

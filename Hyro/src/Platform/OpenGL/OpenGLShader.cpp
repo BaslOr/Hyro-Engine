@@ -46,6 +46,48 @@ namespace Hyro {
 		HYRO_LOG_CORE_WARN("Tried to bind Shader with Command Buffer. This may indicate a bug.");
 	}
 
+	void OpenGLShader::SetUniformInt(const std::string& name, int value) const
+	{
+		Bind();
+		int location = GetUniformLocation(name);
+		glUniform1i(location, value);
+	}
+
+	void OpenGLShader::SetUniformFloat(const std::string& name, float value) const
+	{
+		Bind();
+		int location = GetUniformLocation(name);
+		glUniform1f(location, value);
+	}
+
+	void OpenGLShader::SetUnifromBool(const std::string& name, bool value) const
+	{
+		Bind();
+		int location = GetUniformLocation(name);
+		glUniform1i(location, (int)value);
+	}
+
+	void OpenGLShader::setUniformVec3(const std::string& name, const glm::vec3& value) const
+	{
+		Bind();
+		int location = GetUniformLocation(name);
+		glUniform3f(location, value.x, value.y, value.z);
+	}
+
+	void OpenGLShader::SetUniformVec4(const std::string& name, const glm::vec4& value) const
+	{
+		Bind();
+		int location = GetUniformLocation(name);
+		glUniform4f(location, value.x, value.y, value.z, value.w);
+	}
+
+	void OpenGLShader::SetUniformMat4(const std::string& name, const glm::mat4& value) const
+	{
+		Bind();
+		int location = GetUniformLocation(name);
+		glUniformMatrix4fv(location, 1, false, glm::value_ptr(value));
+	}
+
 	void OpenGLShader::CheckShaderCompilation(uint32_t shader)
 	{
 		int  success;

@@ -20,6 +20,9 @@ namespace Hyro {
 	void OpenGLMaterial::SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding)
 	{
 		m_UniformBuffers[binding] = uniformBuffer;
+		OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
+		uint32_t uniformBlockIndex = glGetUniformBlockIndex(openGLShader->GetProgram(), "UniformBufferObject");
+		glUniformBlockBinding(openGLShader->GetProgram(), uniformBlockIndex, 0);
 	}
 
 	void OpenGLMaterial::SetTexture(Ref<Texture> texture, uint32_t slot)
@@ -27,6 +30,12 @@ namespace Hyro {
 		m_Shader->Bind();
 		m_Textures[slot] = texture;
 		texture->Bind(slot);
+	}
+
+	void OpenGLMaterial::SetPushConstants(const PushConstants& pushConstants)
+	{
+		OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
+		openGLShader->SetUniformMat4("u_Model", pushConstants.Model);
 	}
 
 	void OpenGLMaterial::Bind()

@@ -17,6 +17,13 @@ namespace Hyro {
 
 		uint32_t GetProgram() const { return m_Program; }
 
+		void SetUniformInt(const std::string& name, int vlaue) const;
+		void SetUniformFloat(const std::string& name, float value) const;
+		void SetUnifromBool(const std::string& name, bool value) const;
+		void setUniformVec3(const std::string& name, const glm::vec3& value) const;
+		void SetUniformVec4(const std::string& name, const glm::vec4& value) const;
+		void SetUniformMat4(const std::string& name, const glm::mat4& value) const;
+
 
 	private:
 		friend class OpenGLMaterial;

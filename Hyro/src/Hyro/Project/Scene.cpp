@@ -70,8 +70,6 @@ namespace Hyro {
         Renderer3D::EndScene();
 
 
-
-
         if (Renderer::GetAPI() == GraphicsAPIType::Vulkan)
             projection = glm::ortho(0.f, width, height, 0.f);
         else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
@@ -80,7 +78,7 @@ namespace Hyro {
 		Renderer2D::BeginScene(projection);
         for (auto& spriteInstance : m_Sprites)
         {
-			glm::vec2 position = glm::vec2(spriteInstance.Transform[3]);
+            glm::vec2 position = glm::vec2(spriteInstance.Transform[3]);
 			glm::vec2 size = glm::vec2(spriteInstance.Transform[0][0], spriteInstance.Transform[1][1]);
 			Renderer2D::DrawSprite(spriteInstance.Sprite, position, size);
         }

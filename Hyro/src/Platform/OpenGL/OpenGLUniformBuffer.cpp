@@ -22,7 +22,7 @@ namespace Hyro {
 	void OpenGLUniformBuffer::SetData(const UniformBufferData& ubo)
 	{
 		Bind();
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformBufferData), &ubo, GL_DYNAMIC_DRAW);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(UniformBufferData), &ubo);
 	}
 
 	void OpenGLUniformBuffer::Bind() const

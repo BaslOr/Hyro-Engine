@@ -21,8 +21,6 @@ namespace Hyro {
 		fragmentShaderPath = "Assets/Shaders/Shader3D.frag";
 		AssetManager::LoadShader("Default3D", vertexShaderPath, fragmentShaderPath);
 
-		m_TransformUniformBuffer = UniformBuffer::Create();
-
 		RenderCommand::Init(m_GraphicsAPIType);
 		Renderer2D::Init();
 		Renderer3D::Init();

@@ -13,6 +13,8 @@ namespace Hyro {
 		void SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) override;
 		void SetTexture(Ref<Texture> texture, uint32_t slot) override;
 
+		void SetPushConstants(const PushConstants& pushConstants) override;
+
 		void Bind() override;
 		void Bind(void* commandBuffer) override;
 
@@ -23,6 +25,8 @@ namespace Hyro {
 		Ref<Shader> m_Shader;
 		std::unordered_map<uint32_t, Ref<UniformBuffer>> m_UniformBuffers;
 		std::unordered_map<uint32_t, Ref<Texture>> m_Textures;
+
+		PushConstants m_PushConstants;
 
 		std::vector<VkDescriptorSet> m_DescriptorSets;
 

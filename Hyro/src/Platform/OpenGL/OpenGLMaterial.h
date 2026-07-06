@@ -10,6 +10,7 @@ namespace Hyro {
 
 		void SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) override;
 		void SetTexture(Ref<Texture> texture, uint32_t slot) override;
+		void SetPushConstants(const PushConstants& pushConstants) override;
 
 		void Bind() override;
 		void Bind(void* commandBuffer) override;

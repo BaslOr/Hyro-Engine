@@ -134,11 +134,19 @@ namespace Hyro {
         dynamicState.pDynamicStates = dynamicStates.data();
 
         CreateDescriptorSetLayout();
+
+        VkPushConstantRange pushConstants{};
+        pushConstants.size = sizeof(PushConstants);
+        pushConstants.offset = 0;
+        pushConstants.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+     
+
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
         pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
-        pipelineLayoutInfo.pushConstantRangeCount = 0;
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstants;
 
         if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS) {
             HYRO_LOG_CORE_ERROR("Failed to create Pipeline Layout!");
@@ -156,7 +164,7 @@ namespace Hyro {
         pipelineInfo.pViewportState = &viewportState;
         pipelineInfo.pRasterizationState = &rasterizer;
         pipelineInfo.pMultisampleState = &multisampling;
-        pipelineInfo.pDepthStencilState = &depthStencil; // Optional
+        pipelineInfo.pDepthStencilState = &depthStencil;
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = m_PipelineLayout;
@@ -238,14 +246,15 @@ namespace Hyro {
 
 
     //ShaderCompiler
+    //Should be abstracted in some kind of Platform class
     std::filesystem::path ShaderCompiler::GetGlslcPath() {
         const char* sdkPath = std::getenv("VULKAN_SDK");
         if (!sdkPath) {
             HYRO_LOG_CORE_ERROR("VULKAN_SDK Umgebungsvariable nicht gesetzt.");
         }
-		if (g_CurrentPlatform == PlatformType::Windows)
+        if (g_CurrentPlatform == PlatformType::Windows)
             return std::filesystem::path(sdkPath) / "Bin" / "glslc.exe";
-        else 
+        else
             return std::filesystem::path(sdkPath) / "bin" / "glslc";
     }
 

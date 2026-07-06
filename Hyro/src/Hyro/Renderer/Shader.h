@@ -7,7 +7,13 @@
 #include "Hyro/Renderer/UniformBuffer.h"
 #include "Hyro/Renderer/GraphicsPipeline.h"
 
+
 namespace Hyro {
+
+	struct PushConstants {
+		glm::mat4 Model;
+	};
+
 
 	class Shader {
 	public:

@@ -6,6 +6,8 @@
 #include "Hyro/Core/Application.h"
 #include "Hyro/Project/AssetManager.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace Hyro {
 
 	void Renderer2D::Init()
@@ -16,7 +18,7 @@ namespace Hyro {
 		m_Data.IBO = IndexBuffer::Create(m_Data.MaxIndicesCount * sizeof(uint32_t));
 		m_Data.Indices.resize(m_Data.MaxIndicesCount);
 
-		m_Data.UBO = Renderer::GetTransfromUniformBuffer();
+		m_Data.UBO = UniformBuffer::Create();
 
 		m_Data.VAO->AddVertexBuffer(m_Data.VBO);
 		m_Data.VAO->SetIndexBuffer(m_Data.IBO);
@@ -40,14 +42,14 @@ namespace Hyro {
 	{
 	}
 
-	void Renderer2D::BeginScene(const glm::mat4& mvp)
+	void Renderer2D::BeginScene(const glm::mat4& projection)
 	{
 		m_Data.Vertices.clear();
 		m_Data.Indices.clear();
 		m_Data.Count = 0;
 
 		UniformBufferData data{};
-		data.MVP = mvp;
+		data.MVP = projection;
 		m_Data.UBO->SetData(data);
 	}
 
@@ -55,6 +57,9 @@ namespace Hyro {
 	{
 		m_Data.VBO->SetData(m_Data.Vertices);
 		m_Data.IBO->SetData(m_Data.Indices);
+		PushConstants pushConstants{};
+		pushConstants.Model = glm::mat4(1.0f);
+		m_Data.Material->SetPushConstants(pushConstants);
 
 		RenderCommand::Submit(m_Data.VAO, m_Data.Material, static_cast<uint32_t>(m_Data.Indices.size()));
 	}

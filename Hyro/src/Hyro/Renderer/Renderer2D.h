@@ -16,12 +16,12 @@ namespace Hyro {
 		Ref<VertexArray> VAO;
 		Ref<VertexBuffer> VBO;
 		Ref<IndexBuffer> IBO;
-		Ref<UniformBuffer> UBO;
 
 		size_t CurrentTextureSlot = 0;
 		std::array<Ref<Texture>, 16> TexturesSlots;
 
 		Ref<Shader> Shader;
+		Ref<UniformBuffer> UBO;
 		Ref<Material> Material;
 
 		std::vector<Vertex> Vertices;
@@ -42,7 +42,7 @@ namespace Hyro {
 		static void Init();
 		static void Shutdown();
 
-		static void BeginScene(const glm::mat4& mvp);
+		static void BeginScene(const glm::mat4& projection);
 		static void EndScene();
 
 	private:

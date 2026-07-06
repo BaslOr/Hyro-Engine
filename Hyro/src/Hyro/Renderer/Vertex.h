@@ -11,7 +11,7 @@ namespace Hyro {
 		float SpriteIndex;
 
 		Vertex()
-			: Position(0.f, 0.f, 0.f), UV(0.f, 0.f), Color(0.f, 0.f, 0.f, 0.f), SpriteIndex(0.f)
+			: Position(0.f, 0.f, 0.f), UV(0.f, 0.f), Color(0.f, 0.f, 0.f, 0.f), SpriteIndex(0.0f)
 		{
 
 		}
