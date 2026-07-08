@@ -24,6 +24,16 @@ namespace Hyro {
 		return nullptr;
 	}
 
+	Ref<Texture> Hyro::AssetManager::GetFallbackTexture()
+	{
+		if (s_Textures.find("FALLBACK_TEXTURE") != s_Textures.end()) {
+			return s_Textures["FALLBACK_TEXTURE"];
+		}
+
+		s_Textures["FALLBACK_TEXTURE"] = Texture::Load("Assets/Textures/Fallback.png");
+		return s_Textures["FALLBACK_TEXTURE"];
+	}
+
 	void AssetManager::LoadShader(const std::string& key, const std::string& vertexPath, const std::string& fragmentPath)
 	{
 		if (s_Shaders.find(key) == s_Shaders.end()) {

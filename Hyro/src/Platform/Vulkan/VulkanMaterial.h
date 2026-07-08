@@ -11,7 +11,7 @@ namespace Hyro {
 		VulkanMaterial(Ref<Shader> shader);
 
 		void SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) override;
-		void SetTexture(Ref<Texture> texture, uint32_t slot) override;
+		void SetTextures(const std::array<Ref<Texture>, 16>& textures) override;
 
 		void SetPushConstants(const PushConstants& pushConstants) override;
 
@@ -24,7 +24,9 @@ namespace Hyro {
 	private:
 		Ref<Shader> m_Shader;
 		std::unordered_map<uint32_t, Ref<UniformBuffer>> m_UniformBuffers;
-		std::unordered_map<uint32_t, Ref<Texture>> m_Textures;
+		std::array<Ref<Texture>, 16> m_Textures;
+
+		Ref<Texture> m_FallbackTexture;
 
 		PushConstants m_PushConstants;
 

@@ -12,6 +12,7 @@ namespace Hyro {
 	public:
 		static void LoadTexture(const std::string& key, const std::string& path);
 		static Ref<Texture> GetTexture(const std::string& key);
+		static Ref<Texture> GetFallbackTexture();
 
 		static void LoadShader(const std::string& key, const std::string& vertexPath, const std::string& fragmentPath);
 		static Ref<Shader> GetShader(const std::string& key);

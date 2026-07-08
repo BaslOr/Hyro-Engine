@@ -34,6 +34,8 @@ namespace Hyro {
 		UniformBufferData data{};
 		data.MVP = mvp;
 		m_Data.UBO->SetData(data);
+		std::array<Ref<Texture>, 16> textures{};
+		m_Data.Material->SetTextures(textures);
 	}
 
 	void Renderer3D::EndScene()

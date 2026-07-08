@@ -18,7 +18,7 @@ namespace Hyro {
 		Ref<IndexBuffer> IBO;
 
 		size_t CurrentTextureSlot = 0;
-		std::array<Ref<Texture>, 16> TexturesSlots;
+		std::array<Ref<Texture>, 16> Textures;
 
 		Ref<Shader> Shader;
 		Ref<UniformBuffer> UBO;
@@ -30,6 +30,7 @@ namespace Hyro {
 
 		uint32_t MaxVerticesCount = 2000;
 		uint32_t MaxIndicesCount = 6000;
+		uint32_t MaxTextureSlots = 16;
 	};
 
 
@@ -44,6 +45,12 @@ namespace Hyro {
 
 		static void BeginScene(const glm::mat4& projection);
 		static void EndScene();
+
+		static void Flush();
+
+		static void DrawQuadWithTextureIndex(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float textureIndex);
+
+		static uint32_t GetSlotOfTexture(const Ref<Texture>& texture);
 
 	private:
 		inline static Renderer2DData m_Data;

@@ -2,6 +2,8 @@
 #include "Platform/OpenGL/OpenGLMaterial.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 
+#include "Hyro/Project/AssetManager.h"
+
 #include <glad/glad.h>
 
 
@@ -15,6 +17,8 @@ namespace Hyro {
 		OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
 		int location = openGLShader->GetUniformLocation("u_Textures");
 		glUniform1iv(location, textureSlots.size(), textureSlots.data());
+
+		m_FallbackTexture = AssetManager::GetFallbackTexture();
 	}
 
 	void OpenGLMaterial::SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding)
@@ -25,11 +29,19 @@ namespace Hyro {
 		glUniformBlockBinding(openGLShader->GetProgram(), uniformBlockIndex, 0);
 	}
 
-	void OpenGLMaterial::SetTexture(Ref<Texture> texture, uint32_t slot)
+	void OpenGLMaterial::SetTextures(const std::array<Ref<Texture>, 16>& textures)
 	{
 		m_Shader->Bind();
-		m_Textures[slot] = texture;
-		texture->Bind(slot);
+		m_Textures[0] = m_FallbackTexture;
+		m_Textures[0]->Bind(0U);
+		for (size_t i = 1; i < m_Textures.size(); ++i) {
+			if (textures[i] != nullptr)
+				m_Textures[i] = textures[i];
+			else
+				m_Textures[i] = m_FallbackTexture;
+
+			m_Textures[i]->Bind(i);
+		}
 	}
 
 	void OpenGLMaterial::SetPushConstants(const PushConstants& pushConstants)
@@ -45,9 +57,9 @@ namespace Hyro {
 		{
 			ubo->Bind();
 		}
-		for (auto& [slot, texture] : m_Textures)
-		{
-			texture->Bind(slot);
+
+		for (size_t i = 0; i < m_Textures.size(); ++i) {
+			m_Textures[i]->Bind(i);
 		}
 	}
 

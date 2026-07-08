@@ -8,6 +8,9 @@
 #include "Platform/Vulkan/VulkanTexture.h"
 
 
+#include "Hyro/Project/AssetManager.h"
+
+
 namespace Hyro {
 
 	VulkanMaterial::VulkanMaterial(Ref<Shader> shader)
@@ -18,6 +21,8 @@ namespace Hyro {
 
 		VulkanShader* vulkanShader = static_cast<VulkanShader*>(m_Shader.get());
 		m_DescriptorSets = VulkanDescriptorPool::AllocateDescriptorSets(vulkanShader->GetVkDescriptorSetLayout(), maxFramesInFlight);
+
+		m_FallbackTexture = AssetManager::GetFallbackTexture();
 	}
 
 	void VulkanMaterial::SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding)
@@ -26,9 +31,15 @@ namespace Hyro {
 		m_IsDirty = true;
 	}
 
-	void VulkanMaterial::SetTexture(Ref<Texture> texture, uint32_t slot)
+	void VulkanMaterial::SetTextures(const std::array<Ref<Texture>, 16>& textures)
 	{
-		m_Textures[slot] = texture;
+		m_Textures[0] = m_FallbackTexture;
+		for (size_t i = 1; i < textures.size(); ++i) {
+			if (textures[i] != nullptr)
+				m_Textures[i] = textures[i];
+			else
+				m_Textures[i] = m_FallbackTexture;
+		}
 		m_IsDirty = true;
 	}
 
@@ -79,20 +90,11 @@ namespace Hyro {
 			std::array<VkDescriptorImageInfo, 16> imageInfos;
 			for (size_t j = 0; j < imageInfos.size(); j++)
 			{
-				if (m_Textures.find(j) == m_Textures.end()) {
-					Ref<VulkanTexture> fallback = VulkanContext::Get().GetFallbackTexture();
+				VulkanTexture* vulkanTexture = static_cast<VulkanTexture*>(m_Textures.at(j).get());
 
-					imageInfos[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					imageInfos[j].imageView = fallback->GetVkImageView();
-					imageInfos[j].sampler = fallback->GetVkSampler();
-				}
-				else {
-					VulkanTexture* vulkanTexture = static_cast<VulkanTexture*>(m_Textures.at(j).get());
-
-					imageInfos[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					imageInfos[j].imageView = vulkanTexture->GetVkImageView();
-					imageInfos[j].sampler = vulkanTexture->GetVkSampler();
-				}
+				imageInfos[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+				imageInfos[j].imageView = vulkanTexture->GetVkImageView();
+				imageInfos[j].sampler = vulkanTexture->GetVkSampler();
 			}
 
 			writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
