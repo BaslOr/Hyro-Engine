@@ -9,8 +9,6 @@
 #include "Hyro/Renderer/Renderer.h"
 #include "Hyro/Renderer/MeshFactory.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-
 
 namespace Hyro {
 
@@ -48,9 +46,11 @@ namespace Hyro {
 
     void Scene::Render()
     {
+
 		Renderer::BeginRenderPass();
 
         //Get framebuffer size
+        m_Camera.Update(); //Of course update should not be here, but the focus for now is on rendering not game engine stuff
         Ref <Window> window = Application::Get().GetWindow();
         float width = static_cast<float>(window->GetWidth());
         float height = static_cast<float>(window->GetHeight()); 
@@ -61,8 +61,10 @@ namespace Hyro {
         else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
             projection = glm::perspectiveRH_NO(80.f, aspectRatio, 0.1f, 100.f);
         
+        glm::mat4 view = m_Camera.GetViewMatrix();
+        glm::mat4 viewProjection = projection * view;
 
-        Renderer3D::BeginScene(projection);
+        Renderer3D::BeginScene(viewProjection);
         for (auto& meshInstance : m_Meshes)
         {
             Renderer3D::DrawMesh(meshInstance.Mesh, meshInstance.Transform);
@@ -71,9 +73,11 @@ namespace Hyro {
 
 
         if (Renderer::GetAPI() == GraphicsAPIType::Vulkan)
-            projection = glm::ortho(0.f, width, height, 0.f);
+            projection = glm::ortho(0.f, width, height, 0.f, -100.0f, 100.f);
         else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
-            projection = glm::ortho(0.f, width, 0.f, height);
+            projection = glm::ortho(0.f, width, 0.f, height, -100.0f, 100.f);
+
+        viewProjection = projection * view;
 
 		Renderer2D::BeginScene(projection);
         for (auto& spriteInstance : m_Sprites)
