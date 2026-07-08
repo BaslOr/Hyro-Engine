@@ -198,15 +198,22 @@ namespace Hyro {
 
 	void VulkanSwapchain::CleanUpOldSwapchain()
 	{
-		vkDestroySwapchainKHR(VulkanDevice::GetVkDevice(), m_Swapchain, g_VulkanAllocationCallback);
+		VkDevice device = VulkanDevice::GetVkDevice();
+		vkDeviceWaitIdle(device);
 
-		for (auto imageView : m_ImageViews) {
-			vkDestroyImageView(VulkanDevice::GetVkDevice(), imageView, g_VulkanAllocationCallback);
-		}
+		vkDestroyImageView(device, m_DepthView, g_VulkanAllocationCallback);
+		vkDestroyImage(device, m_DepthImage, g_VulkanAllocationCallback);
+		vkFreeMemory(device, m_DepthMemory, g_VulkanAllocationCallback);
 
 		for (auto framebuffer : m_Framebuffers) {
-			vkDestroyFramebuffer(VulkanDevice::GetVkDevice(), framebuffer, g_VulkanAllocationCallback);
+			vkDestroyFramebuffer(device, framebuffer, g_VulkanAllocationCallback);
 		}
+
+		for (auto imageView : m_ImageViews) {
+			vkDestroyImageView(device, imageView, g_VulkanAllocationCallback);
+		}
+
+		vkDestroySwapchainKHR(device, m_Swapchain, g_VulkanAllocationCallback);
 	}
 
 	void VulkanSwapchain::Recreate(uint32_t width, uint32_t height)
