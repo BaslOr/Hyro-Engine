@@ -25,20 +25,9 @@ namespace Hyro {
 	{
 		Bind();
 		buffer->Bind();
-	}
-
-	void OpenGLVertexArray::SetIndexBuffer(Ref<IndexBuffer> buffer)
-	{
-		Bind();
-		buffer->Bind();
-	}
-
-	void OpenGLVertexArray::SetLayout(const VertexLayout& layout, Ref<VertexBuffer> vertexBuffer)
-	{
-		Bind();
-		vertexBuffer->Bind();
 		uint32_t i = 0;
 		uint32_t offset = 0;
+		auto layout = buffer->GetLayout();
 		for (const auto type : layout.GetVertexAttributes()) {
 			glVertexAttribPointer(i, AttributeTypeToAttributeSize(type), AttributeTypeToOpenGLEnum(type), GL_FALSE, layout.GetStride(), (void*)offset);
 			glEnableVertexAttribArray(i);
@@ -46,6 +35,13 @@ namespace Hyro {
 			offset += layout.GetVertexAttributeSize(type);
 			i++;
 		}
+		
+	}
+
+	void OpenGLVertexArray::SetIndexBuffer(Ref<IndexBuffer> buffer)
+	{
+		Bind();
+		buffer->Bind();
 	}
 
 	int OpenGLVertexArray::AttributeTypeToOpenGLEnum(VertexAttributeType type) const

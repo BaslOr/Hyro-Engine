@@ -27,4 +27,34 @@ namespace Hyro {
 		}
 	};
 
+	//class Vertex {
+	//public:
+	//	virtual VertexLayout GetLayout() const = 0;
+
+	//};
+
+	//class Vertex2D : public Vertex {
+	//public:
+	//	inline VertexLayout GetLayout() const override {
+
+	//	}
+	//	
+	//private:
+	//	glm::vec3 Position;
+	//	glm::vec2 UV;
+	//	glm::vec4 Color;
+	//	float SpriteIndex;
+	//};
+
+
+	//template<typename ...T>
+	//class Vertex {
+	//	inline VertexLayout GetLayout() const {
+
+	//	}
+
+	//private:
+	//	std::tuple<T> m_Types;
+	//};
+
 }

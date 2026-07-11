@@ -73,7 +73,6 @@ namespace Hyro {
             glm::vec2 size = glm::vec2(spriteInstance.Transform[0][0], spriteInstance.Transform[1][1]);
             Renderer2D::DrawSprite(spriteInstance.Sprite, position, size);
         }
-        Renderer2D::DrawRect({ 400.0f, 400.f }, { 100.f, 100.f });
         Renderer2D::EndScene();
 
 

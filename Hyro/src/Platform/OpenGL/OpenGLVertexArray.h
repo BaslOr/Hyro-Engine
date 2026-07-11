@@ -16,8 +16,6 @@ namespace Hyro {
 		void AddVertexBuffer(Ref<VertexBuffer> buffer) override;
 		void SetIndexBuffer(Ref<IndexBuffer> buffer) override;
 
-		void SetLayout(const VertexLayout& layout, Ref<VertexBuffer> vertexBuffer) override;
-
 	private:
 		int AttributeTypeToOpenGLEnum(VertexAttributeType type) const;
 		uint32_t AttributeTypeToAttributeSize(VertexAttributeType type) const;

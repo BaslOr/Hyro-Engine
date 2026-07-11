@@ -11,6 +11,10 @@ namespace Hyro {
 		OpenGLVertexBuffer(const std::vector<Vertex>& data);
 		~OpenGLVertexBuffer();
 
+		inline void SetLayout(const VertexLayout& layout) override { m_Layout = layout; }
+		inline VertexLayout GetLayout() const override { return m_Layout; }
+		
+
 		void SetData(const std::vector<Vertex>& data) override;
 
 		void Bind() const override;
@@ -18,6 +22,8 @@ namespace Hyro {
 
 	private:
 		uint32_t m_ID;
+
+		VertexLayout m_Layout;
 	};
 
 }

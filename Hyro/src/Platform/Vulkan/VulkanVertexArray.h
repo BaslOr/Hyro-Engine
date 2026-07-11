@@ -12,8 +12,6 @@ namespace Hyro {
 		void AddVertexBuffer(Ref<VertexBuffer> buffer) override;
 		void SetIndexBuffer(Ref<IndexBuffer> buffer) override;
 
-		void SetLayout(const VertexLayout& layout, Ref<VertexBuffer> vertexBuffer) override {}
-
 		void Bind() const override {}
 		void Bind(void* commandBuwffer) const override;
 

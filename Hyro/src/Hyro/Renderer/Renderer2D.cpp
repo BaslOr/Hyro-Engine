@@ -20,15 +20,15 @@ namespace Hyro {
 
 		m_Data.UBO = Renderer::GetRenderer2DTransformUnifromBuffer();
 
-		m_Data.VAO->AddVertexBuffer(m_Data.VBO);
-		m_Data.VAO->SetIndexBuffer(m_Data.IBO);
-
 		VertexLayout vertexLayout{};
 		vertexLayout.Push<VertexAttributeType::FLOAT3>();
 		vertexLayout.Push<VertexAttributeType::FLOAT2>();
 		vertexLayout.Push<VertexAttributeType::FLOAT4>();
 		vertexLayout.Push<VertexAttributeType::FLOAT>();
-		m_Data.VAO->SetLayout(vertexLayout, m_Data.VBO);
+		m_Data.VBO->SetLayout(vertexLayout);
+
+		m_Data.VAO->AddVertexBuffer(m_Data.VBO);
+		m_Data.VAO->SetIndexBuffer(m_Data.IBO);
 
 
 		m_Data.Shader = AssetManager::GetShader("Default2D");

@@ -18,15 +18,15 @@ namespace Hyro {
             Count = indices.size();
 
             VAO = VertexArray::Create();
-            VAO->AddVertexBuffer(m_VertexBuffer);
-            VAO->SetIndexBuffer(m_IndexBuffer);
 
             VertexLayout vertexLayout{};
             vertexLayout.Push<VertexAttributeType::FLOAT3>();
             vertexLayout.Push<VertexAttributeType::FLOAT2>();
             vertexLayout.Push<VertexAttributeType::FLOAT4>();
             vertexLayout.Push<VertexAttributeType::FLOAT>();
-            VAO->SetLayout(vertexLayout, m_VertexBuffer);
+            m_VertexBuffer->SetLayout(vertexLayout);
+            VAO->AddVertexBuffer(m_VertexBuffer);
+            VAO->SetIndexBuffer(m_IndexBuffer);
         }
 
         Ref<VertexArray> VAO;
