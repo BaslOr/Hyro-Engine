@@ -4,9 +4,10 @@
 
 #include "Hyro/Core/Core.h"
 
-
 #include <fstream>
 #include <sstream>
+#include <algorithm>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Hyro {
 
@@ -29,6 +30,8 @@ namespace Hyro {
 
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
+
+		RetrieveVertexLayout(vertexPath);
 	}
 
 	OpenGLShader::~OpenGLShader()
@@ -119,6 +122,112 @@ namespace Hyro {
 		CheckShaderCompilation(shader);
 
 		return shader;
+	}
+
+	void OpenGLShader::RetrieveVertexLayout(const std::string& vertexPath)
+	{
+		//Prbly not the most efficient but I think it's fine
+		std::vector<uint32_t> spirV = ShaderCompiler::CompileToSpirv(vertexPath, ShaderStage::Vertex);
+		ShaderReflectionData data = ShaderReflection::FillReflectionData(ShaderStage::Vertex, spirV);
+
+		std::vector<std::pair<VertexAttributeType, uint32_t>> buffer;
+		for (const auto& attribute : data.VertexInputs) {
+			VertexAttributeType type = ReflectTypeToGLType(attribute->format);
+			buffer.push_back(std::make_pair(type, attribute->location));
+		}
+
+		std::sort(std::begin(buffer), std::end(buffer),
+			[](const std::pair<VertexAttributeType, uint32_t>& a, const std::pair<VertexAttributeType, uint32_t>& b) {
+				return a.second < b.second;
+			});
+
+		for (const auto& [type, location] : buffer) {
+			m_VertexLayout.Push(type);
+		}
+	}
+
+	VertexAttributeType OpenGLShader::ReflectTypeToGLType(SpvReflectFormat format) const
+	{
+		switch (format)
+		{
+		case SPV_REFLECT_FORMAT_UNDEFINED:
+			break;
+		case SPV_REFLECT_FORMAT_R16_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R16_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R16_SFLOAT:
+			break;
+		case SPV_REFLECT_FORMAT_R16G16_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R16G16_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R16G16_SFLOAT:
+			break;
+		case SPV_REFLECT_FORMAT_R16G16B16_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R16G16B16_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R16G16B16_SFLOAT:
+			break;
+		case SPV_REFLECT_FORMAT_R16G16B16A16_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R16G16B16A16_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R16G16B16A16_SFLOAT:
+			break;
+		case SPV_REFLECT_FORMAT_R32_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R32_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R32_SFLOAT:
+			return VertexAttributeType::FLOAT;
+		case SPV_REFLECT_FORMAT_R32G32_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R32G32_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R32G32_SFLOAT:
+			return VertexAttributeType::FLOAT2;
+		case SPV_REFLECT_FORMAT_R32G32B32_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R32G32B32_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R32G32B32_SFLOAT:
+			return VertexAttributeType::FLOAT3;
+		case SPV_REFLECT_FORMAT_R32G32B32A32_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R32G32B32A32_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R32G32B32A32_SFLOAT:
+			return VertexAttributeType::FLOAT4;
+		case SPV_REFLECT_FORMAT_R64_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R64_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R64_SFLOAT:
+			break;
+		case SPV_REFLECT_FORMAT_R64G64_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R64G64_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R64G64_SFLOAT:
+			break;
+		case SPV_REFLECT_FORMAT_R64G64B64_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R64G64B64_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R64G64B64_SFLOAT:
+			break;
+		case SPV_REFLECT_FORMAT_R64G64B64A64_UINT:
+			break;
+		case SPV_REFLECT_FORMAT_R64G64B64A64_SINT:
+			break;
+		case SPV_REFLECT_FORMAT_R64G64B64A64_SFLOAT:
+			break;
+		}
+
+		HYRO_LOG_CORE_ERROR("Failed to convert spv reflect format to Vertex Attribute Type");
+		return VertexAttributeType::NONE;
 	}
 
 	int OpenGLShader::GetUniformLocation(const std::string& name) const

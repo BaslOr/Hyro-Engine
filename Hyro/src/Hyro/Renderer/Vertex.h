@@ -3,7 +3,34 @@
 
 namespace Hyro {
 
-	//Until now the Vertex Layout is fixed
+	
+	enum class VertexAttributeType {
+		NONE,
+		FLOAT, FLOAT2, FLOAT3, FLOAT4
+	};
+
+	class VertexLayout {
+	public:
+		void Push(VertexAttributeType type);
+
+		inline const std::vector<VertexAttributeType>& GetVertexAttributes() const { return m_VertexAttributes; }
+		inline uint32_t GetStride() const { return m_Stride; }
+
+		uint32_t GetVertexAttributeSize(VertexAttributeType type) const;
+
+	private:
+		std::vector<VertexAttributeType> m_VertexAttributes;
+		uint32_t m_Stride = 0;
+	};
+
+
+	inline void VertexLayout::Push(VertexAttributeType type)
+	{
+		uint32_t size = GetVertexAttributeSize(type);
+		m_Stride += size;
+		m_VertexAttributes.push_back(type);
+	}
+
 	struct Vertex {
 		glm::vec3 Position;
 		glm::vec2 UV;
@@ -26,7 +53,6 @@ namespace Hyro {
 		{
 		}
 	};
-
 	//class Vertex {
 	//public:
 	//	virtual VertexLayout GetLayout() const = 0;

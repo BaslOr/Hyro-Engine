@@ -12,9 +12,9 @@ SandboxLayer::SandboxLayer()
 
 	//Prepare scene
 	Hyro::Ref<Hyro::Sprite> sprite1 = Hyro::CreateRef<Hyro::Sprite>();
-	sprite1->Texture = Hyro::AssetManager::GetTexture("Sample1");
+	sprite1->Sprite = Hyro::AssetManager::GetTexture("Sample1");
 	Hyro::Ref<Hyro::Sprite> sprite2 = Hyro::CreateRef<Hyro::Sprite>();
-	sprite2->Texture = Hyro::AssetManager::GetTexture("Sample2");
+	sprite2->Sprite = Hyro::AssetManager::GetTexture("Sample2");
 	glm::mat4 transform1 = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(200.0f, 200.0f, 1.0f));
 	glm::mat4 transform2 = glm::translate(glm::mat4(1.0f), glm::vec3(400.0f, 100.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(200.0f, 200.0f, 1.0f));
 

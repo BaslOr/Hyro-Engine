@@ -3,17 +3,10 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
-#include <vector>
-
 namespace Hyro {
 
 
 	class VertexArray {
-	public:
-		enum TYPE {
-			FLOAT
-		};
-
 	public:
 		static Ref<VertexArray> Create();
 

@@ -5,32 +5,16 @@
 #include "Hyro/Renderer/Vertex.h"
 #include "Hyro/Renderer/Texture.h"
 #include "Hyro/Renderer/VertexArray.h"
+#include <cstdint>
 
 namespace Hyro {
 
     struct Mesh {
     public:
-        Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Texture> texture)
-            : Texture(texture)
-        {
-            m_VertexBuffer = VertexBuffer::Create(vertices);
-            m_IndexBuffer = IndexBuffer::Create(indices);
-            Count = indices.size();
-
-            VAO = VertexArray::Create();
-
-            VertexLayout vertexLayout{};
-            vertexLayout.Push<VertexAttributeType::FLOAT3>();
-            vertexLayout.Push<VertexAttributeType::FLOAT2>();
-            vertexLayout.Push<VertexAttributeType::FLOAT4>();
-            vertexLayout.Push<VertexAttributeType::FLOAT>();
-            m_VertexBuffer->SetLayout(vertexLayout);
-            VAO->AddVertexBuffer(m_VertexBuffer);
-            VAO->SetIndexBuffer(m_IndexBuffer);
-        }
+        Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Texture> texture);
 
         Ref<VertexArray> VAO;
-        Ref<Texture> Texture;
+        Ref<Texture> Sprite;
         uint32_t Count;
 
     private:
@@ -39,7 +23,7 @@ namespace Hyro {
     };
 
     struct Sprite {
-		Ref<Texture> Texture;
+		Ref<Texture> Sprite;
     };
 
 }

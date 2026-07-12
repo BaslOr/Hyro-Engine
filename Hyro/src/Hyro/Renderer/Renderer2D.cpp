@@ -6,32 +6,28 @@
 #include "Hyro/Core/Application.h"
 #include "Hyro/Project/AssetManager.h"
 
-#include <glm/gtc/matrix_transform.hpp>
+#include "Hyro/Renderer/Vertex.h"
 
 namespace Hyro {
 
 	void Renderer2D::Init()
 	{
+		m_Data.Shader = AssetManager::GetShader("Default2D");
 		m_Data.VAO = VertexArray::Create();
-		m_Data.VBO = VertexBuffer::Create(m_Data.MaxVerticesCount * sizeof(Vertex));//It may be possible that this won't work when implementing dynamic Vertex Layout in the future
+		m_Data.VBO = VertexBuffer::Create(m_Data.MaxVerticesCount * sizeof(Vertex));
 		m_Data.Vertices.resize(m_Data.MaxVerticesCount);
 		m_Data.IBO = IndexBuffer::Create(m_Data.MaxIndicesCount * sizeof(uint32_t));
 		m_Data.Indices.resize(m_Data.MaxIndicesCount);
 
 		m_Data.UBO = Renderer::GetRenderer2DTransformUnifromBuffer();
 
-		VertexLayout vertexLayout{};
-		vertexLayout.Push<VertexAttributeType::FLOAT3>();
-		vertexLayout.Push<VertexAttributeType::FLOAT2>();
-		vertexLayout.Push<VertexAttributeType::FLOAT4>();
-		vertexLayout.Push<VertexAttributeType::FLOAT>();
+		VertexLayout vertexLayout = m_Data.Shader->GetVertexLayout();
 		m_Data.VBO->SetLayout(vertexLayout);
 
 		m_Data.VAO->AddVertexBuffer(m_Data.VBO);
 		m_Data.VAO->SetIndexBuffer(m_Data.IBO);
 
 
-		m_Data.Shader = AssetManager::GetShader("Default2D");
 		m_Data.Material = Material::Create(m_Data.Shader);
 		m_Data.Material->SetUnifromBuffer(m_Data.UBO, 0);
 
@@ -117,7 +113,7 @@ namespace Hyro {
 
 	void Renderer2D::DrawSprite(const Ref<Sprite>& sprite, const glm::vec2& position, const glm::vec2& size)
 	{
-		int textureIndex = GetSlotOfTexture(sprite->Texture);
+		int textureIndex = GetSlotOfTexture(sprite->Sprite);
 
 		if (textureIndex == 0) {
 			if (m_Data.CurrentTextureSlot > m_Data.MaxTextureSlots) {
@@ -125,7 +121,7 @@ namespace Hyro {
 			}
 
 			textureIndex = static_cast<int>(++m_Data.CurrentTextureSlot);
-			m_Data.Textures[textureIndex] = sprite->Texture;
+			m_Data.Textures[textureIndex] = sprite->Sprite;
 		}
 
 		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };

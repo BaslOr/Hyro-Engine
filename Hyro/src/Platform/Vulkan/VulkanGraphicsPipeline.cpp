@@ -66,6 +66,10 @@ namespace Hyro {
         auto bindingAndAttributes = GetBindingAndAttributes(vertexReflection);
         VkVertexInputBindingDescription bindingDescription = bindingAndAttributes.first;
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions = bindingAndAttributes.second;
+        for (const auto& attribute : attributeDescriptions) {
+            VertexAttributeType type = VkTypeToHyroType(attribute.format);
+            m_VertexLayout.Push(type);
+        }
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -246,7 +250,6 @@ namespace Hyro {
         }
 
         return std::make_pair(binding_description, attribute_descriptions);
-
     }
 
     std::string VulkanGraphicsPipeline::ReadFile(const std::string& filepath)
@@ -281,6 +284,20 @@ namespace Hyro {
 
 		return shaderModule;
 	}
+
+    VertexAttributeType VulkanGraphicsPipeline::VkTypeToHyroType(VkFormat format)
+    {
+
+        switch (format)
+        {
+        case VK_FORMAT_R32_SFLOAT: return VertexAttributeType::FLOAT;
+        case VK_FORMAT_R32G32_SFLOAT: return VertexAttributeType::FLOAT2;
+        case VK_FORMAT_R32G32B32_SFLOAT: return VertexAttributeType::FLOAT3;
+        case VK_FORMAT_R32G32B32A32_SFLOAT: return VertexAttributeType::FLOAT4;
+        default:
+            HYRO_LOG_CORE_ERROR("Tried to convert unkwon vulkan Type to Hyro Vertex Attrubute type!");
+        }
+    }
 
     uint32_t VulkanGraphicsPipeline::FormatSize(VkFormat format)
     {

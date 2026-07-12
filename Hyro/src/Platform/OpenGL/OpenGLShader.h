@@ -3,7 +3,9 @@
 #include <iostream>
 #include <unordered_map>
 #include <string>
-#include <glm/gtc/type_ptr.hpp>
+
+#include "Hyro/Renderer/Utils/ShaderUtils.h"
+
 
 namespace Hyro {
 
@@ -14,6 +16,8 @@ namespace Hyro {
 
 		void Bind() const override;
 		void Bind(void* commandBuffer) const override;
+
+		VertexLayout GetVertexLayout() const override { return m_VertexLayout; }
 
 		uint32_t GetProgram() const { return m_Program; }
 
@@ -33,6 +37,9 @@ namespace Hyro {
 
 		uint32_t CreateShader(uint32_t shaderType, const char* shaderSource);
 
+		void RetrieveVertexLayout(const std::string& vertexPath);
+		VertexAttributeType ReflectTypeToGLType(SpvReflectFormat format) const;
+
 		int GetUniformLocation(const std::string& name) const;
 		bool CheckLocation(int location) const;
 
@@ -41,6 +48,8 @@ namespace Hyro {
 	private:
 		uint32_t m_Program;
 		mutable std::unordered_map<std::string, int> m_UniformLocationCache;
+
+		VertexLayout m_VertexLayout;
 	};
 
 }
