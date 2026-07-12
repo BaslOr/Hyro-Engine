@@ -13,6 +13,10 @@ namespace Hyro {
 		glm::mat4 Model;
 	};
 
+	enum class DescriptorType {
+		UNIFORM_BUFFER, SAMPLER
+	};
+
 
 	class Shader {
 	public:

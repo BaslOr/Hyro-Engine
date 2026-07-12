@@ -37,9 +37,6 @@ namespace Hyro {
 
 		uint32_t CreateShader(uint32_t shaderType, const char* shaderSource);
 
-		void RetrieveVertexLayout(const std::string& vertexPath);
-		VertexAttributeType ReflectTypeToGLType(SpvReflectFormat format) const;
-
 		int GetUniformLocation(const std::string& name) const;
 		bool CheckLocation(int location) const;
 

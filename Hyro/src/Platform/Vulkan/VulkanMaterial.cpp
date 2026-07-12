@@ -97,6 +97,7 @@ namespace Hyro {
 				imageInfos[j].sampler = vulkanTexture->GetVkSampler();
 			}
 
+			//Retrieve Reflection Data
 			writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			writes[0].dstSet = m_DescriptorSets[i];
 			writes[0].dstBinding = 0;

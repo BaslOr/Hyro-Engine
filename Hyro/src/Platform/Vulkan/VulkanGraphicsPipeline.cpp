@@ -2,18 +2,19 @@
 #include "Platform/Vulkan/VulkanGraphicsPipeline.h"
 
 #include "Platform/Vulkan/VulkanContext.h"
-#include "Platform/Vulkan/VulkanBuffer.h"
 #include "Hyro/Core/Core.h"
 
 
 #include <fstream>
-#include <cstdlib>
-
-
-
-
 
 namespace Hyro {
+
+    struct DescriptorSetLayoutData {
+        uint32_t SetNumber;
+        VkDescriptorSetLayoutCreateInfo CreateInfo;
+        std::vector<VkDescriptorSetLayoutBinding> Bindings;
+    };
+
 
 	VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::string& vertexPath, const std::string& fragmentPath)
 	{
@@ -44,9 +45,9 @@ namespace Hyro {
 
         VkShaderModule vertShaderModule = CreateShaderModule(vertexSpirV);
         VkShaderModule fragShaderModule = CreateShaderModule(fragmentSpirV);
-        
-        auto vertexReflection = ShaderReflection::FillReflectionData(ShaderStage::Vertex, vertexSpirV);
-        auto fragmentReflection = ShaderReflection::FillReflectionData(ShaderStage::Fragment, fragmentSpirV);
+
+        std::array<std::vector<uint32_t>, 2> spirVs = { vertexSpirV, fragmentSpirV };
+        auto reflectionData = ShaderReflection::FillReflectionData(spirVs);
 
         VkPipelineShaderStageCreateInfo vertexStageInfo{};
         vertexStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -62,14 +63,10 @@ namespace Hyro {
 
         VkPipelineShaderStageCreateInfo shaderStages[] = { vertexStageInfo, fragmentStageInfo };
 
-
-        auto bindingAndAttributes = GetBindingAndAttributes(vertexReflection);
+        m_VertexLayout = ShaderReflection::GetVertexLayout(vertexSpirV);
+        auto bindingAndAttributes = GetBindingAndAttributes(m_VertexLayout);
         VkVertexInputBindingDescription bindingDescription = bindingAndAttributes.first;
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions = bindingAndAttributes.second;
-        for (const auto& attribute : attributeDescriptions) {
-            VertexAttributeType type = VkTypeToHyroType(attribute.format);
-            m_VertexLayout.Push(type);
-        }
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -139,20 +136,16 @@ namespace Hyro {
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicState.pDynamicStates = dynamicStates.data();
 
-        CreateDescriptorSetLayout();
 
-        VkPushConstantRange pushConstants{};
-        pushConstants.size = sizeof(PushConstants);
-        pushConstants.offset = 0;
-        pushConstants.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-     
+        std::vector<VkPushConstantRange> pushConstants = RetrievePushConstants(reflectionData);
+        CreateDescriptorSetLayout(reflectionData);
 
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
         pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
-        pipelineLayoutInfo.pushConstantRangeCount = 1;
-        pipelineLayoutInfo.pPushConstantRanges = &pushConstants;
+        pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstants.size());
+        pipelineLayoutInfo.pPushConstantRanges = pushConstants.data();
 
         if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS) {
             HYRO_LOG_CORE_ERROR("Failed to create Pipeline Layout!");
@@ -185,23 +178,23 @@ namespace Hyro {
         vkDestroyShaderModule(device, fragShaderModule, g_VulkanAllocationCallback);
     }
 
-    void VulkanGraphicsPipeline::CreateDescriptorSetLayout()
+    void VulkanGraphicsPipeline::CreateDescriptorSetLayout(const ShaderReflectionData& reflection)
     {
-        //Should later be reflected from shader
+		std::vector<VkDescriptorSetLayoutBinding> bindings{};
+        bindings.reserve(reflection.Descriptors.size());
 
-		std::array<VkDescriptorSetLayoutBinding, 2> bindings{};
-        bindings[0].binding = 0;
-        bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        bindings[0].descriptorCount = 1;
-        bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        bindings[0].pImmutableSamplers = nullptr;
 
-        bindings[1].binding = 1;
-        bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        bindings[1].descriptorCount = 16;
-        bindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        bindings[1].pImmutableSamplers = nullptr;
-        
+        for (auto& descriptorData : reflection.Descriptors) {
+            VkDescriptorSetLayoutBinding binding{};
+            
+            binding.binding = descriptorData.Binding;
+            binding.descriptorType = HyroDescriptorTypeToVulkanType(descriptorData.Type);
+            binding.descriptorCount = descriptorData.Count;
+            binding.stageFlags = HyroShaderStageToVulkanStage(descriptorData.Stage);
+            binding.pImmutableSamplers = nullptr;
+
+            bindings.push_back(binding);
+        }
 
         VkDescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -214,42 +207,46 @@ namespace Hyro {
     }
 
     std::pair<VkVertexInputBindingDescription, std::vector<VkVertexInputAttributeDescription>>
-        VulkanGraphicsPipeline::GetBindingAndAttributes(const ShaderReflectionData& reflection)
+        VulkanGraphicsPipeline::GetBindingAndAttributes(const VertexLayout& layout)
     {
-        VkVertexInputBindingDescription binding_description = {};
-        binding_description.binding = 0;
-        binding_description.stride = 0; 
-        binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {
-            VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
-        std::vector<VkVertexInputAttributeDescription> attribute_descriptions;
-        attribute_descriptions.reserve(reflection.VertexInputs.size());
-        for (size_t i_var = 0; i_var < reflection.VertexInputs.size(); ++i_var) {
-            const SpvReflectInterfaceVariable& refl_var = *(reflection.VertexInputs[i_var]);
-            // ignore built-in variables
-            if (refl_var.decoration_flags & SPV_REFLECT_DECORATION_BUILT_IN) {
-                continue;
-            }
-            VkVertexInputAttributeDescription attr_desc{};
-            attr_desc.location = refl_var.location;
-            attr_desc.binding = binding_description.binding;
-            attr_desc.format = static_cast<VkFormat>(refl_var.format);
-            attr_desc.offset = 0;  // final offset computed below after sorting.
-            attribute_descriptions.push_back(attr_desc);
-        }
-        // Sort attributes by location
-        std::sort(std::begin(attribute_descriptions), std::end(attribute_descriptions),
-            [](const VkVertexInputAttributeDescription& a, const VkVertexInputAttributeDescription& b) {
-                return a.location < b.location;
-            });
-        // Compute final offsets of each attribute, and total vertex stride.
-        for (auto& attribute : attribute_descriptions) {
-            uint32_t format_size = FormatSize(attribute.format);
-            attribute.offset = binding_description.stride;
-            binding_description.stride += format_size;
+        VkVertexInputBindingDescription bindingDescription = {};
+        bindingDescription.binding = 0;
+        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        bindingDescription.stride = layout.GetStride();
+        
+        std::vector<VkVertexInputAttributeDescription> attributeDescription(layout.GetVertexAttributes().size());
+
+        uint32_t i = 0;
+        uint32_t offset = 0;
+        for (auto& attribute : layout.GetVertexAttributes()) {
+            VkFormat format = HyroFormatToVulkanFormat(attribute);
+            attributeDescription[i].location = i;
+            attributeDescription[i].format = format;
+            attributeDescription[i].binding = 0;
+            attributeDescription[i].offset = offset;
+
+            offset += FormatSize(format);
+            ++i;
         }
 
-        return std::make_pair(binding_description, attribute_descriptions);
+        return std::make_pair(bindingDescription, attributeDescription);
+    }
+
+    std::vector<VkPushConstantRange> VulkanGraphicsPipeline::RetrievePushConstants(const ShaderReflectionData& data) const
+    {
+        std::vector<VkPushConstantRange> pushConstants;
+        pushConstants.reserve(data.PushConstants.size());
+
+        for (auto& block : data.PushConstants) {
+            VkPushConstantRange pushConstant{};
+            pushConstant.offset = block.Offset;
+            pushConstant.size = block.Size;
+            pushConstant.stageFlags = HyroShaderStageToVulkanStage(block.Stage);
+
+            pushConstants.push_back(pushConstant);
+        }
+
+        return pushConstants;
     }
 
     std::string VulkanGraphicsPipeline::ReadFile(const std::string& filepath)
@@ -284,6 +281,49 @@ namespace Hyro {
 
 		return shaderModule;
 	}
+
+    VkDescriptorType VulkanGraphicsPipeline::HyroDescriptorTypeToVulkanType(DescriptorType type)
+    {
+        switch (type)
+        {
+        case Hyro::DescriptorType::UNIFORM_BUFFER:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        case Hyro::DescriptorType::SAMPLER:
+            return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; //Regular samplers are not support since I have no idea what the difference is
+        }
+        
+        HYRO_LOG_CORE_ERROR("Failed to convert Hyro Descriptor Type to Vulkan Descriptor Type!");
+    }
+
+    VkShaderStageFlags VulkanGraphicsPipeline::HyroShaderStageToVulkanStage(ShaderStage stage)
+    {
+        switch (stage)
+        {
+        case Hyro::ShaderStage::Vertex:
+            return VK_SHADER_STAGE_VERTEX_BIT;
+        case Hyro::ShaderStage::Fragment:
+            return VK_SHADER_STAGE_FRAGMENT_BIT;
+        case Hyro::ShaderStage::Compute:
+            return VK_SHADER_STAGE_COMPUTE_BIT;
+        }
+    }
+
+    VkFormat VulkanGraphicsPipeline::HyroFormatToVulkanFormat(VertexAttributeType format)
+    {
+        switch (format)
+        {
+        case Hyro::VertexAttributeType::NONE:
+            return VK_FORMAT_UNDEFINED;
+        case Hyro::VertexAttributeType::FLOAT:
+            return VK_FORMAT_R32_SFLOAT;
+        case Hyro::VertexAttributeType::FLOAT2:
+            return VK_FORMAT_R32G32_SFLOAT;
+        case Hyro::VertexAttributeType::FLOAT3:
+            return VK_FORMAT_R32G32B32_SFLOAT;
+        case Hyro::VertexAttributeType::FLOAT4:
+            return VK_FORMAT_R32G32B32A32_SFLOAT;
+        }
+    }
 
     VertexAttributeType VulkanGraphicsPipeline::VkTypeToHyroType(VkFormat format)
     {

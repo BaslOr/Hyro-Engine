@@ -10,63 +10,213 @@ namespace Hyro {
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Shader Reflection/////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////
-    ShaderReflectionData ShaderReflection::FillReflectionData(ShaderStage stage, const std::vector<uint32_t>& bytes)
-    {
-        ShaderReflectionData data{};
 
+    VertexLayout ShaderReflection::GetVertexLayout(const std::vector<uint32_t>& vertexSpirV)
+    {
         SpvReflectShaderModule module;
-        int result = spvReflectCreateShaderModule(sizeof(uint32_t) * bytes.size(), bytes.data(), &module);
+        int result = spvReflectCreateShaderModule(sizeof(uint32_t) * vertexSpirV.size(), vertexSpirV.data(), &module);
         if (result != SPV_REFLECT_RESULT_SUCCESS) {
             HYRO_LOG_CORE_ERROR("Failed to reflect Shader Module!");
         }
 
+        uint32_t count = 0;
+        result = spvReflectEnumerateInputVariables(&module, &count, nullptr);
+        if (result != SPV_REFLECT_RESULT_SUCCESS)
+            HYRO_LOG_CORE_ERROR("Failed to enumerate Vertex Inputs!");
 
-        //Query VertexAttributes
-        if (stage == ShaderStage::Vertex) {
-            uint32_t count = 0;
-            result = spvReflectEnumerateInputVariables(&module, &count, nullptr);
+
+        VertexLayout layout{};
+        if (count != 0) {
+            std::vector<SpvReflectInterfaceVariable*> vertexInputs(count);
+            result = spvReflectEnumerateInputVariables(&module, &count, vertexInputs.data());
             if (result != SPV_REFLECT_RESULT_SUCCESS)
                 HYRO_LOG_CORE_ERROR("Failed to enumerate Vertex Inputs!");
 
-            //Theoratically count is allways higher than 0
-            if (count != 0) {
-                std::vector<SpvReflectInterfaceVariable*> vertexInputs(count);
-                result = spvReflectEnumerateInputVariables(&module, &count, vertexInputs.data());
-                if (result != SPV_REFLECT_RESULT_SUCCESS)
-                    HYRO_LOG_CORE_ERROR("Failed to enumerate Vertex Inputs!");
 
-                data.VertexInputs = std::move(vertexInputs);
+            std::vector<std::pair<VertexAttributeType, uint32_t>> buffer;
+            for (const auto& attribute : vertexInputs) {
+                VertexAttributeType type = ReflectTypeToGLType(attribute->format);
+                buffer.push_back(std::make_pair(type, attribute->location));
+            }
+
+            std::sort(std::begin(buffer), std::end(buffer),
+                [](const std::pair<VertexAttributeType, uint32_t>& a, const std::pair<VertexAttributeType, uint32_t>& b) {
+                    return a.second < b.second;
+                });
+
+            VertexLayout layout{};
+            for (const auto& [type, location] : buffer) {
+                layout.Push(type);
+            }
+
+            return layout;
+        }
+    }
+
+    ShaderReflectionData ShaderReflection::FillReflectionData(const std::array<std::vector<uint32_t>, 2>& spirVs)
+    {
+        ShaderReflectionData data{};
+
+        //Create Modules
+        std::array<SpvReflectShaderModule, 2> modules;
+        for (size_t i = 0; i < spirVs.size(); ++i) {
+            int result = spvReflectCreateShaderModule(sizeof(uint32_t) * spirVs[i].size(), spirVs[i].data(), &modules[i]);
+            if (result != SPV_REFLECT_RESULT_SUCCESS) {
+                HYRO_LOG_CORE_ERROR("Failed to reflect Shader Module!");
             }
         }
 
-        uint32_t count = 0;
-        result = spvReflectEnumerateDescriptorSets(&module, &count, nullptr);
-        if (result != SPV_REFLECT_RESULT_SUCCESS)
-            HYRO_LOG_CORE_ERROR("Failed to enumerate Descriptor Sets!");
+        for (size_t i = 0; i < modules.size(); ++i) {
 
-        if (count != 0) {
+            //Query Descriptors
+            uint32_t count = 0;
+            spvReflectEnumerateDescriptorSets(&modules[i], &count, nullptr);
             std::vector<SpvReflectDescriptorSet*> sets(count);
-            result = spvReflectEnumerateDescriptorSets(&module, &count, sets.data());
-            if (result != SPV_REFLECT_RESULT_SUCCESS)
-                HYRO_LOG_CORE_ERROR("Failed to enumerate Descriptor Sets!");
+            spvReflectEnumerateDescriptorSets(&modules[i], &count, sets.data());
 
-            data.DescriptorSets = std::move(sets);
-        }
+            for (auto set : sets) {
 
-        result = spvReflectEnumeratePushConstantBlocks(&module, &count, nullptr);
-        if (result != SPV_REFLECT_RESULT_SUCCESS)
-            HYRO_LOG_CORE_ERROR("Failed to enumerate Push Constants!");
-        if (count != 0) {
+                for (size_t j = 0; j < set->binding_count; ++j) {
+                    auto binding = set->bindings[j];
+                    ShaderReflectionData::Descriptor descriptorInfo{};
+
+                    descriptorInfo.Binding = binding->binding;
+                    descriptorInfo.Set = set->set;
+                    descriptorInfo.Count = binding->count;
+                    descriptorInfo.Stage = i == 0 ? ShaderStage::Vertex : ShaderStage::Fragment;
+                    descriptorInfo.Type = SpvDescriptorTypeToHyroType(binding->descriptor_type);
+
+                    data.Descriptors.push_back(descriptorInfo);
+                }
+            }
+
+            //Query Push Constants
+            spvReflectEnumeratePushConstantBlocks(&modules[i], &count, nullptr);
             std::vector<SpvReflectBlockVariable*> pushConstants(count);
-            result = spvReflectEnumeratePushConstantBlocks(&module, &count, pushConstants.data());
-            if (result != SPV_REFLECT_RESULT_SUCCESS)
-                HYRO_LOG_CORE_ERROR("Failed to enumerate Push Constants!");
+            spvReflectEnumeratePushConstantBlocks(&modules[i], &count, pushConstants.data());
 
-            data.PushConstants = std::move(pushConstants);
+            for (auto block : pushConstants) {
+                ShaderReflectionData::PushConstant pushConstant{};
+
+                pushConstant.Offset = block->offset;
+                pushConstant.Size = block->size;
+                pushConstant.Stage = i == 0 ? ShaderStage::Vertex : ShaderStage::Fragment;
+
+                data.PushConstants.push_back(pushConstant);
+            }
         }
 
+
+        //Destroy Shader modules
+        for (auto module : modules) {
+            spvReflectDestroyShaderModule(&module);
+        }
 
         return data;
+    }
+
+    VertexAttributeType ShaderReflection::ReflectTypeToGLType(SpvReflectFormat format)
+    {
+        switch (format)
+        {
+        case SPV_REFLECT_FORMAT_UNDEFINED:
+            break;
+        case SPV_REFLECT_FORMAT_R16_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R16_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R16_SFLOAT:
+            break;
+        case SPV_REFLECT_FORMAT_R16G16_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R16G16_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R16G16_SFLOAT:
+            break;
+        case SPV_REFLECT_FORMAT_R16G16B16_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R16G16B16_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R16G16B16_SFLOAT:
+            break;
+        case SPV_REFLECT_FORMAT_R16G16B16A16_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R16G16B16A16_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R16G16B16A16_SFLOAT:
+            break;
+        case SPV_REFLECT_FORMAT_R32_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R32_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R32_SFLOAT:
+            return VertexAttributeType::FLOAT;
+        case SPV_REFLECT_FORMAT_R32G32_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R32G32_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R32G32_SFLOAT:
+            return VertexAttributeType::FLOAT2;
+        case SPV_REFLECT_FORMAT_R32G32B32_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R32G32B32_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R32G32B32_SFLOAT:
+            return VertexAttributeType::FLOAT3;
+        case SPV_REFLECT_FORMAT_R32G32B32A32_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R32G32B32A32_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R32G32B32A32_SFLOAT:
+            return VertexAttributeType::FLOAT4;
+        case SPV_REFLECT_FORMAT_R64_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R64_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R64_SFLOAT:
+            break;
+        case SPV_REFLECT_FORMAT_R64G64_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R64G64_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R64G64_SFLOAT:
+            break;
+        case SPV_REFLECT_FORMAT_R64G64B64_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R64G64B64_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R64G64B64_SFLOAT:
+            break;
+        case SPV_REFLECT_FORMAT_R64G64B64A64_UINT:
+            break;
+        case SPV_REFLECT_FORMAT_R64G64B64A64_SINT:
+            break;
+        case SPV_REFLECT_FORMAT_R64G64B64A64_SFLOAT:
+            break;
+        }
+
+        HYRO_LOG_CORE_ERROR("Failed to convert spv reflect format to Vertex Attribute Type");
+        return VertexAttributeType::NONE;
+    }
+
+    DescriptorType ShaderReflection::SpvDescriptorTypeToHyroType(SpvReflectDescriptorType type)
+    {
+        switch (type)
+        {
+        case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            return DescriptorType::UNIFORM_BUFFER;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            return DescriptorType::SAMPLER;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            break;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            break;
+        }
+
+        HYRO_LOG_CORE_ERROR("Unkown conversion from Spv Reflect Desciptor type to Hyro Descriptor Type!");
     }
 
 
