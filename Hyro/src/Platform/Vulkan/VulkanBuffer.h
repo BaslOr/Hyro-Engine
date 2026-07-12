@@ -28,10 +28,6 @@ namespace Hyro {
 		inline void SetLayout(const VertexLayout& layout) override { m_Layout = layout; }
 		inline VertexLayout GetLayout() const override { return m_Layout; }
 
-		//Since the Vertex Layout fixed it is ok to put this here for the moment
-		static VkVertexInputBindingDescription GetBindingDescription();
-		static std::array<VkVertexInputAttributeDescription, 4> GetAttributeDescription();
-
 	private:
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_Memory;

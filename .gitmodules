@@ -10,3 +10,6 @@
 [submodule "Hyro/vendor/spdlog"]
 	path = Hyro/vendor/spdlog
 	url = https://github.com/BaslOr/spdlog
+[submodule "Hyro/vendor/SPIRV-Reflect"]
+	path = Hyro/vendor/SPIRV-Reflect
+	url = https://github.com/BaslOr/SPIRV-Reflect

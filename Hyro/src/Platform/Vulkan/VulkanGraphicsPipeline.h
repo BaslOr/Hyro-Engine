@@ -5,9 +5,14 @@
 #include <string>
 #include <vector>
 
+#include <spirv_reflect.h>
+#include <vulkan/vulkan_core.h>
+
 
 namespace Hyro {
 
+
+	//Move in some kind of ShaderUtils file
 	enum class ShaderStage {
 		Vertex,
 		Fragment,
@@ -21,6 +26,17 @@ namespace Hyro {
 	private:
 		static std::filesystem::path GetGlslcPath();
 		static const char* StageToFlag(ShaderStage stage);
+	};
+
+	struct ShaderReflectionData {
+		std::vector<SpvReflectInterfaceVariable*> VertexInputs;
+		std::vector<SpvReflectDescriptorSet*> DescriptorSets;
+		std::vector<SpvReflectBlockVariable*> PushConstants;
+	};
+
+	class ShaderReflection {
+	public:
+		static ShaderReflectionData FillReflectionData(ShaderStage stage, const std::vector<uint32_t>& bytes);
 	};
 
 		
@@ -37,6 +53,9 @@ namespace Hyro {
 	private:
 		void CreatePipeline(const std::string& vertexPath, const std::string& fragmentPath);
 		void CreateDescriptorSetLayout();
+
+		std::pair<VkVertexInputBindingDescription, std::vector<VkVertexInputAttributeDescription>>
+			GetBindingAndAttributes(const ShaderReflectionData& reflection);
 
 		std::string ReadFile(const std::string& filepath);
 		VkShaderModule CreateShaderModule(const std::vector<uint32_t>& code);

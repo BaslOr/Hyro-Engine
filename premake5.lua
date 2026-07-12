@@ -51,6 +51,7 @@ include "Hyro/vendor/glad"
 include "Hyro/vendor/ImGui"
 include "Hyro/vendor/spdlog"
 include "Hyro/vendor/stb_image"
+include "Hyro/vendor/SPIRV-Reflect"
 group ""
 
 
@@ -75,6 +76,7 @@ project "Hyro"
       "glad",
       "ImGui",
       "spdlog",
+      "SPIRV-Reflect",
       "vulkan-1.lib"
    }
 
@@ -87,6 +89,7 @@ project "Hyro"
        "Hyro/vendor/GLFW/include",
        "Hyro/vendor/ImGui",
        "Hyro/vendor/spdlog/include",
+       "Hyro/vendor/SPIRV-Reflect",
        "C:/VulkanSDK/1.4.328.1/Include",
        "Hyro/src"
    }
@@ -132,6 +135,7 @@ project "Sandbox"
        "Hyro/vendor/GLFW/include",
        "Hyro/vendor/ImGui",
        "Hyro/vendor/spdlog/include",
+       "Hyro/vendor/SPIRV-Reflect",
        "C:/VulkanSDK/1.4.328.1/Include",
        "Hyro/src"
    }
