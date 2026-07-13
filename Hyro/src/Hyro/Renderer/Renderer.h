@@ -29,7 +29,7 @@ namespace Hyro {
 
 
 	private:
-		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::OpenGL;
+		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::Vulkan;
 
 		
 		static inline Ref<UniformBuffer> m_OpenGLTransformUniformBuffer;

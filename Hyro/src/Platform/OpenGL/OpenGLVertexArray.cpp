@@ -1,8 +1,9 @@
 #include "pch.h"
+#include <glad/glad.h>
 #include "Platform/OpenGL/OpenGLVertexArray.h"
 
+#include "Hyro/Renderer/Utils/ShaderUtils.h"
 
-#include <glad/glad.h>
 
 namespace Hyro {
 
@@ -27,13 +28,12 @@ namespace Hyro {
 		Bind();
 		buffer->Bind();
 		uint32_t i = 0;
-		uint32_t offset = 0;
 		auto layout = buffer->GetLayout();
-		for (const auto type : layout.GetVertexAttributes()) {
-			glVertexAttribPointer(i, AttributeTypeToAttributeSize(type), AttributeTypeToOpenGLEnum(type), GL_FALSE, layout.GetStride(), (void*)offset);
+		for (const auto& element : layout.GetElements()) {
+			glVertexAttribPointer(i, ShaderUtils::GetCountFromShaderType(element.Type), AttributeTypeToOpenGLEnum(element.Type),
+				GL_FALSE, layout.GetStride(), (void*)element.Offset);
 			glEnableVertexAttribArray(i);
 
-			offset += layout.GetVertexAttributeSize(type);
 			i++;
 		}
 		
@@ -45,40 +45,21 @@ namespace Hyro {
 		buffer->Bind();
 	}
 
-	int OpenGLVertexArray::AttributeTypeToOpenGLEnum(VertexAttributeType type) const
+	int OpenGLVertexArray::AttributeTypeToOpenGLEnum(ShaderType type) const
 	{
 		switch (type)
 		{
-		case Hyro::VertexAttributeType::FLOAT:
+		case Hyro::ShaderType::FLOAT:
 			return GL_FLOAT;
 			break;
-		case Hyro::VertexAttributeType::FLOAT2:
+		case Hyro::ShaderType::FLOAT2:
 			return GL_FLOAT;
 			break;
-		case Hyro::VertexAttributeType::FLOAT3:
+		case Hyro::ShaderType::FLOAT3:
 			return GL_FLOAT;
 			break;
-		case Hyro::VertexAttributeType::FLOAT4:
+		case Hyro::ShaderType::FLOAT4:
 			return GL_FLOAT;
-			break;
-		}
-	}
-
-	uint32_t OpenGLVertexArray::AttributeTypeToAttributeSize(VertexAttributeType type) const
-	{
-		switch (type)
-		{
-		case Hyro::VertexAttributeType::FLOAT:
-			return 1;
-			break;
-		case Hyro::VertexAttributeType::FLOAT2:
-			return 2;
-			break;
-		case Hyro::VertexAttributeType::FLOAT3:
-			return 3;
-			break;
-		case Hyro::VertexAttributeType::FLOAT4:
-			return 4;
 			break;
 		}
 	}

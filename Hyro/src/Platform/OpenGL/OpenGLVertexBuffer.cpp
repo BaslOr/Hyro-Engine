@@ -5,25 +5,12 @@
 
 namespace Hyro {
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer()
-	{
-		glCreateBuffers(1, &m_ID);
-	}
-
-	OpenGLVertexBuffer::OpenGLVertexBuffer(const std::vector<float>& data)
-		: m_ID(0)
+	OpenGLVertexBuffer::OpenGLVertexBuffer(const VertexLayout& layout, uint32_t vertexCountHint)
+		:m_Layout(layout)
 	{
 		glCreateBuffers(1, &m_ID);
 		Bind();
-		glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(data[0]), data.data(), GL_STATIC_DRAW);
-	}
-
-	OpenGLVertexBuffer::OpenGLVertexBuffer(const std::vector<Vertex>& data)
-		: m_ID(0)
-	{
-		glCreateBuffers(1, &m_ID);
-		Bind();
-		glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(data[0]), data.data(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, layout.GetStride() * vertexCountHint, nullptr, GL_DYNAMIC_DRAW);
 	}
 
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()

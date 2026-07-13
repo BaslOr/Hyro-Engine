@@ -17,15 +17,13 @@ namespace Hyro {
 
 	class VulkanVertexBuffer : public VertexBuffer {
 	public:
-		VulkanVertexBuffer(uint32_t size);
-		VulkanVertexBuffer(const std::vector<Vertex>& vertices);
+		VulkanVertexBuffer(const VertexLayout& layout, uint32_t vertexCountHint);
 		~VulkanVertexBuffer();
 
 		void SetData(const std::vector<Vertex>& vertices) override;
 		void Bind() const override;
 		void Bind(void* commandBuffer) const override;
 	
-		inline void SetLayout(const VertexLayout& layout) override { m_Layout = layout; }
 		inline VertexLayout GetLayout() const override { return m_Layout; }
 
 	private:

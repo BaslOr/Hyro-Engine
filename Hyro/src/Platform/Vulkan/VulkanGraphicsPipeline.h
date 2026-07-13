@@ -36,8 +36,8 @@ namespace Hyro {
 
 		static VkDescriptorType HyroDescriptorTypeToVulkanType(DescriptorType type);
 		static VkShaderStageFlags HyroShaderStageToVulkanStage(ShaderStage stage);
-		static VkFormat HyroFormatToVulkanFormat(VertexAttributeType format);
-		static VertexAttributeType VkTypeToHyroType(VkFormat format);
+		static VkFormat HyroFormatToVulkanFormat(ShaderType format);
+		static ShaderType VkTypeToHyroType(VkFormat format);
 		static uint32_t FormatSize(VkFormat format);
 
 	private:

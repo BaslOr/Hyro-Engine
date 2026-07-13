@@ -14,15 +14,12 @@ namespace Hyro {
 	{
 		m_Data.Shader = AssetManager::GetShader("Default2D");
 		m_Data.VAO = VertexArray::Create();
-		m_Data.VBO = VertexBuffer::Create(m_Data.MaxVerticesCount * sizeof(Vertex));
+		m_Data.VBO = VertexBuffer::Create(m_Data.Shader->GetVertexLayout(), m_Data.MaxVerticesCount);
 		m_Data.Vertices.resize(m_Data.MaxVerticesCount);
 		m_Data.IBO = IndexBuffer::Create(m_Data.MaxIndicesCount * sizeof(uint32_t));
 		m_Data.Indices.resize(m_Data.MaxIndicesCount);
 
 		m_Data.UBO = Renderer::GetRenderer2DTransformUnifromBuffer();
-
-		VertexLayout vertexLayout = m_Data.Shader->GetVertexLayout();
-		m_Data.VBO->SetLayout(vertexLayout);
 
 		m_Data.VAO->AddVertexBuffer(m_Data.VBO);
 		m_Data.VAO->SetIndexBuffer(m_Data.IBO);

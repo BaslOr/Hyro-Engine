@@ -5,14 +5,15 @@
 #include <spirv_reflect.h>
 #include <Hyro/Renderer/Vertex.h>
 #include "Hyro/Renderer/Shader.h"
+#include <cstdint>
 
 
 namespace Hyro {
 
-	enum class ShaderStage {
-		Vertex,
-		Fragment,
-		Compute
+	class ShaderUtils {
+	public:
+		static uint32_t GetCountFromShaderType(ShaderType type);
+
 	};
 
 	class ShaderCompiler {
@@ -23,7 +24,6 @@ namespace Hyro {
 		static std::filesystem::path GetGlslcPath();
 		static const char* StageToFlag(ShaderStage stage);
 	};
-
 
 
 	struct ShaderReflectionData {
@@ -47,13 +47,15 @@ namespace Hyro {
 		std::vector<PushConstant> PushConstants;
 	};
 
+
+
 	class ShaderReflection {
 	public:
 		static VertexLayout GetVertexLayout(const std::vector<uint32_t>& vertexSpirV);
 		static ShaderReflectionData FillReflectionData(const std::array<std::vector<uint32_t>, 2>& spirVs);
 
 	private:
-		static VertexAttributeType ReflectTypeToGLType(SpvReflectFormat format);
+		static ShaderType ReflectTypeToGLType(SpvReflectFormat format);
 		static DescriptorType SpvDescriptorTypeToHyroType(SpvReflectDescriptorType type);
 
 	};

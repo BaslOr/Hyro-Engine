@@ -9,7 +9,7 @@
 
 namespace Hyro {
 
-	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
+	Ref<VertexBuffer> VertexBuffer::Create(const VertexLayout& layout, uint32_t vertexCountHint)
 	{
 		switch (Renderer::GetAPI())
 		{
@@ -18,29 +18,12 @@ namespace Hyro {
 			return nullptr;
 			break;
 		case GraphicsAPIType::OpenGL:
-			return CreateRef<OpenGLVertexBuffer>();
+			return CreateRef<OpenGLVertexBuffer>(layout, vertexCountHint);
 			break;
 		case GraphicsAPIType::Vulkan:
-			return CreateRef<VulkanVertexBuffer>(size);
+			return CreateRef<VulkanVertexBuffer>(layout, vertexCountHint);
 			break;
 		}
 	}
-
-	Ref<VertexBuffer> Hyro::VertexBuffer::Create(const std::vector<Vertex>& vertices)
-    {
-		switch (Renderer::GetAPI())
-		{
-		case GraphicsAPIType::None:
-			HYRO_LOG_CORE_FATAL("No Graphics API selected! ");
-			return nullptr;
-			break;
-		case GraphicsAPIType::OpenGL:
-			return CreateRef<OpenGLVertexBuffer>(vertices);
-			break;
-		case GraphicsAPIType::Vulkan:
-			return CreateRef<VulkanVertexBuffer>(vertices);
-			break;
-		}
-    }
 
 }

@@ -17,8 +17,7 @@ namespace Hyro {
 		void SetIndexBuffer(Ref<IndexBuffer> buffer) override;
 
 	private:
-		int AttributeTypeToOpenGLEnum(VertexAttributeType type) const;
-		uint32_t AttributeTypeToAttributeSize(VertexAttributeType type) const;
+		int AttributeTypeToOpenGLEnum(ShaderType type) const;
 
 	private:
 		uint32_t m_ID;

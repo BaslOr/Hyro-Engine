@@ -1,34 +1,44 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <string>
+
 
 namespace Hyro {
 
-	
-	enum class VertexAttributeType {
+	enum class ShaderType {
 		NONE,
 		FLOAT, FLOAT2, FLOAT3, FLOAT4
 	};
 
 	class VertexLayout {
 	public:
-		void Push(VertexAttributeType type);
+		//Elements are stored in order of location
+		struct Element {
+			std::string Name;
+			ShaderType Type;
+			uint32_t Offset;
+		};
 
-		inline const std::vector<VertexAttributeType>& GetVertexAttributes() const { return m_VertexAttributes; }
+		void Push(const std::string& name, ShaderType type);
+
+		inline std::vector<Element> GetElements() const { return m_Elements; }
 		inline uint32_t GetStride() const { return m_Stride; }
 
-		uint32_t GetVertexAttributeSize(VertexAttributeType type) const;
+		uint32_t GetVertexAttributeSize(ShaderType type) const;
 
 	private:
-		std::vector<VertexAttributeType> m_VertexAttributes;
+		std::vector<Element> m_Elements;
 		uint32_t m_Stride = 0;
 	};
 
 
-	inline void VertexLayout::Push(VertexAttributeType type)
+	inline void VertexLayout::Push(const std::string& name, ShaderType type)
 	{
 		uint32_t size = GetVertexAttributeSize(type);
+		uint32_t offset = m_Stride;
 		m_Stride += size;
-		m_VertexAttributes.push_back(type);
+
+		m_Elements.push_back({ name, type, offset });
 	}
 
 	struct Vertex {
@@ -53,34 +63,5 @@ namespace Hyro {
 		{
 		}
 	};
-	//class Vertex {
-	//public:
-	//	virtual VertexLayout GetLayout() const = 0;
-
-	//};
-
-	//class Vertex2D : public Vertex {
-	//public:
-	//	inline VertexLayout GetLayout() const override {
-
-	//	}
-	//	
-	//private:
-	//	glm::vec3 Position;
-	//	glm::vec2 UV;
-	//	glm::vec4 Color;
-	//	float SpriteIndex;
-	//};
-
-
-	//template<typename ...T>
-	//class Vertex {
-	//	inline VertexLayout GetLayout() const {
-
-	//	}
-
-	//private:
-	//	std::tuple<T> m_Types;
-	//};
 
 }

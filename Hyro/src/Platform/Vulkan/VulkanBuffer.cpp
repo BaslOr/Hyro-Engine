@@ -72,34 +72,12 @@ namespace Hyro {
 	//////////////////////////Vertex Buffer////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
-	VulkanVertexBuffer::VulkanVertexBuffer(uint32_t size)
-		: m_Size(size)
+	VulkanVertexBuffer::VulkanVertexBuffer(const VertexLayout& layout, uint32_t vertexCountHint)
+		: m_Layout(layout)
 	{
+		m_Size = layout.GetStride() * vertexCountHint;
 		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
-	}
-
-	VulkanVertexBuffer::VulkanVertexBuffer(const std::vector<Vertex>& vertices)
-	{
-		m_Size = sizeof(vertices[0]) * vertices.size();
-
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingMemory;
-		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
-
-		void* data;
-		vkMapMemory(VulkanDevice::GetVkDevice(), stagingMemory, 0, m_Size, 0, &data);
-			memcpy(data, vertices.data(), m_Size);
-		vkUnmapMemory(VulkanDevice::GetVkDevice(), stagingMemory);
-
-		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
-
-		VulkanBuffer::CopyBuffer(stagingBuffer, m_Buffer, m_Size);
-
-		vkDestroyBuffer(VulkanDevice::GetVkDevice(), stagingBuffer, g_VulkanAllocationCallback);
-		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);
 	}
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()

@@ -9,13 +9,22 @@
 
 namespace Hyro {
 
+	//Temporary until Push Constants are fully dynamic
 	struct PushConstants {
 		glm::mat4 Model;
 	};
 
+
 	enum class DescriptorType {
 		UNIFORM_BUFFER, SAMPLER
 	};
+
+	enum class ShaderStage {
+		Vertex,
+		Fragment,
+		Compute
+	};
+
 
 
 	class Shader {

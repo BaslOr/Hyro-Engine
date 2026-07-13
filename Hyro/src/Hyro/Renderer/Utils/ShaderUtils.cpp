@@ -5,7 +5,31 @@
 #include <windows.h>
 #endif
 
+#include "Hyro/Core/Core.h"
+
 namespace Hyro {
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////Shader Utils//////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    uint32_t ShaderUtils::GetCountFromShaderType(ShaderType type)
+    {
+        switch (type)
+        {
+        case Hyro::ShaderType::NONE:
+            HYRO_LOG_CORE_WARN("Tried to get count of ShaderType::None.");
+            return 0;
+        case Hyro::ShaderType::FLOAT:
+            return 1;
+        case Hyro::ShaderType::FLOAT2:
+            return 2;
+        case Hyro::ShaderType::FLOAT3:
+            return 3;
+        case Hyro::ShaderType::FLOAT4:
+            return 4;
+        }
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Shader Reflection/////////////////////////////////////////////////
@@ -33,20 +57,22 @@ namespace Hyro {
                 HYRO_LOG_CORE_ERROR("Failed to enumerate Vertex Inputs!");
 
 
-            std::vector<std::pair<VertexAttributeType, uint32_t>> buffer;
+            std::vector<std::pair<ShaderType, uint32_t>> buffer;
             for (const auto& attribute : vertexInputs) {
-                VertexAttributeType type = ReflectTypeToGLType(attribute->format);
+                ShaderType type = ReflectTypeToGLType(attribute->format);
                 buffer.push_back(std::make_pair(type, attribute->location));
             }
 
             std::sort(std::begin(buffer), std::end(buffer),
-                [](const std::pair<VertexAttributeType, uint32_t>& a, const std::pair<VertexAttributeType, uint32_t>& b) {
+                [](const std::pair<ShaderType, uint32_t>& a, const std::pair<ShaderType, uint32_t>& b) {
                     return a.second < b.second;
                 });
 
             VertexLayout layout{};
+            size_t i = 0;
             for (const auto& [type, location] : buffer) {
-                layout.Push(type);
+                layout.Push( vertexInputs[i]->name, type);
+                ++i;
             }
 
             return layout;
@@ -115,7 +141,7 @@ namespace Hyro {
         return data;
     }
 
-    VertexAttributeType ShaderReflection::ReflectTypeToGLType(SpvReflectFormat format)
+    ShaderType ShaderReflection::ReflectTypeToGLType(SpvReflectFormat format)
     {
         switch (format)
         {
@@ -150,25 +176,25 @@ namespace Hyro {
         case SPV_REFLECT_FORMAT_R32_SINT:
             break;
         case SPV_REFLECT_FORMAT_R32_SFLOAT:
-            return VertexAttributeType::FLOAT;
+            return ShaderType::FLOAT;
         case SPV_REFLECT_FORMAT_R32G32_UINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32_SINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32_SFLOAT:
-            return VertexAttributeType::FLOAT2;
+            return ShaderType::FLOAT2;
         case SPV_REFLECT_FORMAT_R32G32B32_UINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32B32_SINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32B32_SFLOAT:
-            return VertexAttributeType::FLOAT3;
+            return ShaderType::FLOAT3;
         case SPV_REFLECT_FORMAT_R32G32B32A32_UINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32B32A32_SINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32B32A32_SFLOAT:
-            return VertexAttributeType::FLOAT4;
+            return ShaderType::FLOAT4;
         case SPV_REFLECT_FORMAT_R64_UINT:
             break;
         case SPV_REFLECT_FORMAT_R64_SINT:
@@ -196,7 +222,7 @@ namespace Hyro {
         }
 
         HYRO_LOG_CORE_ERROR("Failed to convert spv reflect format to Vertex Attribute Type");
-        return VertexAttributeType::NONE;
+        return ShaderType::NONE;
     }
 
     DescriptorType ShaderReflection::SpvDescriptorTypeToHyroType(SpvReflectDescriptorType type)

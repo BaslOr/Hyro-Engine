@@ -214,18 +214,16 @@ namespace Hyro {
         bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         bindingDescription.stride = layout.GetStride();
         
-        std::vector<VkVertexInputAttributeDescription> attributeDescription(layout.GetVertexAttributes().size());
+        std::vector<VkVertexInputAttributeDescription> attributeDescription(layout.GetElements().size());
 
         uint32_t i = 0;
-        uint32_t offset = 0;
-        for (auto& attribute : layout.GetVertexAttributes()) {
-            VkFormat format = HyroFormatToVulkanFormat(attribute);
+        for (auto& element : layout.GetElements()) {
+            VkFormat format = HyroFormatToVulkanFormat(element.Type);
             attributeDescription[i].location = i;
             attributeDescription[i].format = format;
             attributeDescription[i].binding = 0;
-            attributeDescription[i].offset = offset;
+            attributeDescription[i].offset = element.Offset;
 
-            offset += FormatSize(format);
             ++i;
         }
 
@@ -308,32 +306,32 @@ namespace Hyro {
         }
     }
 
-    VkFormat VulkanGraphicsPipeline::HyroFormatToVulkanFormat(VertexAttributeType format)
+    VkFormat VulkanGraphicsPipeline::HyroFormatToVulkanFormat(ShaderType format)
     {
         switch (format)
         {
-        case Hyro::VertexAttributeType::NONE:
+        case Hyro::ShaderType::NONE:
             return VK_FORMAT_UNDEFINED;
-        case Hyro::VertexAttributeType::FLOAT:
+        case Hyro::ShaderType::FLOAT:
             return VK_FORMAT_R32_SFLOAT;
-        case Hyro::VertexAttributeType::FLOAT2:
+        case Hyro::ShaderType::FLOAT2:
             return VK_FORMAT_R32G32_SFLOAT;
-        case Hyro::VertexAttributeType::FLOAT3:
+        case Hyro::ShaderType::FLOAT3:
             return VK_FORMAT_R32G32B32_SFLOAT;
-        case Hyro::VertexAttributeType::FLOAT4:
+        case Hyro::ShaderType::FLOAT4:
             return VK_FORMAT_R32G32B32A32_SFLOAT;
         }
     }
 
-    VertexAttributeType VulkanGraphicsPipeline::VkTypeToHyroType(VkFormat format)
+    ShaderType VulkanGraphicsPipeline::VkTypeToHyroType(VkFormat format)
     {
 
         switch (format)
         {
-        case VK_FORMAT_R32_SFLOAT: return VertexAttributeType::FLOAT;
-        case VK_FORMAT_R32G32_SFLOAT: return VertexAttributeType::FLOAT2;
-        case VK_FORMAT_R32G32B32_SFLOAT: return VertexAttributeType::FLOAT3;
-        case VK_FORMAT_R32G32B32A32_SFLOAT: return VertexAttributeType::FLOAT4;
+        case VK_FORMAT_R32_SFLOAT: return ShaderType::FLOAT;
+        case VK_FORMAT_R32G32_SFLOAT: return ShaderType::FLOAT2;
+        case VK_FORMAT_R32G32B32_SFLOAT: return ShaderType::FLOAT3;
+        case VK_FORMAT_R32G32B32A32_SFLOAT: return ShaderType::FLOAT4;
         default:
             HYRO_LOG_CORE_ERROR("Tried to convert unkwon vulkan Type to Hyro Vertex Attrubute type!");
         }

@@ -6,12 +6,9 @@ namespace Hyro {
 
 	class OpenGLVertexBuffer : public VertexBuffer {
 	public:
-		OpenGLVertexBuffer();
-		OpenGLVertexBuffer(const std::vector<float>& data);
-		OpenGLVertexBuffer(const std::vector<Vertex>& data);
+		OpenGLVertexBuffer(const VertexLayout& layout, uint32_t vertexCountHint);
 		~OpenGLVertexBuffer();
 
-		inline void SetLayout(const VertexLayout& layout) override { m_Layout = layout; }
 		inline VertexLayout GetLayout() const override { return m_Layout; }
 		
 
