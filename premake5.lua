@@ -77,7 +77,8 @@ project "Hyro"
       "ImGui",
       "spdlog",
       "SPIRV-Reflect",
-      "vulkan-1.lib"
+      "vulkan-1.lib",
+      "assimp"
    }
 
    includedirs { 
@@ -90,6 +91,7 @@ project "Hyro"
        "Hyro/vendor/ImGui",
        "Hyro/vendor/spdlog/include",
        "Hyro/vendor/SPIRV-Reflect",
+       "Hyro/vendor/assimp/include",
        "C:/VulkanSDK/1.4.328.1/Include",
        "Hyro/src"
    }
@@ -102,6 +104,14 @@ project "Hyro"
 
    filter { "system:windows", "action:vs*" }  -- This is needed that spdlog compiles successfully
       buildoptions { "/utf-8" }
+   filter{}
+
+   filter "configurations:Debug"
+      libdirs "Hyro/vendor/assimp/Lib/Debug"
+   filter "configurations:Release"
+      libdirs "Hyro/vendor/assimp/Lib/Release"
+   filter "configurations:Dist"
+      libdirs "Hyro/vendor/assimp/Lib/Release"
    filter{}
 
    filter "system:windows"
@@ -136,6 +146,7 @@ project "Sandbox"
        "Hyro/vendor/ImGui",
        "Hyro/vendor/spdlog/include",
        "Hyro/vendor/SPIRV-Reflect",
+       "Hyro/vendor/assimp/include",
        "C:/VulkanSDK/1.4.328.1/Include",
        "Hyro/src"
    }

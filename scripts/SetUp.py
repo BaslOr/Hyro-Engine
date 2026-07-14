@@ -1,0 +1,145 @@
+import os
+import subprocess
+import shutil
+from pathlib import Path
+
+debugLog = True
+
+def __DebugLog(message):
+    if debugLog:
+        print("[Debug] " + str(message))
+
+
+#Download External Dependencies that are not supplied by submodules
+#For instance Vulkan, CMake, ...
+print("Downloading external dependencies\n\n")
+
+
+print("Finished downloading external dependencies\n")
+
+
+#Compile CMake Projects
+#This might be unsecure, since maybe the binaries can corrupt somehow and than finding the error is
+#pretty hard but who cares, looking back at this statement I'm thinking the binaries cant really corrupt
+
+print("Compiling CMake projects\n\n")
+
+
+print("Compiling assimp")
+
+os.chdir("./../") # Move into Project root
+os.chdir("Hyro/vendor/assimp") # Move into assimp directory
+
+__DebugLog(os.getcwd())
+
+
+root = os.getcwd()
+build_dir = os.path.join(root, "build")
+libDir = os.path.join(root, "lib")
+
+
+if not os.path.exists(build_dir):
+
+    # Set options + compile for Debug + Release
+    subprocess.run([
+        "cmake",
+        "-S", root,
+        "-B", build_dir,
+        "-DBUILD_SHARED_LIBS=OFF"
+    ], check=True)
+    
+    subprocess.run([
+        "cmake",
+        "--build",
+        build_dir,
+        "--config",
+        "Release"
+    ], check=True)
+    
+    subprocess.run([
+        "cmake",
+        "--build",
+        build_dir,
+        "--config",
+        "Debug"
+    ], check=True)
+
+
+    print("Finished Compiling assimp\n")
+
+
+    print("Relocating assimp binaries\n")
+
+
+    # Create lib directory if it does not exist
+    if not os.path.exists(libDir):
+        os.makedirs(libDir)
+        __DebugLog("Created directory: " + os.path.abspath(libDir))
+
+
+    buildPath = Path(build_dir)
+    libPath = Path(libDir)
+
+
+    __DebugLog("Searching for libraries in:")
+    __DebugLog(buildPath.resolve())
+
+
+    # Find all .lib files inside build directory
+    libs = list(buildPath.rglob("*.lib"))
+
+
+    if len(libs) == 0:
+        print("ERROR: No .lib files found!")
+        exit(1)
+
+
+    __DebugLog("Found libraries:")
+
+    for lib in libs:
+        __DebugLog(lib.resolve())
+
+
+        # Copy only assimp libraries
+    for lib in libs:
+
+        # Ignore cmake generated helper libraries etc.
+        if "assimp" not in lib.name.lower():
+            __DebugLog("Ignoring: " + lib.name)
+            continue
+
+
+        # Keep Debug and Release separated
+        if "Debug" in str(lib):
+            targetDir = libPath / "Debug"
+
+        elif "Release" in str(lib):
+            targetDir = libPath / "Release"
+
+        else:
+            __DebugLog("Could not determine configuration for: " + lib.name)
+            continue
+
+
+        if not targetDir.exists():
+            targetDir.mkdir(parents=True)
+            __DebugLog("Created directory: " + str(targetDir))
+
+
+        # Rename library to a stable name
+        # Example:
+        # assimp-vc143-mt.lib  -> assimp.lib
+        # assimp-vc143-mtd.lib -> assimp.lib
+        target = targetDir / "assimp.lib"
+
+
+        shutil.copy2(lib, target)
+
+
+        __DebugLog("Copied and renamed:")
+        __DebugLog(str(lib))
+        __DebugLog("->")
+        __DebugLog(str(target))
+
+
+print("Finished compiling CMake projects\n")

@@ -13,3 +13,6 @@
 [submodule "Hyro/vendor/SPIRV-Reflect"]
 	path = Hyro/vendor/SPIRV-Reflect
 	url = https://github.com/BaslOr/SPIRV-Reflect
+[submodule "Hyro/vendor/assimp"]
+	path = Hyro/vendor/assimp
+	url = https://github.com/BaslOr/assimp
