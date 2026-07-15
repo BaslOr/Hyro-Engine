@@ -3,7 +3,7 @@ import subprocess
 import shutil
 from pathlib import Path
 
-debugLog = True
+debugLog = False
 
 def __DebugLog(message):
     if debugLog:
