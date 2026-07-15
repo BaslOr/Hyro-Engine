@@ -2,6 +2,9 @@ import os
 import subprocess
 import shutil
 from pathlib import Path
+import platform
+
+from Utils import DownloadNecessaryDependencies
 
 debugLog = False
 
@@ -10,22 +13,28 @@ def __DebugLog(message):
         print("[Debug] " + str(message))
 
 
+
+#Check Platform
+if platform.system() == "Darwin":
+    print("MacOS is not supported yet")
+    print("You need to download and compile external dependencies yourself")
+    exit(-1)
+
 #Download External Dependencies that are not supplied by submodules
 #For instance Vulkan, CMake, ...
-print("Downloading external dependencies\n\n")
+print("Downloading external dependencies")
+
+#Check CMake, Vulkan versions
+DownloadNecessaryDependencies()
 
 
 print("Finished downloading external dependencies\n")
 
 
-#Compile CMake Projects
-#This might be unsecure, since maybe the binaries can corrupt somehow and than finding the error is
-#pretty hard but who cares, looking back at this statement I'm thinking the binaries cant really corrupt
-
-print("Compiling CMake projects\n\n")
+print("Compiling CMake projects")
 
 
-print("Compiling assimp")
+print("\tCompiling assimp")
 
 os.chdir("./../") # Move into Project root
 os.chdir("Hyro/vendor/assimp") # Move into assimp directory
@@ -65,10 +74,10 @@ if not os.path.exists(build_dir):
     ], check=True)
 
 
-    print("Finished Compiling assimp\n")
+    print("\tFinished Compiling assimp\n")
 
 
-    print("Relocating assimp binaries\n")
+    print("\tRelocating assimp binaries\n")
 
 
     # Create lib directory if it does not exist
@@ -140,6 +149,11 @@ if not os.path.exists(build_dir):
         __DebugLog(str(lib))
         __DebugLog("->")
         __DebugLog(str(target))
+else: 
+    print("\tAssimp was already compiled")
+
+
 
 
 print("Finished compiling CMake projects\n")
+print("Finished set up successfully\n")

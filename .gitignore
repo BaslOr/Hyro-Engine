@@ -58,6 +58,9 @@ premake5.lua.bak
 *.log
 *.tmp
 *.cache
+*.pyc
+scripts/__pycache__
+
 
 # =========================
 # OS specific
