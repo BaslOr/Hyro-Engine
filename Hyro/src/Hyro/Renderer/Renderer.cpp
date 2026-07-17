@@ -4,10 +4,11 @@
 #include "Hyro/Renderer/Renderer2D.h"
 #include "Hyro/Renderer/Renderer3D.h"
 #include "Hyro/Project/AssetManager.h"
+#include "Hyro/Renderer/Utils/ModelLoader.h"
 
 namespace Hyro {
 
-	void Renderer::Init()
+	void SceneRenderer::Init()
 	{
 		//Some kind of API description should be passed here
 		//To determine blend func, sample count, ...
@@ -32,10 +33,12 @@ namespace Hyro {
 		Renderer2D::Init();
 		Renderer3D::Init();
 
+		ModelLoader loader();
+
 		HYRO_LOG_CORE_TRACE("Initialized Renderer");
 	}
 
-	void Renderer::Shutdown()
+	void SceneRenderer::Shutdown()
 	{
 		Renderer2D::Shutdown();
 		Renderer3D::Shutdown();
@@ -43,18 +46,18 @@ namespace Hyro {
 		HYRO_LOG_CORE_TRACE("Destroyed Renderer");
 	}
 
-	void Renderer::BeginScene()
+	void SceneRenderer::BeginScene()
 	{
 	}
 
-	void Renderer::EndScene()
+	void SceneRenderer::EndScene()
 	{
 	}
 
 	//Find better Solution in future
 	//The problem is that OpenGL requieres one UBO while Vulkan requiers two
 	//Solve this problem when adding reflection to shader or sumn
-	Ref<UniformBuffer> Renderer::GetRenderer2DTransformUnifromBuffer()
+	Ref<UniformBuffer> SceneRenderer::GetRenderer2DTransformUnifromBuffer()
 	{
 		if (m_GraphicsAPIType == GraphicsAPIType::OpenGL) {
 			return m_OpenGLTransformUniformBuffer;
@@ -64,7 +67,7 @@ namespace Hyro {
 		}
 	}
 
-	Ref<UniformBuffer> Renderer::GetRenderer3DTransformUnifromBuffer()
+	Ref<UniformBuffer> SceneRenderer::GetRenderer3DTransformUnifromBuffer()
 	{
 		if (m_GraphicsAPIType == GraphicsAPIType::OpenGL) {
 			return m_OpenGLTransformUniformBuffer;

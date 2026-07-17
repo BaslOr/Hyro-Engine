@@ -1,5 +1,5 @@
 #pragma once
-#include "Hyro/Renderer/Texture.h"
+#include "Hyro/Renderer/RenderingObjects/Texture.h"
 
 namespace Hyro {
 

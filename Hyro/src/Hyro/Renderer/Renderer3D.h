@@ -1,10 +1,8 @@
 #pragma once
 #include "Hyro/Core/Memory.h"
-#include "Hyro/Renderer/VertexArray.h"
 #include "Hyro/Renderer/Shader.h"
-#include "Hyro/Renderer/Vertex.h"
-#include "Hyro/Renderer/Texture.h"
-#include "Hyro/Renderer/UniformBuffer.h"
+#include "Hyro/Renderer/RenderingObjects/Texture.h"
+#include "Hyro/Renderer/RenderingObjects/UniformBuffer.h"
 #include "Hyro/Renderer/Material.h"
 #include "Hyro/Renderer/RenderPrimitives.h"
 
@@ -28,18 +26,18 @@ namespace Hyro {
 		static void DrawMesh(const Ref<Mesh>& mesh, const glm::mat4& transform);
 
 	private:
-		static void Init();
-		static void Shutdown();
-
 		static void BeginScene(const glm::mat4& mvp);
 		static void EndScene();
+
+		static void Init();
+		static void Shutdown();
 
 	private:
 
 		inline static Renderer3DData m_Data;
 
 		friend class Scene;
-		friend class Renderer;
+		friend class SceneRenderer;
 	};
 
 }

@@ -2,11 +2,11 @@
 #include <array>
 
 #include "Hyro/Core/Memory.h"
-#include "Hyro/Renderer/VertexArray.h"
+#include "Hyro/Renderer/RenderingObjects/VertexArray.h"
 #include "Hyro/Renderer/Shader.h"
 #include "Hyro/Renderer/Vertex.h"
-#include "Hyro/Renderer/Texture.h"
-#include "Hyro/Renderer/UniformBuffer.h"
+#include "Hyro/Renderer/RenderingObjects/Texture.h"
+#include "Hyro/Renderer/RenderingObjects/UniformBuffer.h"
 #include "Hyro/Renderer/Material.h"
 #include "Hyro/Renderer/RenderPrimitives.h"
 
@@ -56,7 +56,7 @@ namespace Hyro {
 		inline static Renderer2DData m_Data;
 
 		friend class Scene;
-		friend class Renderer;
+		friend class SceneRenderer;
 	};
 
 }

@@ -7,7 +7,7 @@
 
 namespace Hyro {
 
-	class Renderer {
+	class SceneRenderer {
 	public:
 		static void Init();
 		static void Shutdown();

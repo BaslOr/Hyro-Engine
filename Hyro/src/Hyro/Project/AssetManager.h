@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include <string>
 
-#include "Hyro/Renderer/Texture.h"
+#include "Hyro/Renderer/RenderingObjects/Texture.h"
 #include "Hyro/Renderer/Shader.h"
 #include "Hyro/Renderer/RenderPrimitives.h"
 

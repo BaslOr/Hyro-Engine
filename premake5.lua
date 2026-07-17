@@ -91,6 +91,7 @@ project "Hyro"
        "Hyro/vendor/ImGui",
        "Hyro/vendor/spdlog/include",
        "Hyro/vendor/SPIRV-Reflect",
+       "Hyro/vendor/assimp/build/include",
        "Hyro/vendor/assimp/include",
        "C:/VulkanSDK/1.4.328.1/Include",
        "Hyro/src"
@@ -146,6 +147,7 @@ project "Sandbox"
        "Hyro/vendor/ImGui",
        "Hyro/vendor/spdlog/include",
        "Hyro/vendor/SPIRV-Reflect",
+       "Hyro/vendor/assimp/build/include",
        "Hyro/vendor/assimp/include",
        "C:/VulkanSDK/1.4.328.1/Include",
        "Hyro/src"

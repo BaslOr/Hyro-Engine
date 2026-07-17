@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Hyro/Renderer/VertexBuffer.h"
+#include "Hyro/Renderer/RenderingObjects/VertexBuffer.h"
 #include "Hyro/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLVertexBuffer.h"
@@ -11,7 +11,7 @@ namespace Hyro {
 
 	Ref<VertexBuffer> VertexBuffer::Create(const VertexLayout& layout, uint32_t vertexCountHint)
 	{
-		switch (Renderer::GetAPI())
+		switch (SceneRenderer::GetAPI())
 		{
 		case GraphicsAPIType::None:
 			HYRO_LOG_CORE_FATAL("No Graphics API selected! ");

@@ -3,8 +3,8 @@
 
 #include "Hyro/Core/Memory.h"
 #include "Hyro/Renderer/Vertex.h"
-#include "Hyro/Renderer/Texture.h"
-#include "Hyro/Renderer/VertexArray.h"
+#include "Hyro/Renderer/RenderingObjects/Texture.h"
+#include "Hyro/Renderer/RenderingObjects/VertexArray.h"
 #include <cstdint>
 
 namespace Hyro {

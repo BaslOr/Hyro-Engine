@@ -1,6 +1,6 @@
 #pragma once
 #include "Platform/Vulkan/VulkanBase.h"
-#include "Hyro/Renderer/Texture.h"
+#include "Hyro/Renderer/RenderingObjects/Texture.h"
 
 namespace Hyro {
 

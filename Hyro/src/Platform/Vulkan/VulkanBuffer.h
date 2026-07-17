@@ -1,8 +1,8 @@
 #pragma once
 #include "Platform/Vulkan/VulkanBase.h"
-#include "Hyro/Renderer/VertexBuffer.h"
-#include "Hyro/Renderer/IndexBuffer.h"
-#include "Hyro/Renderer/UniformBuffer.h"
+#include "Hyro/Renderer/RenderingObjects/VertexBuffer.h"
+#include "Hyro/Renderer/RenderingObjects/IndexBuffer.h"
+#include "Hyro/Renderer/RenderingObjects/UniformBuffer.h"
 
 namespace Hyro {
 

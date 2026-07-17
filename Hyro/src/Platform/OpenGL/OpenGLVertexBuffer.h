@@ -1,6 +1,6 @@
 #pragma once
 #include "Hyro/Renderer/Vertex.h"
-#include "Hyro/Renderer/VertexBuffer.h"
+#include "Hyro/Renderer/RenderingObjects/VertexBuffer.h"
 
 namespace Hyro {
 

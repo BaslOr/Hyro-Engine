@@ -7,7 +7,7 @@
 #include "Hyro/Renderer/Renderer2D.h"
 #include "Hyro/Renderer/Renderer3D.h"
 #include "Hyro/Renderer/Renderer.h"
-#include "Hyro/Renderer/MeshFactory.h"
+#include "Hyro/Renderer/Utils/MeshFactory.h"
 
 
 namespace Hyro {
@@ -47,7 +47,7 @@ namespace Hyro {
     void Scene::Render()
     {
 
-		Renderer::BeginRenderPass();
+		SceneRenderer::BeginRenderPass();
 
         //Get framebuffer size
         m_Camera.Update(); //Of course update should not be here, but the focus for now is on rendering not game engine stuff
@@ -60,9 +60,9 @@ namespace Hyro {
 
 
 
-        if (Renderer::GetAPI() == GraphicsAPIType::Vulkan)
+        if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan)
             projection = glm::ortho(0.f, width, height, 0.f, -100.0f, 100.f);
-        else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
+        else if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL)
             projection = glm::ortho(0.f, width, 0.f, height, -100.0f, 100.f);
 
 
@@ -76,9 +76,9 @@ namespace Hyro {
         Renderer2D::EndScene();
 
 
-        if (Renderer::GetAPI() == GraphicsAPIType::Vulkan)
+        if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan)
             projection = glm::perspectiveRH_ZO(80.f, aspectRatio, 0.1f, 100.f);
-        else if (Renderer::GetAPI() == GraphicsAPIType::OpenGL)
+        else if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL)
             projection = glm::perspectiveRH_NO(80.f, aspectRatio, 0.1f, 100.f);
         
         glm::mat4 view = m_Camera.GetViewMatrix();
@@ -91,7 +91,7 @@ namespace Hyro {
         }
         Renderer3D::EndScene();
 
-        Renderer::EndRenderPass();
+        SceneRenderer::EndRenderPass();
     }
 
 }

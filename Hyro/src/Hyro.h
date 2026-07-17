@@ -8,7 +8,7 @@
 #include "Hyro/Project/Scene.h"
 
 //Rendering
-#include "Hyro/Renderer/Texture.h"
+#include "Hyro/Renderer/RenderingObjects/Texture.h"
 #include "Hyro/Project/AssetManager.h"
 #include "Hyro/Core/Window.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "Hyro/Renderer/Material.h"
-#include "Hyro/Renderer/Texture.h"
+#include "Hyro/Renderer/RenderingObjects/Texture.h"
 
 namespace Hyro {
 

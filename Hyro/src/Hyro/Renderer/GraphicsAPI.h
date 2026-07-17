@@ -2,8 +2,7 @@
 #include <glm/glm.hpp>
 
 #include "Hyro/Core/Memory.h"
-#include "Hyro/Renderer/Shader.h"
-#include "Hyro/Renderer/VertexArray.h"
+#include "Hyro/Renderer/RenderingObjects/VertexArray.h"
 #include "Hyro/Renderer/Material.h"
 
 namespace Hyro {

@@ -1,5 +1,5 @@
 #pragma once
-#include "Hyro/Renderer/VertexArray.h"
+#include "Hyro/Renderer/RenderingObjects/VertexArray.h"
 
 namespace Hyro {
 

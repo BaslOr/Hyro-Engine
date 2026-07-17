@@ -1,5 +1,5 @@
 #pragma once
-#include "Hyro/Renderer/UniformBuffer.h"
+#include "Hyro/Renderer/RenderingObjects/UniformBuffer.h"
 
 namespace Hyro {
 

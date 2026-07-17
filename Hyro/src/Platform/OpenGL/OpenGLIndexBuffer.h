@@ -1,7 +1,6 @@
 #pragma once 
-#include "Hyro/Renderer/IndexBuffer.h"
+#include "Hyro/Renderer/RenderingObjects/IndexBuffer.h"
 
-#include <iostream>
 
 namespace Hyro {
 

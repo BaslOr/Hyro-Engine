@@ -1,6 +1,6 @@
 #pragma once
 #include "Hyro/Renderer/GraphicsAPI.h"
-#include "Hyro/Renderer/VertexArray.h"
+#include "Hyro/Renderer/RenderingObjects/VertexArray.h"
 #include "Hyro/Renderer/Material.h"
 #include <glm/fwd.hpp>
 
