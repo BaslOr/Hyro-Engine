@@ -4,6 +4,8 @@
 #include "Hyro/Core/Core.h"
 
 #include <glad/glad.h>
+#include <imgui.h>
+#include <backends/imgui_impl_opengl3.h>
 
 namespace Hyro {
 
@@ -84,6 +86,11 @@ namespace Hyro {
     void OpenGLGraphicsAPI::BeginRenderPass()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    void OpenGLGraphicsAPI::EndRenderPass()
+    {
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
     void OpenGLGraphicsAPI::Submit(Ref<VertexArray> vao, Ref<Material> material, uint32_t count)

@@ -255,7 +255,7 @@ namespace Hyro {
 
         ImGui::Render();
         if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL) {
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            //The same as down below
         }
         else if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan) {
             //ImGui is rendererd inside the main render pass, so we don't call ImGui_ImplVulkan_RenderDrawData here. Instead,
