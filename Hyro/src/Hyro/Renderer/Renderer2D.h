@@ -24,7 +24,7 @@ namespace Hyro {
 		Ref<UniformBuffer> UBO;
 		Ref<Material> Material;
 
-		std::vector<Vertex> Vertices;
+		std::vector<Vertex2D> Vertices;
 		std::vector<uint32_t> Indices;
 		uint32_t Count = 0;
 

@@ -54,7 +54,8 @@ if not os.path.exists(build_dir):
         "cmake",
         "-S", root,
         "-B", build_dir,
-        "-DBUILD_SHARED_LIBS=OFF"
+        "-DBUILD_SHARED_LIBS=OFF",
+        "-DASSIMP_BUILD_ZLIB=ON"
     ], check=True)
     
     subprocess.run([
@@ -113,7 +114,10 @@ if not os.path.exists(build_dir):
     for lib in libs:
 
         # Ignore cmake generated helper libraries etc.
-        if "assimp" not in lib.name.lower():
+        assimpInName = "assimp" in lib.name.lower()
+        zlibInName = "zlib" in lib.name.lower()
+
+        if not assimpInName and not zlibInName:
             __DebugLog("Ignoring: " + lib.name)
             continue
 
@@ -139,16 +143,18 @@ if not os.path.exists(build_dir):
         # Example:
         # assimp-vc143-mt.lib  -> assimp.lib
         # assimp-vc143-mtd.lib -> assimp.lib
-        target = targetDir / "assimp.lib"
+        targetName = ""
+        if assimpInName:
+            targetName = "assimp.lib"
+        elif zlibInName:
+            targetName = "zlib.lib"
+        target = targetDir / targetName
 
 
         shutil.copy2(lib, target)
 
 
-        __DebugLog("Copied and renamed:")
-        __DebugLog(str(lib))
-        __DebugLog("->")
-        __DebugLog(str(target))
+        __DebugLog("Copied and renamed:" + str(lib) + " -> " + str(target))
 else: 
     print("\tAssimp was already compiled")
 

@@ -26,6 +26,8 @@ namespace Hyro {
 		PushConstants pushConstants{};
 		pushConstants.Model = transform;
 		m_Data.Material->SetPushConstants(pushConstants);
+		m_Data.TexturesSlots[1] = mesh->Sprite;
+		m_Data.Material->SetTextures(m_Data.TexturesSlots);
 
 		RenderCommand::Submit(mesh->VAO, m_Data.Material, mesh->Count);
 	}

@@ -16,6 +16,8 @@ namespace Hyro {
 		inline VkImageView GetVkImageView() const { return m_View; }
 		inline VkSampler GetVkSampler() const { return m_Sampler; }
 
+		inline bool IsNull() const{ return m_IsNull; }
+
 		static VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 
 		static void CreateImage(uint32_t width, uint32_t height,
@@ -36,6 +38,8 @@ namespace Hyro {
 		VkDeviceMemory m_Memory;
 		VkImageView m_View;
 		VkSampler m_Sampler;
+
+		bool m_IsNull = true;
 	};
 
 }

@@ -20,7 +20,8 @@ namespace Hyro {
 		VulkanVertexBuffer(const VertexLayout& layout, uint32_t vertexCountHint);
 		~VulkanVertexBuffer();
 
-		void SetData(const std::vector<Vertex>& vertices) override;
+		void SetData(const std::vector<Vertex2D>& vertices) override;
+		void SetData(const std::vector<Vertex3D>& vertices) override;
 		void Bind() const override;
 		void Bind(void* commandBuffer) const override;
 	

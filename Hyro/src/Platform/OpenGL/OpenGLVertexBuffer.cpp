@@ -18,10 +18,16 @@ namespace Hyro {
 		glDeleteBuffers(1, &m_ID);
 	}
 
-	void OpenGLVertexBuffer::SetData(const std::vector<Vertex>& data)
+	void OpenGLVertexBuffer::SetData(const std::vector<Vertex2D>& data)
 	{
 		Bind();
-		glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(data[0]), data.data(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, data.size() * m_Layout.GetStride(), data.data(), GL_DYNAMIC_DRAW);
+	}
+
+	void OpenGLVertexBuffer::SetData(const std::vector<Vertex3D>& data)
+	{
+		Bind();
+		glBufferData(GL_ARRAY_BUFFER, data.size() * m_Layout.GetStride(), data.data(), GL_DYNAMIC_DRAW);
 	}
 
 	void OpenGLVertexBuffer::Bind() const

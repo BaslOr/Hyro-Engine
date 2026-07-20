@@ -20,18 +20,18 @@ namespace Hyro {
 		}
 
     private:
-        inline static std::vector<Vertex> GetCubeVertices()
+        inline static std::vector<Vertex3D> GetCubeVertices()
         {
             return { {
-				//         Position                           UV                        Color            SpriteIndex
-                { glm::vec3(-1.0f, -1.0f, -1.0f),  glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f },  // unten hinten links
-                { glm::vec3(1.0f, -1.0f, -1.0f),   glm::vec2(1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f },  // unten hinten rechts
-                { glm::vec3(1.0f,  1.0f, -1.0f),   glm::vec2(1.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f },  // oben hinten rechts
-                { glm::vec3(-1.0f,  1.0f, -1.0f),  glm::vec2(0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f },  // oben hinten links
-                { glm::vec3(-1.0f, -1.0f,  1.0f),  glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f },  // unten vorne links
-                { glm::vec3(1.0f, -1.0f,  1.0f),   glm::vec2(1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f },  // unten vorne rechts
-                { glm::vec3(1.0f,  1.0f,  1.0f),   glm::vec2(1.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f },  // oben vorne rechts
-                { glm::vec3(-1.0f,  1.0f,  1.0f),  glm::vec2(0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f }   // oben vorne links
+				//         Position                           UV                        Color       
+                { glm::vec3(-1.0f, -1.0f, -1.0f),  glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten hinten links
+                { glm::vec3(1.0f, -1.0f, -1.0f),   glm::vec3(1.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten hinten rechts
+                { glm::vec3(1.0f,  1.0f, -1.0f),   glm::vec3(1.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // oben hinten rechts
+                { glm::vec3(-1.0f,  1.0f, -1.0f),  glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // oben hinten links
+                { glm::vec3(-1.0f, -1.0f,  1.0f),  glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten vorne links
+                { glm::vec3(1.0f, -1.0f,  1.0f),   glm::vec3(1.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten vorne rechts
+                { glm::vec3(1.0f,  1.0f,  1.0f),   glm::vec3(1.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // oben vorne rechts
+                { glm::vec3(-1.0f,  1.0f,  1.0f),  glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)}   // oben vorne links
             } };
         }
 

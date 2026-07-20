@@ -78,7 +78,8 @@ project "Hyro"
       "spdlog",
       "SPIRV-Reflect",
       "vulkan-1.lib",
-      "assimp"
+      "assimp",
+      "zlib"
    }
 
    includedirs { 

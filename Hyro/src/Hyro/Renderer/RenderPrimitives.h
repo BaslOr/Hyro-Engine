@@ -11,7 +11,7 @@ namespace Hyro {
 
     struct Mesh {
     public:
-        Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Texture> texture);
+        Mesh(const std::vector<Vertex3D>& vertices, const std::vector<uint32_t>& indices, Ref<Texture> texture);
 
         Ref<VertexArray> VAO;
         Ref<Texture> Sprite;

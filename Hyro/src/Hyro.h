@@ -11,6 +11,7 @@
 #include "Hyro/Renderer/RenderingObjects/Texture.h"
 #include "Hyro/Project/AssetManager.h"
 #include "Hyro/Core/Window.h"
+#include "Hyro/Renderer/Utils/ModelLoader.h"
 
 //Core
 #include "Hyro/Core/Core.h"

@@ -54,6 +54,8 @@ namespace Hyro {
 		m_View = CreateImageView(m_Texture, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 
 		CreateSampler();
+
+		m_IsNull = false;
 	}
 
 	VulkanTexture::~VulkanTexture()

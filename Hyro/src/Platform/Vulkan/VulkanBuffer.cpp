@@ -87,7 +87,7 @@ namespace Hyro {
 		vkFreeMemory(VulkanDevice::GetVkDevice(), m_Memory, g_VulkanAllocationCallback);
 	}
 
-	void VulkanVertexBuffer::SetData(const std::vector<Vertex>& vertices)
+	void VulkanVertexBuffer::SetData(const std::vector<Vertex2D>& vertices)
 	{
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingMemory;
@@ -97,7 +97,26 @@ namespace Hyro {
 		//Query Max Size
 		void* data;
 		vkMapMemory(VulkanDevice::GetVkDevice(), stagingMemory, 0, m_Size, 0, &data);
-			memcpy(data, vertices.data(), m_Size);
+		memcpy(data, vertices.data(), m_Size);
+		vkUnmapMemory(VulkanDevice::GetVkDevice(), stagingMemory);
+
+		VulkanBuffer::CopyBuffer(stagingBuffer, m_Buffer, m_Size);
+
+		vkDestroyBuffer(VulkanDevice::GetVkDevice(), stagingBuffer, g_VulkanAllocationCallback);
+		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);
+	}
+
+	void VulkanVertexBuffer::SetData(const std::vector<Vertex3D>& vertices)
+	{
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingMemory;
+		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
+
+		//Query Max Size
+		void* data;
+		vkMapMemory(VulkanDevice::GetVkDevice(), stagingMemory, 0, m_Size, 0, &data);
+		memcpy(data, vertices.data(), m_Size);
 		vkUnmapMemory(VulkanDevice::GetVkDevice(), stagingMemory);
 
 		VulkanBuffer::CopyBuffer(stagingBuffer, m_Buffer, m_Size);
