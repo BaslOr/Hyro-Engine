@@ -8,6 +8,8 @@
 
 #include "Hyro/ImGui/ImGuiLayer.h"
 
+#include "Hyro/Profiling/FPSOverlay.h"
+
 namespace Hyro {
 
 	class Application {
@@ -31,7 +33,9 @@ namespace Hyro {
 	private:
 		Ref<Window> m_Window;
 		LayerStack m_LayerStack;
+
 		ImGuiLayer* m_ImGuiLayer;
+		FPSOverlay* m_FPSOverlay;
 
 		double m_LastTime = 0.f;
 		double m_CurrentTime = 0.f;

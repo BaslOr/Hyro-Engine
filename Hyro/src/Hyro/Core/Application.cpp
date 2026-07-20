@@ -31,7 +31,9 @@ namespace Hyro {
 		SceneRenderer::Init();
 
 		m_ImGuiLayer = new ImGuiLayer;
+		m_FPSOverlay = new FPSOverlay;
 		PushOverlay(m_ImGuiLayer);
+		PushOverlay(m_FPSOverlay);
 
 		HYRO_LOG_CORE_TRACE("Created Application");
 	}

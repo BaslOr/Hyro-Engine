@@ -15,6 +15,7 @@ namespace Hyro {
 
 		inline operator float() { return m_TimeStep; }
 		inline operator float() const { return m_TimeStep; }
+		inline TimeStep operator +=(TimeStep other) { return m_TimeStep += other.m_TimeStep; }
 
 	private:
 		float m_TimeStep;
