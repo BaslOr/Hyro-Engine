@@ -216,15 +216,12 @@ namespace Hyro {
         
         std::vector<VkVertexInputAttributeDescription> attributeDescription(layout.GetElements().size());
 
-        uint32_t i = 0;
         for (auto& element : layout.GetElements()) {
             VkFormat format = HyroFormatToVulkanFormat(element.Type);
-            attributeDescription[i].location = i;
-            attributeDescription[i].format = format;
-            attributeDescription[i].binding = 0;
-            attributeDescription[i].offset = element.Offset;
-
-            ++i;
+            attributeDescription[element.Location].location = element.Location;
+            attributeDescription[element.Location].format = format;
+            attributeDescription[element.Location].binding = 0;
+            attributeDescription[element.Location].offset = element.Offset;
         }
 
         return std::make_pair(bindingDescription, attributeDescription);

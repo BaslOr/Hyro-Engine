@@ -17,10 +17,11 @@ namespace Hyro {
 		void SetIndexBuffer(Ref<IndexBuffer> buffer) override;
 
 	private:
-		int AttributeTypeToOpenGLEnum(ShaderType type) const;
+		uint32_t AttributeTypeToOpenGLEnum(ShaderType type) const;
 
 	private:
 		uint32_t m_ID;
+		Ref<IndexBuffer> m_IndexBuffer;
 	};
 	
 }

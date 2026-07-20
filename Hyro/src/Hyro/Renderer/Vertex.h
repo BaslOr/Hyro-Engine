@@ -12,16 +12,16 @@ namespace Hyro {
 
 	class VertexLayout {
 	public:
-		//Elements are stored in order of location
 		struct Element {
+			uint32_t Location;
 			std::string Name;
 			ShaderType Type;
 			uint32_t Offset;
 		};
 
-		void Push(const std::string& name, ShaderType type);
+		void Push(const std::string& name, uint32_t location, ShaderType type);
 
-		inline std::vector<Element> GetElements() const { return m_Elements; }
+		inline const std::vector<Element>& GetElements() const { return m_Elements; }
 		inline uint32_t GetStride() const { return m_Stride; }
 
 		uint32_t GetVertexAttributeSize(ShaderType type) const;
@@ -32,13 +32,13 @@ namespace Hyro {
 	};
 
 
-	inline void VertexLayout::Push(const std::string& name, ShaderType type)
+	inline void VertexLayout::Push(const std::string& name, uint32_t location, ShaderType type)
 	{
 		uint32_t size = GetVertexAttributeSize(type);
 		uint32_t offset = m_Stride;
 		m_Stride += size;
 
-		m_Elements.push_back({ name, type, offset });
+		m_Elements.push_back({ location, name, type, offset });
 	}
 
 	//struct Vertex {

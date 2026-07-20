@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <glm/gtc/matrix_transform.hpp>
+#include "Hyro/Renderer/Renderer.h"
 #include "Hyro/Core/Input.h"
 #include <iostream>
 
@@ -27,10 +28,17 @@ namespace Hyro {
 	class SceneCamera {
 	public:
 		SceneCamera()
-			: m_Position(0.0f, 0.0f, 0.0f), m_Up(0.0f, 1.0f, 0.0f), m_Front(0.f, 0.f, -1.0f), m_Speed(0.2f), m_Sensitivity(0.1f),
+			: m_Position(0.0f, 0.0f, 0.0f), m_Up(0.0f, 1.0f, 0.0f), m_Front(0.f, 0.f, -1.0f),
 			m_LastMouseX(Input::GetMouseX()), m_LastMouseY(Input::GetMouseY()), m_Yaw(-90.0f), m_Pitch(0.0)
 		{
-
+			if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan) {
+				m_Speed = 0.2f;
+				m_Sensitivity = 0.1f;
+			}
+			else if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL) {
+				m_Speed = 0.01f;
+				m_Sensitivity = 0.1f;
+			}
 		}
 		~SceneCamera() = default;
 
@@ -64,6 +72,7 @@ namespace Hyro {
 			direction.x = glm::cos(glm::radians(m_Yaw));
 			direction.y = glm::sin(glm::radians(m_Pitch));
 			direction.z = glm::sin(glm::radians(m_Yaw));
+			SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan ? direction.y *= 1 : direction.y *= -1;
 			m_Front = glm::normalize(direction);
 		}
 

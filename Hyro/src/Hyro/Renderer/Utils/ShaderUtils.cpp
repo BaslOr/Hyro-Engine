@@ -49,32 +49,23 @@ namespace Hyro {
             HYRO_LOG_CORE_ERROR("Failed to enumerate Vertex Inputs!");
 
 
-        VertexLayout layout{};
         if (count != 0) {
             std::vector<SpvReflectInterfaceVariable*> vertexInputs(count);
             result = spvReflectEnumerateInputVariables(&module, &count, vertexInputs.data());
             if (result != SPV_REFLECT_RESULT_SUCCESS)
                 HYRO_LOG_CORE_ERROR("Failed to enumerate Vertex Inputs!");
 
-
-            std::vector<std::pair<ShaderType, uint32_t>> buffer;
-            for (const auto& attribute : vertexInputs) {
-                ShaderType type = ReflectTypeToGLType(attribute->format);
-                buffer.push_back(std::make_pair(type, attribute->location));
-            }
-
-            std::sort(std::begin(buffer), std::end(buffer),
-                [](const std::pair<ShaderType, uint32_t>& a, const std::pair<ShaderType, uint32_t>& b) {
-                    return a.second < b.second;
+            std::sort(std::begin(vertexInputs), std::end(vertexInputs),
+                [](const SpvReflectInterfaceVariable* a, const SpvReflectInterfaceVariable* b) {
+                    return a->location < b->location;
                 });
 
             VertexLayout layout{};
-            size_t i = 0;
-            for (const auto& [type, location] : buffer) {
-                layout.Push( vertexInputs[i]->name, type);
-                ++i;
+            for (const auto& attribute : vertexInputs) {
+                layout.Push( attribute->name, attribute->location, ReflectTypeToHyroType(attribute->format));
             }
 
+            spvReflectDestroyShaderModule(&module);
             return layout;
         }
     }
@@ -141,7 +132,7 @@ namespace Hyro {
         return data;
     }
 
-    ShaderType ShaderReflection::ReflectTypeToGLType(SpvReflectFormat format)
+    ShaderType ShaderReflection::ReflectTypeToHyroType(SpvReflectFormat format)
     {
         switch (format)
         {

@@ -55,7 +55,7 @@ namespace Hyro {
 		static ShaderReflectionData FillReflectionData(const std::array<std::vector<uint32_t>, 2>& spirVs);
 
 	private:
-		static ShaderType ReflectTypeToGLType(SpvReflectFormat format);
+		static ShaderType ReflectTypeToHyroType(SpvReflectFormat format);
 		static DescriptorType SpvDescriptorTypeToHyroType(SpvReflectDescriptorType type);
 
 	};

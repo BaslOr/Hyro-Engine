@@ -21,31 +21,39 @@ namespace Hyro {
 	void OpenGLVertexArray::Bind() const
 	{
 		glBindVertexArray(m_ID);
+		m_IndexBuffer->Bind();
 	}
 
 	void OpenGLVertexArray::AddVertexBuffer(Ref<VertexBuffer> buffer)
 	{
-		Bind();
+		glBindVertexArray(m_ID);
 		buffer->Bind();
-		uint32_t i = 0;
-		auto layout = buffer->GetLayout();
-		for (const auto& element : layout.GetElements()) {
-			glVertexAttribPointer(i, ShaderUtils::GetCountFromShaderType(element.Type), AttributeTypeToOpenGLEnum(element.Type),
-				GL_FALSE, layout.GetStride(), (void*)element.Offset);
-			glEnableVertexAttribArray(i);
 
-			i++;
+		const auto& layout = buffer->GetLayout();
+
+		for (const auto& element : layout.GetElements())
+		{
+			glEnableVertexAttribArray(element.Location);
+
+			glVertexAttribPointer(
+				element.Location,
+				ShaderUtils::GetCountFromShaderType(element.Type),
+				AttributeTypeToOpenGLEnum(element.Type),
+				GL_FALSE,
+				layout.GetStride(),
+				(void*)element.Offset
+			);
 		}
-		
 	}
 
 	void OpenGLVertexArray::SetIndexBuffer(Ref<IndexBuffer> buffer)
 	{
+		m_IndexBuffer = buffer;
 		Bind();
 		buffer->Bind();
 	}
 
-	int OpenGLVertexArray::AttributeTypeToOpenGLEnum(ShaderType type) const
+	uint32_t OpenGLVertexArray::AttributeTypeToOpenGLEnum(ShaderType type) const
 	{
 		switch (type)
 		{
