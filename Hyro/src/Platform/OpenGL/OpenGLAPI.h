@@ -3,9 +3,9 @@
 
 namespace Hyro {
 	
-	class OpenGLGraphicsAPI : public GraphicsAPI {
+	class OpenGLAPI : public GraphicsAPI {
 	public:
-		OpenGLGraphicsAPI();
+		OpenGLAPI();
 
 		void BeginRenderPass() override;
 		void EndRenderPass() override;

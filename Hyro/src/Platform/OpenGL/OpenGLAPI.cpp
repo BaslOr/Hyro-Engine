@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Platform/OpenGL/OpenGLGraphicsAPI.h"
+#include "Platform/OpenGL/OpenGLAPI.h"
 
 #include "Hyro/Core/Core.h"
 
@@ -75,7 +75,7 @@ namespace Hyro {
         }
     }
 
-    OpenGLGraphicsAPI::OpenGLGraphicsAPI()
+    OpenGLAPI::OpenGLAPI()
     {
         if (g_CurrentBuildConfig == BuildConfig::Debug)
             SetupDebugCallback();
@@ -83,24 +83,24 @@ namespace Hyro {
         glEnable(GL_DEPTH_TEST);
     }
 
-    void OpenGLGraphicsAPI::BeginRenderPass()
+    void OpenGLAPI::BeginRenderPass()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void OpenGLGraphicsAPI::EndRenderPass()
+    void OpenGLAPI::EndRenderPass()
     {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    void OpenGLGraphicsAPI::Submit(Ref<VertexArray> vao, Ref<Material> material, uint32_t count)
+    void OpenGLAPI::Submit(Ref<VertexArray> vao, Ref<Material> material, uint32_t count)
 	{
         vao->Bind();
         material->Bind();
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
-    void OpenGLGraphicsAPI::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<Material> material, Ref<Cubemap> cubemap)
+    void OpenGLAPI::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<Material> material, Ref<Cubemap> cubemap)
     {
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);
@@ -116,12 +116,12 @@ namespace Hyro {
         glDepthMask(GL_TRUE);
     }
 
-	void OpenGLGraphicsAPI::SetClearColor(const glm::vec4& color)
+	void OpenGLAPI::SetClearColor(const glm::vec4& color)
 	{
 		glClearColor(color.r, color.g, color.b, color.a);
 	}
 
-	void OpenGLGraphicsAPI::SetupDebugCallback()
+	void OpenGLAPI::SetupDebugCallback()
 	{
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // damit der Callback direkt aufgerufen wird
