@@ -50,7 +50,7 @@ include "Hyro/vendor/GLFW"
 include "Hyro/vendor/glad"
 include "Hyro/vendor/ImGui"
 include "Hyro/vendor/spdlog"
-include "Hyro/vendor/stb_image"
+include "Hyro/vendor/stb"
 include "Hyro/vendor/SPIRV-Reflect"
 group ""
 
@@ -79,6 +79,7 @@ project "Hyro"
       "SPIRV-Reflect",
       "vulkan-1.lib",
       "assimp",
+      "stb",
       "zlib"
    }
 
@@ -86,7 +87,7 @@ project "Hyro"
        "Hyro/vendor/glm",
        "Hyro/vendor/KHR",
        "Hyro/vendor/glad",
-       "Hyro/vendor/stb_image",
+       "Hyro/vendor/stb",
        "Hyro/vendor/glad/include",
        "Hyro/vendor/GLFW/include",
        "Hyro/vendor/ImGui",
@@ -141,7 +142,7 @@ project "Sandbox"
    includedirs { 
        "Hyro/vendor/glm",
        "Hyro/vendor/KHR",
-       "Hyro/vendor/stb_image",
+       "Hyro/vendor/stb",
        "Hyro/vendor/glad",
        "Hyro/vendor/glad/include",
        "Hyro/vendor/GLFW/include",

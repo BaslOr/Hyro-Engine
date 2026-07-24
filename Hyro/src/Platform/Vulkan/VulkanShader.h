@@ -16,6 +16,7 @@ namespace Hyro {
 		void Bind(void* commandBuffer) const override;
 
 		VertexLayout GetVertexLayout() const override { return m_Pipeline->GetVertexLayout(); }
+		ShaderReflectionData GetReflectionData() const override { return m_Pipeline->GetReflectionData(); }
 
 		VkPipelineLayout GetVkPipelineLayout() const { return m_Pipeline->GetVkPipelineLayout(); }
 		VkDescriptorSetLayout GetVkDescriptorSetLayout() const { return m_Pipeline->GetVkDescriptorSetLayout(); }

@@ -97,6 +97,7 @@ namespace Hyro {
                     auto binding = set->bindings[j];
                     ShaderReflectionData::Descriptor descriptorInfo{};
 
+                    descriptorInfo.Name = binding->name;
                     descriptorInfo.Binding = binding->binding;
                     descriptorInfo.Set = set->set;
                     descriptorInfo.Count = binding->count;
@@ -115,6 +116,7 @@ namespace Hyro {
             for (auto block : pushConstants) {
                 ShaderReflectionData::PushConstant pushConstant{};
 
+                pushConstant.Name = block->name;
                 pushConstant.Offset = block->offset;
                 pushConstant.Size = block->size;
                 pushConstant.Stage = i == 0 ? ShaderStage::Vertex : ShaderStage::Fragment;
@@ -224,7 +226,7 @@ namespace Hyro {
             return DescriptorType::UNIFORM_BUFFER;
 
         case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-            return DescriptorType::SAMPLER;
+            return DescriptorType::Sampler;
 
         case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER:
             break;

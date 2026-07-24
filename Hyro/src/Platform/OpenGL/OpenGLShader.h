@@ -6,7 +6,6 @@
 
 #include "Hyro/Renderer/Utils/ShaderUtils.h"
 
-
 namespace Hyro {
 
 	class OpenGLShader : public Shader {
@@ -18,6 +17,7 @@ namespace Hyro {
 		void Bind(void* commandBuffer) const override;
 
 		VertexLayout GetVertexLayout() const override { return m_VertexLayout; }
+		ShaderReflectionData GetReflectionData() const override { return m_ReflectionData; }
 
 		uint32_t GetProgram() const { return m_Program; }
 
@@ -47,6 +47,7 @@ namespace Hyro {
 		mutable std::unordered_map<std::string, int> m_UniformLocationCache;
 
 		VertexLayout m_VertexLayout;
+		ShaderReflectionData m_ReflectionData;
 	};
 
 }

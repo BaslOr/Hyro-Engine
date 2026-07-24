@@ -3,6 +3,7 @@
 
 #include "Hyro/Renderer/GraphicsAPI.h"
 #include "Hyro/Renderer/RenderCommand.h"
+#include "Hyro/Renderer/Cubemap.h"
 
 
 namespace Hyro {
@@ -12,11 +13,8 @@ namespace Hyro {
 		static void Init();
 		static void Shutdown();
 
-		static void BeginScene();
+		static void BeginScene(const glm::mat4& mvp);
 		static void EndScene();
-
-		static inline void BeginRenderPass() { RenderCommand::BeginRenderPass(); }
-		static inline void EndRenderPass() { RenderCommand::EndRenderPass(); }
 
 		inline static GraphicsAPIType GetAPI() { return m_GraphicsAPIType; }
 
@@ -31,6 +29,11 @@ namespace Hyro {
 	private:
 		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::OpenGL;
 
+		static inline Ref<Cubemap> m_Cubemap;
+		static inline Ref<Material> m_CubemapMaterial;
+		static inline Ref<VertexArray> m_CubemapVAO;
+		static inline Ref<VertexBuffer> m_CubemapVBO;
+		static inline Ref<IndexBuffer> m_CubemapIBO;
 		
 		static inline Ref<UniformBuffer> m_OpenGLTransformUniformBuffer;
 		static inline Ref<UniformBuffer> m_Vulkan2DTransformUniformBuffer;

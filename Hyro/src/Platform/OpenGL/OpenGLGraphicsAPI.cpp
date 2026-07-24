@@ -100,6 +100,22 @@ namespace Hyro {
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
+    void OpenGLGraphicsAPI::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<Material> material, Ref<Cubemap> cubemap)
+    {
+        glDepthMask(GL_FALSE);
+        glDepthFunc(GL_LEQUAL);
+
+        vertexArray->Bind();
+        material->Bind();
+        cubemap->Bind();
+
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+        cubemap->Unbind();
+
+        glDepthFunc(GL_LESS);
+        glDepthMask(GL_TRUE);
+    }
+
 	void OpenGLGraphicsAPI::SetClearColor(const glm::vec4& color)
 	{
 		glClearColor(color.r, color.g, color.b, color.a);

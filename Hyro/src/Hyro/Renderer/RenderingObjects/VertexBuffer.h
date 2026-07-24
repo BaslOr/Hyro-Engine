@@ -7,6 +7,7 @@ namespace Hyro {
 
 	class VertexBuffer {
 	public:
+		virtual void SetData(const void* data, size_t size) = 0;
 		virtual void SetData(const std::vector<Vertex2D>& data) = 0;
 		virtual void SetData(const std::vector<Vertex3D>& data) = 0;
 

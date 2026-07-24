@@ -21,7 +21,9 @@ namespace Hyro {
 		inline VkPipeline GetVkPipeline() const { return m_Pipeline; }
 		inline VkDescriptorSetLayout GetVkDescriptorSetLayout() const { return m_DescriptorSetLayout; }
 		inline VkPipelineLayout GetVkPipelineLayout() const { return m_PipelineLayout; }
+
 		inline VertexLayout GetVertexLayout() const { return m_VertexLayout; }
+		inline ShaderReflectionData GetReflectionData() const { return m_ReflectionData; }
 
 	private:
 		void CreatePipeline(const std::string& vertexPath, const std::string& fragmentPath);
@@ -46,6 +48,7 @@ namespace Hyro {
 		VkPipeline m_Pipeline;
 
 		VertexLayout m_VertexLayout;
+		ShaderReflectionData m_ReflectionData;
 	};
 
 }

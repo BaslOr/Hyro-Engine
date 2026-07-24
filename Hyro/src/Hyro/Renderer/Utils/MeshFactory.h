@@ -19,20 +19,20 @@ namespace Hyro {
 			return CreateRef<Mesh>(mesh);
 		}
 
-    private:
-        inline static std::vector<Vertex3D> GetCubeVertices()
-        {
-            return { {
-				//         Position                           UV                        Color       
-                { glm::vec3(-1.0f, -1.0f, -1.0f),  glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten hinten links
-                { glm::vec3(1.0f, -1.0f, -1.0f),   glm::vec3(1.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten hinten rechts
-                { glm::vec3(1.0f,  1.0f, -1.0f),   glm::vec3(1.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // oben hinten rechts
-                { glm::vec3(-1.0f,  1.0f, -1.0f),  glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // oben hinten links
-                { glm::vec3(-1.0f, -1.0f,  1.0f),  glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten vorne links
-                { glm::vec3(1.0f, -1.0f,  1.0f),   glm::vec3(1.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten vorne rechts
-                { glm::vec3(1.0f,  1.0f,  1.0f),   glm::vec3(1.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // oben vorne rechts
-                { glm::vec3(-1.0f,  1.0f,  1.0f),  glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)}   // oben vorne links
-            } };
+        inline static std::vector<glm::vec3> GetCubePositions() {
+            std::vector<glm::vec3> output(8);
+            auto cubeVertices = GetCubeVertices();
+
+            glm::vec3* dst = output.data();
+            Vertex3D* src = cubeVertices.data();
+            for (size_t i = 0; i < 8; ++i) {
+                memcpy(dst, src, sizeof(glm::vec3));
+
+                ++src;
+                ++dst;
+            }
+
+            return output;
         }
 
         inline static std::vector<uint32_t> GetCubeIndices()
@@ -63,6 +63,25 @@ namespace Hyro {
                 5, 4, 0
             };
         }
+
+    private:
+        //TODO: Make these into variables so no function call has to be made
+        inline static std::vector<Vertex3D> GetCubeVertices()
+        {
+            return { {
+				//         Position                           UV                        Color       
+                { glm::vec3(-1.0f, -1.0f, -1.0f),  glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten hinten links
+                { glm::vec3(1.0f, -1.0f, -1.0f),   glm::vec3(1.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten hinten rechts
+                { glm::vec3(1.0f,  1.0f, -1.0f),   glm::vec3(1.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // oben hinten rechts
+                { glm::vec3(-1.0f,  1.0f, -1.0f),  glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // oben hinten links
+                { glm::vec3(-1.0f, -1.0f,  1.0f),  glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten vorne links
+                { glm::vec3(1.0f, -1.0f,  1.0f),   glm::vec3(1.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // unten vorne rechts
+                { glm::vec3(1.0f,  1.0f,  1.0f),   glm::vec3(1.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // oben vorne rechts
+                { glm::vec3(-1.0f,  1.0f,  1.0f),  glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)}   // oben vorne links
+            } };
+        }
+
+
 	};
 
 }

@@ -45,27 +45,33 @@ namespace Hyro {
 
     void Scene::Render()
     {
-
-		SceneRenderer::BeginRenderPass();
-
         //Get framebuffer size
         m_Camera.Update(); //Of course update should not be here, but the focus for now is on rendering not game engine stuff
         Ref <Window> window = Application::Get().GetWindow();
         float width = static_cast<float>(window->GetWidth());
-        float height = static_cast<float>(window->GetHeight()); 
+        float height = static_cast<float>(window->GetHeight());
         float aspectRatio = width / height;
-        glm::mat4 projection;
-        glm::mat4 viewProjection;
 
-
-
+        glm::mat4 orthoProjection;
         if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan)
-            projection = glm::ortho(0.f, width, height, 0.f, -100.0f, 100.f);
+            orthoProjection = glm::ortho(0.f, width, height, 0.f, -100.0f, 100.f);
         else if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL)
-            projection = glm::ortho(0.f, width, 0.f, height, -100.0f, 100.f);
+            orthoProjection = glm::ortho(0.f, width, 0.f, height, -100.0f, 100.f);
+
+        glm::mat4 persProjection;
+        if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan)
+            persProjection = glm::perspectiveRH_ZO(80.f, aspectRatio, 0.1f, 100.f);
+        else if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL)
+            persProjection = glm::perspectiveRH_NO(80.f, aspectRatio, 0.1f, 100.f);
+
+        glm::mat4 view = m_Camera.GetViewMatrix();
+
+        glm::mat4 viewProjection = persProjection * glm::mat4(glm::mat3(view));
 
 
-        Renderer2D::BeginScene(projection);
+		SceneRenderer::BeginScene(viewProjection);
+
+        Renderer2D::BeginScene(orthoProjection);
         for (auto& spriteInstance : m_Sprites)
         {
             glm::vec2 position = glm::vec2(spriteInstance.Transform[3]);
@@ -74,15 +80,9 @@ namespace Hyro {
         }
         Renderer2D::EndScene();
 
-
-        if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan)
-            projection = glm::perspectiveRH_ZO(80.f, aspectRatio, 0.1f, 100.f);
-        else if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL)
-            projection = glm::perspectiveRH_NO(80.f, aspectRatio, 0.1f, 100.f);
         
-        glm::mat4 view = m_Camera.GetViewMatrix();
-        viewProjection = projection * view;
-
+        view = m_Camera.GetViewMatrix();
+        viewProjection = persProjection * view;
         Renderer3D::BeginScene(viewProjection);
         for (auto& meshInstance : m_Meshes)
         {
@@ -90,7 +90,7 @@ namespace Hyro {
         }
         Renderer3D::EndScene();
 
-        SceneRenderer::EndRenderPass();
+        SceneRenderer::EndScene();
     }
 
 }

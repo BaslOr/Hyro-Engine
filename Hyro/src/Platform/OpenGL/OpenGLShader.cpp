@@ -32,7 +32,11 @@ namespace Hyro {
 		glDeleteShader(fragmentShader);
 
 		auto vertexSpirV = ShaderCompiler::CompileToSpirv(vertexPath, ShaderStage::Vertex);
+		auto fragmentSpriV = ShaderCompiler::CompileToSpirv(fragPath, ShaderStage::Fragment);
 		m_VertexLayout = ShaderReflection::GetVertexLayout(vertexSpirV);
+
+		std::array<std::vector<uint32_t>, 2> spirVs = { vertexSpirV, fragmentSpriV };
+		m_ReflectionData = ShaderReflection::FillReflectionData(spirVs);
 	}
 
 	OpenGLShader::~OpenGLShader()

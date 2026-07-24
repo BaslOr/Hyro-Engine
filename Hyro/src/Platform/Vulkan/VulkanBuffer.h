@@ -20,6 +20,7 @@ namespace Hyro {
 		VulkanVertexBuffer(const VertexLayout& layout, uint32_t vertexCountHint);
 		~VulkanVertexBuffer();
 
+		void SetData(const void* data, size_t size) override { HYRO_LOG_CORE_WARN("Tried to use unimplemented function: VulkanVertexBuffer::SetData(const void* data, size_t size)!"); }
 		void SetData(const std::vector<Vertex2D>& vertices) override;
 		void SetData(const std::vector<Vertex3D>& vertices) override;
 		void Bind() const override;

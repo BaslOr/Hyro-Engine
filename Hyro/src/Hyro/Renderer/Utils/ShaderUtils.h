@@ -29,6 +29,7 @@ namespace Hyro {
 	struct ShaderReflectionData {
 
 		struct Descriptor {
+			std::string Name;
 			uint32_t Set;
 			uint32_t Binding;
 			DescriptorType Type;
@@ -39,6 +40,7 @@ namespace Hyro {
 		std::vector<Descriptor> Descriptors;
 
 		struct PushConstant {
+			std::string Name;
 			uint32_t Offset;
 			uint32_t Size;
 			ShaderStage Stage;

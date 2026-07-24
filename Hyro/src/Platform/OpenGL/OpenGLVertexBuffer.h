@@ -11,7 +11,7 @@ namespace Hyro {
 
 		inline VertexLayout GetLayout() const override { return m_Layout; }
 		
-
+		void SetData(const void* data, size_t size) override;
 		void SetData(const std::vector<Vertex2D>& data) override;
 		void SetData(const std::vector<Vertex3D>& data) override;
 

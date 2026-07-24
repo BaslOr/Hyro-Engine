@@ -47,7 +47,7 @@ namespace Hyro {
         VkShaderModule fragShaderModule = CreateShaderModule(fragmentSpirV);
 
         std::array<std::vector<uint32_t>, 2> spirVs = { vertexSpirV, fragmentSpirV };
-        auto reflectionData = ShaderReflection::FillReflectionData(spirVs);
+        m_ReflectionData = ShaderReflection::FillReflectionData(spirVs);
 
         VkPipelineShaderStageCreateInfo vertexStageInfo{};
         vertexStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -137,8 +137,8 @@ namespace Hyro {
         dynamicState.pDynamicStates = dynamicStates.data();
 
 
-        std::vector<VkPushConstantRange> pushConstants = RetrievePushConstants(reflectionData);
-        CreateDescriptorSetLayout(reflectionData);
+        std::vector<VkPushConstantRange> pushConstants = RetrievePushConstants(m_ReflectionData);
+        CreateDescriptorSetLayout(m_ReflectionData);
 
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -283,7 +283,7 @@ namespace Hyro {
         {
         case Hyro::DescriptorType::UNIFORM_BUFFER:
             return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        case Hyro::DescriptorType::SAMPLER:
+        case Hyro::DescriptorType::Sampler:
             return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; //Regular samplers are not support since I have no idea what the difference is
         }
         

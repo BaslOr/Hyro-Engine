@@ -1,4 +1,4 @@
-project "stb_image"
+project "stb"
     kind "StaticLib"
     language "C"
     staticruntime "Off"
@@ -8,7 +8,8 @@ project "stb_image"
 
     files {
         "stb_image.h",
-        "stb_image.cpp"
+        "stb_image_write.h",
+        "stb_impl.c"
     }
 
     filter "system:linux"
