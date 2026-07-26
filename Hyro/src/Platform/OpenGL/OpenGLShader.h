@@ -21,25 +21,19 @@ namespace Hyro {
 
 		uint32_t GetProgram() const { return m_Program; }
 
-		void SetUniformInt(const std::string& name, int vlaue) const;
-		void SetUniformFloat(const std::string& name, float value) const;
-		void SetUnifromBool(const std::string& name, bool value) const;
-		void setUniformVec3(const std::string& name, const glm::vec3& value) const;
-		void SetUniformVec4(const std::string& name, const glm::vec4& value) const;
-		void SetUniformMat4(const std::string& name, const glm::mat4& value) const;
+		void SetUnifrom(Uniform uniform);
 
 
 	private:
 		friend class OpenGLMaterial;
 
+		int GetUniformLocation(const std::string& name) const;
+		bool CheckLocation(int location) const;
+
 		void CheckShaderCompilation(uint32_t shader);
 		void CheckLinkingErrors();
 
 		uint32_t CreateShader(uint32_t shaderType, const char* shaderSource);
-
-		int GetUniformLocation(const std::string& name) const;
-		bool CheckLocation(int location) const;
-
 		std::string ReadShaderFromFile(const std::string& filePath);
 
 	private:

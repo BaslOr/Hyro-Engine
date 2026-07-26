@@ -281,7 +281,7 @@ namespace Hyro {
     {
         switch (type)
         {
-        case Hyro::DescriptorType::UNIFORM_BUFFER:
+        case Hyro::DescriptorType::UniformBuffer:
             return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         case Hyro::DescriptorType::Sampler:
             return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; //Regular samplers are not support since I have no idea what the difference is
@@ -303,32 +303,32 @@ namespace Hyro {
         }
     }
 
-    VkFormat VulkanGraphicsPipeline::HyroFormatToVulkanFormat(ShaderType format)
+    VkFormat VulkanGraphicsPipeline::HyroFormatToVulkanFormat(VertexAttributeType format)
     {
         switch (format)
         {
-        case Hyro::ShaderType::NONE:
+        case Hyro::VertexAttributeType::NONE:
             return VK_FORMAT_UNDEFINED;
-        case Hyro::ShaderType::FLOAT:
+        case Hyro::VertexAttributeType::FLOAT:
             return VK_FORMAT_R32_SFLOAT;
-        case Hyro::ShaderType::FLOAT2:
+        case Hyro::VertexAttributeType::FLOAT2:
             return VK_FORMAT_R32G32_SFLOAT;
-        case Hyro::ShaderType::FLOAT3:
+        case Hyro::VertexAttributeType::FLOAT3:
             return VK_FORMAT_R32G32B32_SFLOAT;
-        case Hyro::ShaderType::FLOAT4:
+        case Hyro::VertexAttributeType::FLOAT4:
             return VK_FORMAT_R32G32B32A32_SFLOAT;
         }
     }
 
-    ShaderType VulkanGraphicsPipeline::VkTypeToHyroType(VkFormat format)
+    VertexAttributeType VulkanGraphicsPipeline::VkTypeToHyroType(VkFormat format)
     {
 
         switch (format)
         {
-        case VK_FORMAT_R32_SFLOAT: return ShaderType::FLOAT;
-        case VK_FORMAT_R32G32_SFLOAT: return ShaderType::FLOAT2;
-        case VK_FORMAT_R32G32B32_SFLOAT: return ShaderType::FLOAT3;
-        case VK_FORMAT_R32G32B32A32_SFLOAT: return ShaderType::FLOAT4;
+        case VK_FORMAT_R32_SFLOAT: return VertexAttributeType::FLOAT;
+        case VK_FORMAT_R32G32_SFLOAT: return VertexAttributeType::FLOAT2;
+        case VK_FORMAT_R32G32B32_SFLOAT: return VertexAttributeType::FLOAT3;
+        case VK_FORMAT_R32G32B32A32_SFLOAT: return VertexAttributeType::FLOAT4;
         default:
             HYRO_LOG_CORE_ERROR("Tried to convert unkwon vulkan Type to Hyro Vertex Attrubute type!");
         }

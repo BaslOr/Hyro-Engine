@@ -8,6 +8,8 @@
 
 #include "Hyro/Renderer/Vertex.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 namespace Hyro {
 
 	void Renderer2D::Init()
@@ -26,7 +28,7 @@ namespace Hyro {
 
 
 		m_Data.Material = Material::Create(m_Data.Shader);
-		m_Data.Material->SetUnifromBuffer(m_Data.UBO, 0);
+		m_Data.Material->SetUnifromBuffer(m_Data.UBO);
 
 		RenderCommand::SetClearColor(glm::vec4(0.2f, 0.5f, 0.8f, 1.f));
 	}
@@ -55,10 +57,13 @@ namespace Hyro {
 	{
 		m_Data.VBO->SetData(m_Data.Vertices);
 		m_Data.IBO->SetData(m_Data.Indices);
-		PushConstants pushConstants{};
-		pushConstants.Model = glm::mat4(1.0f);
 		m_Data.Material->SetTextures(m_Data.Textures);
-		m_Data.Material->SetPushConstants(pushConstants);
+
+		PushConstantBlock transfroms{};
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
+		Uniform model("u_Model", DescriptorType::Matrix, glm::value_ptr(modelMatrix));
+		transfroms.Push(model);
+		m_Data.Material->SetPushConstantBlock(transfroms);
 
 		RenderCommand::Submit(m_Data.VAO, m_Data.Material, static_cast<uint32_t>(m_Data.Indices.size()));
 	}

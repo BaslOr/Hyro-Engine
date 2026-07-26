@@ -18,22 +18,25 @@ namespace Hyro {
 		m_FallbackTexture = AssetManager::GetFallbackTexture();
 
 		//Set Samplers
-
 		m_ReflectionData = m_Shader->GetReflectionData();
 		for (const auto& descriptor : m_ReflectionData.Descriptors) {
 			if (descriptor.Type == DescriptorType::Sampler) {
-				std::vector<int> textureSlots(descriptor.Count);
-				std::iota(textureSlots.begin(), textureSlots.end(), 0);
-					
-				OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
-				int location = openGLShader->GetUniformLocation("u_Textures");
-				glUniform1iv(location, textureSlots.size(), textureSlots.data());
+				if (descriptor.Count > 1) {
+					m_Textures.resize(16);
+					std::vector<int> textureSlots(descriptor.Count);
+					std::iota(textureSlots.begin(), textureSlots.end(), 0);
+
+					OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
+					int location = openGLShader->GetUniformLocation(descriptor.Name);
+					glUniform1iv(location, textureSlots.size(), textureSlots.data());
+				}
+				else {
+					m_Textures.resize(1);
+					OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
+					openGLShader->SetUnifrom({ descriptor.Name, DescriptorType::Sampler, 0 });
+				}
 			}
 		}
-
-		//Temporary Material system will be reworked after cubemaps are finally working
-		OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
-		openGLShader->SetUniformInt("u_Cube", 0);
 
 		//Default texture slots
 		for (size_t i = 0; i < m_Textures.size(); ++i) {
@@ -41,12 +44,12 @@ namespace Hyro {
 		}
 	}
 
-	void OpenGLMaterial::SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding)
+	void OpenGLMaterial::SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer)
 	{
-		m_UniformBuffers[binding] = uniformBuffer;
+		m_UniformBuffers[uniformBuffer->GetBinding()] = uniformBuffer;
 		OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
 		uint32_t uniformBlockIndex = glGetUniformBlockIndex(openGLShader->GetProgram(), "UniformBufferObject");
-		glUniformBlockBinding(openGLShader->GetProgram(), uniformBlockIndex, 0);
+		glUniformBlockBinding(openGLShader->GetProgram(), uniformBlockIndex, uniformBuffer->GetBinding());
 	}
 
 	void OpenGLMaterial::SetTextures(const std::array<Ref<Texture>, 16>& textures)
@@ -57,6 +60,8 @@ namespace Hyro {
 		for (size_t i = 1; i < m_Textures.size(); ++i) {
 			if (textures[i] != nullptr)
 				m_Textures[i] = textures[i];
+			else
+				m_Textures[i] = m_FallbackTexture;
 
 			m_Textures[i]->Bind(i);
 		}
@@ -70,24 +75,13 @@ namespace Hyro {
 		texture->Bind(slot);
 	}
 
-	void OpenGLMaterial::SetPushConstants(const PushConstants& pushConstants)
+	void OpenGLMaterial::SetPushConstantBlock(const PushConstantBlock& block)
 	{
-		OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
-		openGLShader->SetUniformMat4("u_Model", pushConstants.Model);
+		for (auto& unifrom : block.GetUniforms()) {
+			OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
+			openGLShader->SetUnifrom(unifrom);
+		}
 	}
-
-	//void OpenGLMaterial::SetUniform(const std::string& name, void* value)
-	//{
-	//	for (const auto& descriptor : m_ReflectionData.Descriptors) {
-	//		if (descriptor.Name == name) {
-	//			OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
-	//			openGLShader->set
-	//			return;
-	//		}
-	//	}
-
-	//	HYRO_LOG_CORE_ERROR("Could not find uniform with name: {0}", name.c_str());
-	//}
 
 	void OpenGLMaterial::Bind()
 	{

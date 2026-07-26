@@ -12,6 +12,10 @@ namespace Hyro {
 		Bind();
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformBufferData), nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_Buffer);
+
+		static uint32_t nextBinding = 0;
+		m_Binding = nextBinding;
+		++nextBinding;
 	}
 
 	OpenGLUniformBuffer::~OpenGLUniformBuffer()

@@ -10,15 +10,11 @@ namespace Hyro {
 	public:
 		VulkanMaterial(Ref<Shader> shader);
 
-		void SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) override;
+		void SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer) override;
+
 		void SetTextures(const std::array<Ref<Texture>, 16>& textures) override;
-
-
 		void SetTexture(const Ref<Texture>& texture, uint32_t slot) override { }
-		virtual void SetUniform(const std::string& name, void* value) { }
-
-
-		void SetPushConstants(const PushConstants& pushConstants) override;
+		void SetPushConstantBlock(const PushConstantBlock& block) override;
 
 		void Bind() override;
 		void Bind(void* commandBuffer) override;
@@ -33,7 +29,7 @@ namespace Hyro {
 
 		Ref<Texture> m_FallbackTexture;
 
-		PushConstants m_PushConstants;
+		std::vector<PushConstantBlock> m_PushConstantBlocks;
 
 		std::vector<VkDescriptorSet> m_DescriptorSets;
 

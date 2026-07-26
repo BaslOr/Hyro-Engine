@@ -18,6 +18,8 @@ namespace Hyro {
 
 		virtual void Bind() const = 0;
 		virtual void Bind(void* commandBuffer, void* pipelineLayout) const = 0;
+
+		virtual uint32_t GetBinding() const = 0;
 	};
 
 }

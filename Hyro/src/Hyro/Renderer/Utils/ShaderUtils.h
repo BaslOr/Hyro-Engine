@@ -12,7 +12,7 @@ namespace Hyro {
 
 	class ShaderUtils {
 	public:
-		static uint32_t GetCountFromShaderType(ShaderType type);
+		static uint32_t GetCountFromShaderType(VertexAttributeType type);
 
 	};
 
@@ -49,15 +49,13 @@ namespace Hyro {
 		std::vector<PushConstant> PushConstants;
 	};
 
-
-
 	class ShaderReflection {
 	public:
 		static VertexLayout GetVertexLayout(const std::vector<uint32_t>& vertexSpirV);
 		static ShaderReflectionData FillReflectionData(const std::array<std::vector<uint32_t>, 2>& spirVs);
 
 	private:
-		static ShaderType ReflectTypeToHyroType(SpvReflectFormat format);
+		static VertexAttributeType ReflectTypeToHyroType(SpvReflectFormat format);
 		static DescriptorType SpvDescriptorTypeToHyroType(SpvReflectDescriptorType type);
 
 	};

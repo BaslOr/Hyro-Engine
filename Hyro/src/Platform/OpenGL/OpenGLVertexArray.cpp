@@ -53,20 +53,20 @@ namespace Hyro {
 		buffer->Bind();
 	}
 
-	uint32_t OpenGLVertexArray::AttributeTypeToOpenGLEnum(ShaderType type) const
+	uint32_t OpenGLVertexArray::AttributeTypeToOpenGLEnum(VertexAttributeType type) const
 	{
 		switch (type)
 		{
-		case Hyro::ShaderType::FLOAT:
+		case Hyro::VertexAttributeType::FLOAT:
 			return GL_FLOAT;
 			break;
-		case Hyro::ShaderType::FLOAT2:
+		case Hyro::VertexAttributeType::FLOAT2:
 			return GL_FLOAT;
 			break;
-		case Hyro::ShaderType::FLOAT3:
+		case Hyro::VertexAttributeType::FLOAT3:
 			return GL_FLOAT;
 			break;
-		case Hyro::ShaderType::FLOAT4:
+		case Hyro::VertexAttributeType::FLOAT4:
 			return GL_FLOAT;
 			break;
 		}

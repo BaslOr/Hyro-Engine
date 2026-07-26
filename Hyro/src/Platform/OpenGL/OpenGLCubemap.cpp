@@ -39,6 +39,7 @@ namespace Hyro {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 		HYRO_LOG_CORE_TRACE("Created Cubemap");
 	}
@@ -50,8 +51,7 @@ namespace Hyro {
 
 	void OpenGLCubemap::Bind() const
 	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_ID);
+		glBindTextureUnit(0, m_ID);
 	}
 
 	void OpenGLCubemap::Unbind() const

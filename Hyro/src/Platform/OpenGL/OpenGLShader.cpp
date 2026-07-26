@@ -54,46 +54,58 @@ namespace Hyro {
 		HYRO_LOG_CORE_WARN("Tried to bind Shader with Command Buffer. This may indicate a bug.");
 	}
 
-	void OpenGLShader::SetUniformInt(const std::string& name, int value) const
+	void OpenGLShader::SetUnifrom(Uniform uniform)
 	{
-		Bind();
-		int location = GetUniformLocation(name);
-		glUniform1i(location, value);
-	}
+		glUseProgram(m_Program);
+		int location = GetUniformLocation(uniform.Name);
 
-	void OpenGLShader::SetUniformFloat(const std::string& name, float value) const
-	{
-		Bind();
-		int location = GetUniformLocation(name);
-		glUniform1f(location, value);
-	}
+		switch (uniform.Type)
+		{
+		case DescriptorType::Float:
+			glUniform1f(location, *(float*)uniform.Data);
+			break;
 
-	void OpenGLShader::SetUnifromBool(const std::string& name, bool value) const
-	{
-		Bind();
-		int location = GetUniformLocation(name);
-		glUniform1i(location, (int)value);
-	}
+		case DescriptorType::Float2:
+			glUniform2fv(location, 1, (float*)uniform.Data);
+			break;
 
-	void OpenGLShader::setUniformVec3(const std::string& name, const glm::vec3& value) const
-	{
-		Bind();
-		int location = GetUniformLocation(name);
-		glUniform3f(location, value.x, value.y, value.z);
-	}
+		case DescriptorType::Float3:
+			glUniform3fv(location, 1, (float*)uniform.Data);
+			break;
 
-	void OpenGLShader::SetUniformVec4(const std::string& name, const glm::vec4& value) const
-	{
-		Bind();
-		int location = GetUniformLocation(name);
-		glUniform4f(location, value.x, value.y, value.z, value.w);
-	}
+		case DescriptorType::Float4:
+			glUniform4fv(location, 1, (float*)uniform.Data);
+			break;
 
-	void OpenGLShader::SetUniformMat4(const std::string& name, const glm::mat4& value) const
-	{
-		Bind();
-		int location = GetUniformLocation(name);
-		glUniformMatrix4fv(location, 1, false, glm::value_ptr(value));
+		case DescriptorType::Int:
+			glUniform1i(location, (int)uniform.Data);
+			break;
+
+		case DescriptorType::Int2:
+			glUniform2iv(location, 1, (int*)uniform.Data);
+			break;
+
+		case DescriptorType::Int3:
+			glUniform3iv(location, 1, (int*)uniform.Data);
+			break;
+
+		case DescriptorType::Int4:
+			glUniform4iv(location, 1, (int*)uniform.Data);
+			break;
+
+		case DescriptorType::Matrix:
+			glUniformMatrix4fv(location, 1, GL_FALSE, (float*)uniform.Data);
+			break;
+
+		case DescriptorType::Sampler:
+		case DescriptorType::Image:
+			glUniform1i(location, (int)uniform.Data);
+			break;
+
+		case DescriptorType::UniformBuffer:
+		case DescriptorType::StorageBuffer:
+			break;
+		}
 	}
 
 	void OpenGLShader::CheckShaderCompilation(uint32_t shader)

@@ -13,20 +13,20 @@ namespace Hyro {
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////Shader Utils//////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////
-    uint32_t ShaderUtils::GetCountFromShaderType(ShaderType type)
+    uint32_t ShaderUtils::GetCountFromShaderType(VertexAttributeType type)
     {
         switch (type)
         {
-        case Hyro::ShaderType::NONE:
+        case Hyro::VertexAttributeType::NONE:
             HYRO_LOG_CORE_WARN("Tried to get count of ShaderType::None.");
             return 0;
-        case Hyro::ShaderType::FLOAT:
+        case Hyro::VertexAttributeType::FLOAT:
             return 1;
-        case Hyro::ShaderType::FLOAT2:
+        case Hyro::VertexAttributeType::FLOAT2:
             return 2;
-        case Hyro::ShaderType::FLOAT3:
+        case Hyro::VertexAttributeType::FLOAT3:
             return 3;
-        case Hyro::ShaderType::FLOAT4:
+        case Hyro::VertexAttributeType::FLOAT4:
             return 4;
         }
     }
@@ -134,7 +134,7 @@ namespace Hyro {
         return data;
     }
 
-    ShaderType ShaderReflection::ReflectTypeToHyroType(SpvReflectFormat format)
+    VertexAttributeType ShaderReflection::ReflectTypeToHyroType(SpvReflectFormat format)
     {
         switch (format)
         {
@@ -169,25 +169,25 @@ namespace Hyro {
         case SPV_REFLECT_FORMAT_R32_SINT:
             break;
         case SPV_REFLECT_FORMAT_R32_SFLOAT:
-            return ShaderType::FLOAT;
+            return VertexAttributeType::FLOAT;
         case SPV_REFLECT_FORMAT_R32G32_UINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32_SINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32_SFLOAT:
-            return ShaderType::FLOAT2;
+            return VertexAttributeType::FLOAT2;
         case SPV_REFLECT_FORMAT_R32G32B32_UINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32B32_SINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32B32_SFLOAT:
-            return ShaderType::FLOAT3;
+            return VertexAttributeType::FLOAT3;
         case SPV_REFLECT_FORMAT_R32G32B32A32_UINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32B32A32_SINT:
             break;
         case SPV_REFLECT_FORMAT_R32G32B32A32_SFLOAT:
-            return ShaderType::FLOAT4;
+            return VertexAttributeType::FLOAT4;
         case SPV_REFLECT_FORMAT_R64_UINT:
             break;
         case SPV_REFLECT_FORMAT_R64_SINT:
@@ -215,7 +215,7 @@ namespace Hyro {
         }
 
         HYRO_LOG_CORE_ERROR("Failed to convert spv reflect format to Vertex Attribute Type");
-        return ShaderType::NONE;
+        return VertexAttributeType::NONE;
     }
 
     DescriptorType ShaderReflection::SpvDescriptorTypeToHyroType(SpvReflectDescriptorType type)
@@ -223,7 +223,7 @@ namespace Hyro {
         switch (type)
         {
         case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-            return DescriptorType::UNIFORM_BUFFER;
+            return DescriptorType::UniformBuffer;
 
         case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
             return DescriptorType::Sampler;

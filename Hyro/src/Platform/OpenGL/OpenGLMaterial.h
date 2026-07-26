@@ -10,12 +10,10 @@ namespace Hyro {
 	public:
 		OpenGLMaterial(Ref<Shader> shader);
 
-		void SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) override;
+		void SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer) override;
 		void SetTextures(const std::array<Ref<Texture>, 16>& textures) override;
 		void SetTexture(const Ref<Texture>& texture, uint32_t slot) override;
-		void SetPushConstants(const PushConstants& pushConstants) override;
-
-		void SetUniform(const std::string& name, void* value) override { }
+		void SetPushConstantBlock(const PushConstantBlock& block) override;
 
 		void Bind() override;
 		void Bind(void* commandBuffer) override;
@@ -26,7 +24,7 @@ namespace Hyro {
 		ShaderReflectionData m_ReflectionData;
 
 		std::unordered_map<uint32_t, Ref<UniformBuffer>> m_UniformBuffers;
-		std::array<Ref<Texture>, 16> m_Textures;
+		std::vector<Ref<Texture>> m_Textures;
 
 		Ref<Texture> m_FallbackTexture;
 	};

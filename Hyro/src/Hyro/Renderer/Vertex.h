@@ -5,7 +5,7 @@
 
 namespace Hyro {
 
-	enum class ShaderType {
+	enum class VertexAttributeType {
 		NONE,
 		FLOAT, FLOAT2, FLOAT3, FLOAT4
 	};
@@ -15,16 +15,16 @@ namespace Hyro {
 		struct Element {
 			uint32_t Location;
 			std::string Name;
-			ShaderType Type;
+			VertexAttributeType Type;
 			uint32_t Offset;
 		};
 
-		void Push(const std::string& name, uint32_t location, ShaderType type);
+		void Push(const std::string& name, uint32_t location, VertexAttributeType type);
 
 		inline const std::vector<Element>& GetElements() const { return m_Elements; }
 		inline uint32_t GetStride() const { return m_Stride; }
 
-		uint32_t GetVertexAttributeSize(ShaderType type) const;
+		uint32_t GetVertexAttributeSize(VertexAttributeType type) const;
 
 	private:
 		std::vector<Element> m_Elements;
@@ -32,7 +32,7 @@ namespace Hyro {
 	};
 
 
-	inline void VertexLayout::Push(const std::string& name, uint32_t location, ShaderType type)
+	inline void VertexLayout::Push(const std::string& name, uint32_t location, VertexAttributeType type)
 	{
 		uint32_t size = GetVertexAttributeSize(type);
 		uint32_t offset = m_Stride;

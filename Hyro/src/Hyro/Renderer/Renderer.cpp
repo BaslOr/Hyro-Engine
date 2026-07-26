@@ -6,7 +6,7 @@
 #include "Hyro/Project/AssetManager.h"
 #include "Hyro/Renderer/Utils/MeshFactory.h"
 
-#include <glad/glad.h> //temporary
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Hyro {
 
@@ -74,7 +74,10 @@ namespace Hyro {
 		RenderCommand::BeginRenderPass();
 
 		//Render Cubemap
-		m_CubemapMaterial->SetPushConstants({ mvp });
+		PushConstantBlock transfroms{};
+		Uniform uniform("u_Model", DescriptorType::Matrix, (void*)glm::value_ptr(mvp));
+		transfroms.Push(uniform);
+		m_CubemapMaterial->SetPushConstantBlock(transfroms);
 		RenderCommand::SubmitCubemap(m_CubemapVAO, m_CubemapMaterial, m_Cubemap);
 	}
 

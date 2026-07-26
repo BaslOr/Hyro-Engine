@@ -25,9 +25,9 @@ namespace Hyro {
 		m_FallbackTexture = AssetManager::GetFallbackTexture();
 	}
 
-	void VulkanMaterial::SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding)
+	void VulkanMaterial::SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer)
 	{
-		m_UniformBuffers[binding] = uniformBuffer;
+		m_UniformBuffers[uniformBuffer->GetBinding()] = uniformBuffer;
 		m_IsDirty = true;
 	}
 
@@ -43,10 +43,9 @@ namespace Hyro {
 		m_IsDirty = true;
 	}
 
-	void VulkanMaterial::SetPushConstants(const PushConstants& pushConstants)
+	void VulkanMaterial::SetPushConstantBlock(const PushConstantBlock& pushConstants)
 	{
-		//Sets Push Constants lazily
-		m_PushConstants = pushConstants;
+		m_PushConstantBlocks.push_back(pushConstants);
 	}
 
 	void VulkanMaterial::Bind()
@@ -61,10 +60,19 @@ namespace Hyro {
 
 		m_Shader->Bind(commandBuffer);
 
-		vkCmdPushConstants((VkCommandBuffer)commandBuffer, vulkanShader->GetVkPipelineLayout(),
-			VK_SHADER_STAGE_VERTEX_BIT,
-			0,
-			sizeof(PushConstants), &m_PushConstants);
+
+		for (auto& block : m_PushConstantBlocks) {
+			std::vector<uint8_t> data;
+			data.reserve(block.Size);
+			for (const auto& uniform : block.GetUniforms()) {
+				memcpy(data.data()+data.size(), uniform.Data, SizeOfDescriptorType(uniform.Type));
+			}
+
+			vkCmdPushConstants((VkCommandBuffer)commandBuffer, vulkanShader->GetVkPipelineLayout(),
+				VK_SHADER_STAGE_VERTEX_BIT,
+				0,
+				block.Size, data.data());
+		}
 
 		if (m_IsDirty)
 		{

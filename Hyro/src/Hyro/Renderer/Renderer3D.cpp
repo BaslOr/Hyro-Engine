@@ -5,6 +5,8 @@
 #include "Hyro/Renderer/RenderCommand.h"
 #include "Hyro/Renderer/Renderer.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 
 namespace Hyro {
 
@@ -13,7 +15,7 @@ namespace Hyro {
 		m_Data.UBO = SceneRenderer::GetRenderer3DTransformUnifromBuffer();
 		m_Data.Shader = AssetManager::GetShader("Default3D");
 		m_Data.Material = Material::Create(m_Data.Shader);
-		m_Data.Material->SetUnifromBuffer(m_Data.UBO, 0);
+		m_Data.Material->SetUnifromBuffer(m_Data.UBO);
 	}
 
 	void Renderer3D::Shutdown()
@@ -23,9 +25,10 @@ namespace Hyro {
 
 	void Renderer3D::DrawMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
 	{
-		PushConstants pushConstants{};
-		pushConstants.Model = transform;
-		m_Data.Material->SetPushConstants(pushConstants);
+		PushConstantBlock transforms{};
+		Uniform model("u_Model", DescriptorType::Matrix, (void*)glm::value_ptr(transform));
+		transforms.Push(model);
+		m_Data.Material->SetPushConstantBlock(transforms);
 		m_Data.TexturesSlots[1] = mesh->Sprite;
 		m_Data.Material->SetTextures(m_Data.TexturesSlots);
 

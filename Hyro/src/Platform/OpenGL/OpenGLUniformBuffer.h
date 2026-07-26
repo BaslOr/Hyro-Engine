@@ -13,8 +13,11 @@ namespace Hyro {
 		void Bind() const override;
 		void Bind(void* commandBuffer, void* pipelineLayout) const override;
 
+		uint32_t GetBinding() const { return m_Binding; }
+
 	private:
 		uint32_t m_Buffer;
+		uint32_t m_Binding;
 	};
 
 }
