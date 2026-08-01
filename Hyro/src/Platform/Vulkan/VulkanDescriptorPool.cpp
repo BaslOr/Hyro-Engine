@@ -12,9 +12,10 @@ namespace Hyro {
 	void VulkanDescriptorPool::Init()
 	{
 		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
-		std::array<VkDescriptorPoolSize, 3> poolSizes = { {
+		std::array<VkDescriptorPoolSize, 4> poolSizes = { {
 			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,          maxFramesInFlight },
 			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,  16 * maxFramesInFlight },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,  maxFramesInFlight },
 			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,  IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE }  // ← ImGui!
 		} };
 

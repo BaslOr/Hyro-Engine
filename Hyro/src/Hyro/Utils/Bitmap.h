@@ -35,6 +35,8 @@ namespace Hyro {
 		void SetPixel(uint32_t x, uint32_t y, const glm::vec4& color);
 		glm::vec4 GetPixel(uint32_t x, uint32_t y) const;
 
+		void ChangeComponents(uint32_t newCount);
+
 	private:
 		std::vector<uint8_t> m_Data;
 		uint32_t m_Width, m_Height, m_Components, m_Depth;

@@ -9,7 +9,7 @@ namespace Hyro {
 
 	class VulkanShader : public Shader {
 	public: 
-		VulkanShader(const std::string& vertexPath, const std::string& fragmentPath);
+		VulkanShader(const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragmentPath);
 		~VulkanShader();
 
 		void Bind() const override;
@@ -20,6 +20,8 @@ namespace Hyro {
 
 		VkPipelineLayout GetVkPipelineLayout() const { return m_Pipeline->GetVkPipelineLayout(); }
 		VkDescriptorSetLayout GetVkDescriptorSetLayout() const { return m_Pipeline->GetVkDescriptorSetLayout(); }
+
+		static VkDescriptorType HyroDescriptorTypeToVulkanType(DescriptorType type);
 
 	private:
 		Ref<VulkanGraphicsPipeline> m_Pipeline;

@@ -11,8 +11,8 @@
 
 namespace Hyro {
 
-	OpenGLShader::OpenGLShader(const std::string& vertexPath, const std::string& fragPath)
-		: m_Program(0)
+	OpenGLShader::OpenGLShader(const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragPath)
+		: m_Program(0), m_DepthInfo(depthInfo)
 	{
 		std::string vertexSource = ReadShaderFromFile(vertexPath);
 		std::string fragmentSource = ReadShaderFromFile(fragPath);
@@ -47,6 +47,10 @@ namespace Hyro {
 	void OpenGLShader::Bind() const
 	{
 		glUseProgram(m_Program);
+
+		//TODO: Set Depth Info
+		glDepthMask(m_DepthInfo.DepthWrite);
+		glDepthFunc(HyroCompareOpToOpenGLDepthFunc(m_DepthInfo.DepthFunc));
 	}
 
 	void OpenGLShader::Bind(void* commandBuffer) const
@@ -128,6 +132,29 @@ namespace Hyro {
 		if (!success) {
 			glGetProgramInfoLog(m_Program, 512, NULL, infoLog);
 			HYRO_LOG_CORE_ERROR("Shader linking failed! \n {}", infoLog);
+		}
+	}
+
+	uint32_t OpenGLShader::HyroCompareOpToOpenGLDepthFunc(DepthInfo::CompareOp compareOp)
+	{
+		switch (compareOp)
+		{
+		case Hyro::DepthInfo::CompareOp::Never:
+			return GL_NEVER;
+		case Hyro::DepthInfo::CompareOp::Less:
+			return GL_LESS;
+		case Hyro::DepthInfo::CompareOp::Equal:
+			return GL_EQUAL;
+		case Hyro::DepthInfo::CompareOp::LessEqual:
+			return GL_LEQUAL;
+		case Hyro::DepthInfo::CompareOp::Greater:
+			return GL_GREATER;
+		case Hyro::DepthInfo::CompareOp::NotEqual:
+			return GL_NOTEQUAL;
+		case Hyro::DepthInfo::CompareOp::GreaterEqual:
+			return GL_GEQUAL;
+		case Hyro::DepthInfo::CompareOp::Always:
+			return GL_ALWAYS;
 		}
 	}
 

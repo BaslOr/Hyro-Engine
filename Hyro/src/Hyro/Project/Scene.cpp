@@ -59,10 +59,13 @@ namespace Hyro {
             orthoProjection = glm::ortho(0.f, width, 0.f, height, -100.0f, 100.f);
 
         glm::mat4 persProjection;
-        if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan)
-            persProjection = glm::perspectiveRH_ZO(80.f, aspectRatio, 0.1f, 100.f);
-        else if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL)
-            persProjection = glm::perspectiveRH_NO(80.f, aspectRatio, 0.1f, 100.f);
+        if (SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan) {
+            persProjection = glm::perspectiveRH_ZO(glm::radians(80.0f), aspectRatio, 0.1f, 100.f);
+        }
+        else if (SceneRenderer::GetAPI() == GraphicsAPIType::OpenGL) {
+            persProjection = glm::perspectiveRH_NO(glm::radians(80.0f), aspectRatio, 0.1f, 100.f);
+			persProjection[1][1] *= -1; //Invert Y for OpenGL
+        }
 
         glm::mat4 view = m_Camera.GetViewMatrix();
 

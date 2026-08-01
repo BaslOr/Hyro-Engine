@@ -8,7 +8,7 @@
 
 namespace Hyro {
 
-	Ref<Shader> Shader::Create(const std::string& vertexPath, const std::string& fragmentPath)
+	Ref<Shader> Shader::Create(const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragmentPath)
 	{
 		switch (SceneRenderer::GetAPI())
 		{
@@ -17,10 +17,10 @@ namespace Hyro {
 			return nullptr;
 			break;
 		case GraphicsAPIType::OpenGL:
-			return CreateRef<OpenGLShader>(vertexPath, fragmentPath);
+			return CreateRef<OpenGLShader>(depthInfo, vertexPath, fragmentPath);
 			break;
 		case GraphicsAPIType::Vulkan:
-			return CreateRef<VulkanShader>(vertexPath, fragmentPath);
+			return CreateRef<VulkanShader>(depthInfo, vertexPath, fragmentPath);
 			break;
 		}
 	}

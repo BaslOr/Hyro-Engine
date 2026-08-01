@@ -6,6 +6,7 @@
 #include "Platform/Vulkan/VulkanBuffer.h"
 #include "Platform/Vulkan/VulkanShader.h"
 #include "Platform/Vulkan/VulkanTexture.h"
+#include "Platform/Vulkan/VulkanCubemap.h"
 
 
 #include "Hyro/Project/AssetManager.h"
@@ -16,11 +17,23 @@ namespace Hyro {
 	VulkanMaterial::VulkanMaterial(Ref<Shader> shader)
 		: m_Shader(shader)
 	{
+		m_ReflectionData = m_Shader->GetReflectionData();
+
 		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
 		m_DescriptorSets.resize(maxFramesInFlight);
+		m_PushConstantBlocks.reserve(m_ReflectionData.PushConstants.size());
 
 		VulkanShader* vulkanShader = static_cast<VulkanShader*>(m_Shader.get());
 		m_DescriptorSets = VulkanDescriptorPool::AllocateDescriptorSets(vulkanShader->GetVkDescriptorSetLayout(), maxFramesInFlight);
+
+		for (const auto& descriptor : m_ReflectionData.Descriptors) {
+			if (descriptor.Type == DescriptorType::Sampler) {
+				m_Textures.resize(descriptor.Count);
+				for (size_t i = 0; i < m_Textures.size(); ++i) {
+					m_Textures[i] = m_FallbackTexture;
+				}
+			}
+		}
 
 		m_FallbackTexture = AssetManager::GetFallbackTexture();
 	}
@@ -31,7 +44,7 @@ namespace Hyro {
 		m_IsDirty = true;
 	}
 
-	void VulkanMaterial::SetTextures(const std::array<Ref<Texture>, 16>& textures)
+	void VulkanMaterial::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
 	{
 		m_Textures[0] = m_FallbackTexture;
 		for (size_t i = 1; i < textures.size(); ++i) {
@@ -43,9 +56,25 @@ namespace Hyro {
 		m_IsDirty = true;
 	}
 
-	void VulkanMaterial::SetPushConstantBlock(const PushConstantBlock& pushConstants)
+	void VulkanMaterial::SetSamplerCube(const Ref<Cubemap>& cubemap)
 	{
-		m_PushConstantBlocks.push_back(pushConstants);
+		m_Cubemap = cubemap;
+		m_IsDirty = true;
+	}
+
+	void VulkanMaterial::SetPushConstantBlock(const PushConstantBlock& block)
+	{
+		for (auto& pushConstantBlock : m_PushConstantBlocks) {
+			if (pushConstantBlock.Name.compare(block.Name) == 0) {
+				pushConstantBlock = block;
+				return;
+			}
+		}
+
+		for (auto& uniform : block.GetUniforms())
+		{
+			m_PushConstantBlocks.emplace_back(block);
+		}
 	}
 
 	void VulkanMaterial::Bind()
@@ -78,53 +107,67 @@ namespace Hyro {
 		{
 			UpdateDescriptorSets();
 		}
+
 		vkCmdBindDescriptorSets((VkCommandBuffer)commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanShader->GetVkPipelineLayout(), 0, 1, &m_DescriptorSets[currentFrameIndex], 0, nullptr);
 	}
 
 	void VulkanMaterial::UpdateDescriptorSets()
 	{
 		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
-		VulkanUniformBuffer* vulkanUBO = static_cast<VulkanUniformBuffer*>(m_UniformBuffers.at(0).get());
 
-		std::array<VkWriteDescriptorSet, 2> writes{};
+		std::vector<VkWriteDescriptorSet> writes;
+		writes.resize(m_ReflectionData.Descriptors.size());
 
-		for (size_t i = 0; i < maxFramesInFlight; i++)
+
+		std::vector<VkDescriptorImageInfo> imageInfos(m_Textures.size());
+		VkDescriptorBufferInfo bufferInfo{};
+
+		//Descriptor sets for each frame in flight
+		for (uint32_t i = 0; i < maxFramesInFlight; i++)
 		{
-			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = vulkanUBO->GetBufferAtIndex(i);
-			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(UniformBufferData);
+			//Descriptor write for each descriptor/uniform
+			for (uint32_t descriptorIndex = 0; descriptorIndex < m_ReflectionData.Descriptors.size(); ++descriptorIndex) {
+				auto& descriptor = m_ReflectionData.Descriptors[descriptorIndex];
 
-			std::array<VkDescriptorImageInfo, 16> imageInfos;
-			for (size_t j = 0; j < imageInfos.size(); j++)
-			{
-				VulkanTexture* vulkanTexture = static_cast<VulkanTexture*>(m_Textures.at(j).get());
+				writes[descriptorIndex].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				writes[descriptorIndex].dstSet = m_DescriptorSets[i];
+				writes[descriptorIndex].dstBinding = descriptor.Binding;
+				writes[descriptorIndex].dstArrayElement = 0;
+				writes[descriptorIndex].descriptorType = VulkanShader::HyroDescriptorTypeToVulkanType(descriptor.Type);
+				writes[descriptorIndex].descriptorCount = descriptor.Count;
+				if (descriptor.Type == DescriptorType::UniformBuffer)
+				{
+					VulkanUniformBuffer* vulkanUBO = static_cast<VulkanUniformBuffer*>(m_UniformBuffers.at(0).get());
 
-				imageInfos[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-				imageInfos[j].imageView = vulkanTexture->GetVkImageView();
-				imageInfos[j].sampler = vulkanTexture->GetVkSampler();
+					bufferInfo.buffer = vulkanUBO->GetBufferAtIndex(i);
+					bufferInfo.offset = 0;
+					bufferInfo.range = sizeof(UniformBufferData);
+
+					writes[descriptorIndex].pBufferInfo = &bufferInfo;
+				}
+				else if (descriptor.Type == DescriptorType::Sampler) {
+
+					for (size_t j = 0; j < imageInfos.size(); j++)
+					{
+						if (imageInfos.size() > 1) {
+							VulkanTexture* vulkanTexture = static_cast<VulkanTexture*>(m_Textures[j].get());
+
+							imageInfos[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+							imageInfos[j].imageView = vulkanTexture->GetVkImageView();
+							imageInfos[j].sampler = vulkanTexture->GetVkSampler();
+						}
+						else {
+							VulkanCubemap* vulkanCubemap = static_cast<VulkanCubemap*>(m_Cubemap.get());
+
+							imageInfos[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+							imageInfos[j].imageView = vulkanCubemap->GetVkImageView();
+							imageInfos[j].sampler = vulkanCubemap->GetVkSampler();
+						}
+					}
+
+					writes[descriptorIndex].pImageInfo = imageInfos.data();
+				}
 			}
-
-			//Retrieve Reflection Data
-			writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writes[0].dstSet = m_DescriptorSets[i];
-			writes[0].dstBinding = 0;
-			writes[0].dstArrayElement = 0;
-			writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			writes[0].descriptorCount = 1;
-			writes[0].pBufferInfo = &bufferInfo;
-			writes[0].pImageInfo = nullptr; // Optional
-			writes[0].pTexelBufferView = nullptr; // Optional
-
-			writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writes[1].dstSet = m_DescriptorSets[i];
-			writes[1].dstBinding = 1;
-			writes[1].dstArrayElement = 0;
-			writes[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			writes[1].descriptorCount = 16;
-			writes[1].pImageInfo = imageInfos.data();
-
-
 			vkUpdateDescriptorSets(VulkanDevice::GetVkDevice(), static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
 		}
 

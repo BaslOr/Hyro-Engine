@@ -4,6 +4,7 @@
 #include "Platform/Vulkan/VulkanGraphicsPipeline.h"
 #include "Platform/Vulkan/VulkanBuffer.h"
 #include "Hyro/Core/Memory.h"
+#include <Hyro/Renderer/Cubemap.h>
 
 
 namespace Hyro {
@@ -17,7 +18,7 @@ namespace Hyro {
 		void EndRenderPass() override;
 
 		void Submit(Ref<VertexArray> vertexArray, Ref<Material> material, uint32_t count) override;
-		inline void SubmitCubemap(Ref<VertexArray> vertexArray, Ref<Material> material, Ref<Cubemap> cubemap) override { }
+		void SubmitCubemap(Ref<VertexArray> vertexArray, Ref<Material> material, Ref<Cubemap> cubemap) override;
 
 		void SetClearColor(const glm::vec4& color) override;
 

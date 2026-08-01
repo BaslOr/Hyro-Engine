@@ -34,7 +34,8 @@ namespace Hyro {
 		VkDebugUtilsMessengerCreateInfoEXT debugMessengerInfo{};
 		VkInstanceCreateInfo instanceInfo{};
 		instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		instanceInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+		if (g_CurrentPlatform == PlatformType::MacOS)
+			instanceInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 		instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 		instanceInfo.ppEnabledExtensionNames = extensions.data();
 		if (g_CurrentBuildConfig == BuildConfig::Debug) {

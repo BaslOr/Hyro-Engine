@@ -91,13 +91,13 @@ namespace Hyro {
             std::vector<SpvReflectDescriptorSet*> sets(count);
             spvReflectEnumerateDescriptorSets(&modules[i], &count, sets.data());
 
-            for (auto set : sets) {
+            for (const auto set : sets) {
 
                 for (size_t j = 0; j < set->binding_count; ++j) {
-                    auto binding = set->bindings[j];
+                    const auto binding = set->bindings[j];
                     ShaderReflectionData::Descriptor descriptorInfo{};
 
-                    descriptorInfo.Name = binding->name;
+                    descriptorInfo.Name = std::string(binding->name);
                     descriptorInfo.Binding = binding->binding;
                     descriptorInfo.Set = set->set;
                     descriptorInfo.Count = binding->count;
@@ -113,10 +113,10 @@ namespace Hyro {
             std::vector<SpvReflectBlockVariable*> pushConstants(count);
             spvReflectEnumeratePushConstantBlocks(&modules[i], &count, pushConstants.data());
 
-            for (auto block : pushConstants) {
+            for (const auto block : pushConstants) {
                 ShaderReflectionData::PushConstant pushConstant{};
 
-                pushConstant.Name = block->name;
+                pushConstant.Name = std::string(block->name);
                 pushConstant.Offset = block->offset;
                 pushConstant.Size = block->size;
                 pushConstant.Stage = i == 0 ? ShaderStage::Vertex : ShaderStage::Fragment;

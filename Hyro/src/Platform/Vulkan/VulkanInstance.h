@@ -13,7 +13,7 @@ namespace Hyro {
 	private:
 		void CreateInstance();
 		void CreateDebugMessenger();
-
+		
 		const std::vector<const char*> GetAvailableInstanceExtensionNames();
 
 		void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& messengerInfo);

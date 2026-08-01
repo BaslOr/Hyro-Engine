@@ -57,9 +57,9 @@ namespace Hyro {
 	{
 		m_Data.VBO->SetData(m_Data.Vertices);
 		m_Data.IBO->SetData(m_Data.Indices);
-		m_Data.Material->SetTextures(m_Data.Textures);
+		m_Data.Material->SetSamplers(m_Data.Textures);
 
-		PushConstantBlock transfroms{};
+		PushConstantBlock transfroms("Transforms");
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		Uniform model("u_Model", DescriptorType::Matrix, glm::value_ptr(modelMatrix));
 		transfroms.Push(model);

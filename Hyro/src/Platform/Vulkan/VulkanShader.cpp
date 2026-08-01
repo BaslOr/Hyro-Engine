@@ -5,9 +5,9 @@
 
 namespace Hyro {
 
-	VulkanShader::VulkanShader(const std::string& vertexPath, const std::string& fragmentPath)
+	VulkanShader::VulkanShader(const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragmentPath)
 	{
-		m_Pipeline = CreateRef<VulkanGraphicsPipeline>(vertexPath, fragmentPath);
+		m_Pipeline = CreateRef<VulkanGraphicsPipeline>(depthInfo, vertexPath, fragmentPath);
 	}
 
 	VulkanShader::~VulkanShader()
@@ -41,5 +41,26 @@ namespace Hyro {
 		scissor.extent = context.GetSwapchainExtent();
 		vkCmdSetScissor((VkCommandBuffer)commandBuffer, 0, 1, &scissor);
 	}
+
+    VkDescriptorType VulkanShader::HyroDescriptorTypeToVulkanType(DescriptorType type)
+    {
+        switch (type)
+        {
+        case Hyro::DescriptorType::Image:
+        case Hyro::DescriptorType::Sampler:
+			return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            break;
+        case Hyro::DescriptorType::UniformBuffer:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        case Hyro::DescriptorType::StorageBuffer:
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        default:
+            break;
+        }
+
+		HYRO_LOG_CORE_ERROR("Failed to convert Hyro Descriptor Type to Vulkan Descriptor Type! Descriptor Type: {0}");
+        HYRO_ASSERT(false); 
+        return (VkDescriptorType)0;
+    }
 
 }

@@ -104,7 +104,8 @@ namespace Hyro {
 
         std::vector<const char*> extensions(glfwExtensions, glfwExtensions + count);
 
-        extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);//Required for MacOS
+        if (g_CurrentPlatform == PlatformType::MacOS)
+            extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);//Required for MacOS
         if (g_CurrentBuildConfig == BuildConfig::Debug)
             extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 

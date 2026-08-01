@@ -3,6 +3,7 @@
 #include "Hyro/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLCubemap.h"
+#include "Platform/Vulkan/VulkanCubemap.h"
 #include <numbers>
 #include <algorithm>
 
@@ -16,9 +17,7 @@ namespace Hyro {
 			HYRO_LOG_CORE_ERROR("Tried to create a Cubemap without a GraphicsAPI selected!");
 			return nullptr;
 		case GraphicsAPIType::Vulkan:
-			HYRO_LOG_CORE_ERROR("Cubempas are not implemented yet on vulkan side!");
-			return nullptr;
-			//return CreateRef<VulkanCubemap>();
+			return CreateRef<VulkanCubemap>(filepath);
 		case GraphicsAPIType::OpenGL:
 			return CreateRef<OpenGLCubemap>(filepath);
 		}

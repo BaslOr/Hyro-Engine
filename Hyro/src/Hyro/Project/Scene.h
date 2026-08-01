@@ -45,17 +45,17 @@ namespace Hyro {
 		inline void Update() {
 			if (Input::IsKeyPressed(Key::W)) m_Position           += m_Front * m_Speed;
 			if (Input::IsKeyPressed(Key::S)) m_Position           -= m_Front * m_Speed;
-			if (Input::IsKeyPressed(Key::A)) m_Position           += glm::normalize(glm::cross(m_Front, m_Up)) * m_Speed;
-			if (Input::IsKeyPressed(Key::D)) m_Position           -= glm::normalize(glm::cross(m_Front, m_Up)) * m_Speed;
-			if (Input::IsKeyPressed(Key::Space)) m_Position.y     += m_Speed;
-			if (Input::IsKeyPressed(Key::LeftShift)) m_Position.y -= m_Speed;
+			if (Input::IsKeyPressed(Key::A)) m_Position           -= glm::normalize(glm::cross(m_Front, m_Up)) * m_Speed;
+			if (Input::IsKeyPressed(Key::D)) m_Position           += glm::normalize(glm::cross(m_Front, m_Up)) * m_Speed;
+			if (Input::IsKeyPressed(Key::Space)) m_Position.y     -= m_Speed;
+			if (Input::IsKeyPressed(Key::LeftShift)) m_Position.y += m_Speed;
 
 			float deltaMouseX = m_LastMouseX - Input::GetMouseX();
 			float deltaMouseY = m_LastMouseY - Input::GetMouseY();
 			m_LastMouseX = Input::GetMouseX();
 			m_LastMouseY = Input::GetMouseY();
-			deltaMouseX *= m_Sensitivity;
-			deltaMouseY *= m_Sensitivity;
+			deltaMouseX *= -m_Sensitivity;
+			deltaMouseY *= -m_Sensitivity;
 
 			if (!Input::IsMouseButtonPressed(Mouse::ButtonRight))
 				return;
@@ -69,10 +69,10 @@ namespace Hyro {
 
 			
 			glm::vec3 direction;
-			direction.x = glm::cos(glm::radians(m_Yaw));
-			direction.y = glm::sin(glm::radians(m_Pitch));
-			direction.z = glm::sin(glm::radians(m_Yaw));
-			SceneRenderer::GetAPI() == GraphicsAPIType::Vulkan ? direction.y *= 1 : direction.y *= -1;
+			direction.x = cos(glm::radians(m_Yaw));
+			direction.y = sin(glm::radians(m_Pitch));
+			direction.z = sin(glm::radians(m_Yaw));
+
 			m_Front = glm::normalize(direction);
 		}
 

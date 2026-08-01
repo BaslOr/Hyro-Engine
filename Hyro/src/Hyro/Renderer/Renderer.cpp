@@ -18,13 +18,16 @@ namespace Hyro {
 
 		std::string vertexShaderPath = "Assets/Shaders/Shader2D.vert";
 		std::string fragmentShaderPath = "Assets/Shaders/Shader2D.frag";
-		AssetManager::LoadShader("Default2D", vertexShaderPath, fragmentShaderPath);
+		DepthInfo depthInfo{};
+		AssetManager::LoadShader("Default2D", depthInfo, vertexShaderPath, fragmentShaderPath);
 		vertexShaderPath = "Assets/Shaders/Shader3D.vert";
 		fragmentShaderPath = "Assets/Shaders/Shader3D.frag";
-		AssetManager::LoadShader("Default3D", vertexShaderPath, fragmentShaderPath);
+		AssetManager::LoadShader("Default3D", depthInfo, vertexShaderPath, fragmentShaderPath);
 		vertexShaderPath = "Assets/Shaders/Cubemap.vert";
 		fragmentShaderPath = "Assets/Shaders/Cubemap.frag";
-		AssetManager::LoadShader("Cubemap", vertexShaderPath, fragmentShaderPath);
+		depthInfo.DepthWrite = false;
+		depthInfo.DepthFunc = DepthInfo::CompareOp::LessEqual;
+		AssetManager::LoadShader("Cubemap", depthInfo, vertexShaderPath, fragmentShaderPath);
 
 		//Inti Cubemap
 		auto cubeVertices = MeshFactory::GetCubePositions();
@@ -41,6 +44,7 @@ namespace Hyro {
 		
 		m_CubemapMaterial = Material::Create(cubemapShader);
 		m_Cubemap = Cubemap::Create("Assets/Textures/Cubemap.hdr");
+		m_CubemapMaterial->SetSamplerCube(m_Cubemap);
 
 
 
@@ -74,10 +78,11 @@ namespace Hyro {
 		RenderCommand::BeginRenderPass();
 
 		//Render Cubemap
-		PushConstantBlock transfroms{};
+		PushConstantBlock transfroms("Transforms");
 		Uniform uniform("u_Model", DescriptorType::Matrix, (void*)glm::value_ptr(mvp));
 		transfroms.Push(uniform);
 		m_CubemapMaterial->SetPushConstantBlock(transfroms);
+
 		RenderCommand::SubmitCubemap(m_CubemapVAO, m_CubemapMaterial, m_Cubemap);
 	}
 

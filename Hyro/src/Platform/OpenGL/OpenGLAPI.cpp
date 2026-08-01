@@ -102,18 +102,12 @@ namespace Hyro {
 
     void OpenGLAPI::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<Material> material, Ref<Cubemap> cubemap)
     {
-        glDepthMask(GL_FALSE);
-        glDepthFunc(GL_LEQUAL);
-
         vertexArray->Bind();
         material->Bind();
         cubemap->Bind();
 
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
         cubemap->Unbind();
-
-        glDepthFunc(GL_LESS);
-        glDepthMask(GL_TRUE);
     }
 
 	void OpenGLAPI::SetClearColor(const glm::vec4& color)

@@ -2,6 +2,7 @@
 #include "Platform/Vulkan/VulkanGraphicsPipeline.h"
 
 #include "Platform/Vulkan/VulkanContext.h"
+#include "Platform/Vulkan/VulkanShader.h"
 #include "Hyro/Core/Core.h"
 
 
@@ -16,7 +17,8 @@ namespace Hyro {
     };
 
 
-	VulkanGraphicsPipeline::VulkanGraphicsPipeline(const std::string& vertexPath, const std::string& fragmentPath)
+	VulkanGraphicsPipeline::VulkanGraphicsPipeline(const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragmentPath)
+		: m_DepthInfo(depthInfo)
 	{
 		CreatePipeline(vertexPath, fragmentPath);
 
@@ -91,8 +93,8 @@ namespace Hyro {
         rasterizer.rasterizerDiscardEnable = VK_FALSE;
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+        rasterizer.cullMode = VK_CULL_MODE_NONE;
+        rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
         rasterizer.depthBiasEnable = VK_FALSE;
 
         VkPipelineMultisampleStateCreateInfo multisampling{};
@@ -117,9 +119,9 @@ namespace Hyro {
 
         VkPipelineDepthStencilStateCreateInfo depthStencil{};
         depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-        depthStencil.depthTestEnable = VK_TRUE;
-        depthStencil.depthWriteEnable = VK_TRUE;
-        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+        depthStencil.depthTestEnable = m_DepthInfo.DepthTest;
+        depthStencil.depthWriteEnable = m_DepthInfo.DepthWrite;
+        depthStencil.depthCompareOp = static_cast<VkCompareOp>(m_DepthInfo.DepthFunc);
         depthStencil.depthBoundsTestEnable = VK_FALSE;
         depthStencil.minDepthBounds = 0.0f; // Optional
         depthStencil.maxDepthBounds = 1.0f; // Optional
@@ -184,11 +186,11 @@ namespace Hyro {
         bindings.reserve(reflection.Descriptors.size());
 
 
-        for (auto& descriptorData : reflection.Descriptors) {
+        for (const auto& descriptorData : reflection.Descriptors) {
             VkDescriptorSetLayoutBinding binding{};
             
             binding.binding = descriptorData.Binding;
-            binding.descriptorType = HyroDescriptorTypeToVulkanType(descriptorData.Type);
+            binding.descriptorType = VulkanShader::HyroDescriptorTypeToVulkanType(descriptorData.Type);
             binding.descriptorCount = descriptorData.Count;
             binding.stageFlags = HyroShaderStageToVulkanStage(descriptorData.Stage);
             binding.pImmutableSamplers = nullptr;
@@ -216,7 +218,7 @@ namespace Hyro {
         
         std::vector<VkVertexInputAttributeDescription> attributeDescription(layout.GetElements().size());
 
-        for (auto& element : layout.GetElements()) {
+        for (const auto& element : layout.GetElements()) {
             VkFormat format = HyroFormatToVulkanFormat(element.Type);
             attributeDescription[element.Location].location = element.Location;
             attributeDescription[element.Location].format = format;
@@ -229,19 +231,19 @@ namespace Hyro {
 
     std::vector<VkPushConstantRange> VulkanGraphicsPipeline::RetrievePushConstants(const ShaderReflectionData& data) const
     {
-        std::vector<VkPushConstantRange> pushConstants;
-        pushConstants.reserve(data.PushConstants.size());
+        std::vector<VkPushConstantRange> pushConstantRanges;
+        pushConstantRanges.reserve(data.PushConstants.size());
 
-        for (auto& block : data.PushConstants) {
+        for (const auto& block : data.PushConstants) {
             VkPushConstantRange pushConstant{};
             pushConstant.offset = block.Offset;
             pushConstant.size = block.Size;
             pushConstant.stageFlags = HyroShaderStageToVulkanStage(block.Stage);
 
-            pushConstants.push_back(pushConstant);
+            pushConstantRanges.push_back(pushConstant);
         }
 
-        return pushConstants;
+        return pushConstantRanges;
     }
 
     std::string VulkanGraphicsPipeline::ReadFile(const std::string& filepath)
@@ -276,19 +278,6 @@ namespace Hyro {
 
 		return shaderModule;
 	}
-
-    VkDescriptorType VulkanGraphicsPipeline::HyroDescriptorTypeToVulkanType(DescriptorType type)
-    {
-        switch (type)
-        {
-        case Hyro::DescriptorType::UniformBuffer:
-            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        case Hyro::DescriptorType::Sampler:
-            return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; //Regular samplers are not support since I have no idea what the difference is
-        }
-        
-        HYRO_LOG_CORE_ERROR("Failed to convert Hyro Descriptor Type to Vulkan Descriptor Type!");
-    }
 
     VkShaderStageFlags VulkanGraphicsPipeline::HyroShaderStageToVulkanStage(ShaderStage stage)
     {

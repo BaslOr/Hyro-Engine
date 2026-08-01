@@ -27,7 +27,7 @@ namespace Hyro {
 
 
 	private:
-		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::OpenGL;
+		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::Vulkan;
 
 		static inline Ref<Cubemap> m_Cubemap;
 		static inline Ref<Material> m_CubemapMaterial;

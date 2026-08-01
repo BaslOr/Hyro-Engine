@@ -67,4 +67,50 @@ namespace Hyro
 			return glm::vec4(color.x, color.y, color.z, color.a);
 		}
 	}
+
+	void Bitmap::ChangeComponents(uint32_t newComponentCount)
+	{
+		HYRO_ASSERT(newComponentCount > 0 && newComponentCount <= 4);
+
+		uint32_t pixelCount = m_Width * m_Height * m_Depth;
+		uint32_t bytesPerComponent = GetBytesPerComponent(m_Format);
+
+		std::vector<uint8_t> newData(
+			pixelCount * newComponentCount * bytesPerComponent);
+
+		for (uint32_t i = 0; i < pixelCount; i++) {
+			uint8_t* src = m_Data.data() +
+				i * m_Components * bytesPerComponent;
+
+			uint8_t* dst = newData.data() +
+				i * newComponentCount * bytesPerComponent;
+
+			uint32_t copyCount = std::min(m_Components, newComponentCount);
+
+			std::memcpy(
+				dst,
+				src,
+				copyCount * bytesPerComponent
+			);
+
+			for (uint32_t c = copyCount; c < newComponentCount; c++) {
+				if (m_Format == BitmapFormat::UnsignedByte)	{
+					dst[c] = (c == 3) ? 255 : 0;
+				}
+				else if (m_Format == BitmapFormat::Float) {
+					float value = (c == 3) ? 1.0f : 0.0f;
+
+					std::memcpy(
+						dst + c * sizeof(float),
+						&value,
+						sizeof(float)
+					);
+				}
+			}
+		}
+
+		m_Components = newComponentCount;
+		m_Data = std::move(newData);
+
+	}
 }

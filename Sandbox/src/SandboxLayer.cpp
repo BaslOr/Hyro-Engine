@@ -22,7 +22,7 @@ SandboxLayer::SandboxLayer()
 	//m_Scene->AddSprite(sprite2, transform2);
 	
 	glm::mat4 meshTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
-	meshTransform = glm::rotate(meshTransform, 90.f, glm::vec3(1.0f, 0.0f, 0.0f));
+	meshTransform = glm::rotate(meshTransform, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 	Hyro::Ref<Hyro::Mesh> mesh = Hyro::ModelLoader::LoadMesh("Assets/Models/DamagedHelmet/glTF/DamagedHelmet.gltf", "Assets/Models/DamagedHelmet/glTF/Default_albedo.jpg");
 	m_Scene->AddMesh(mesh, meshTransform);
 }

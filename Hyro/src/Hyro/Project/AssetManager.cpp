@@ -34,10 +34,10 @@ namespace Hyro {
 		return s_Textures["FALLBACK_TEXTURE"];
 	}
 
-	void AssetManager::LoadShader(const std::string& key, const std::string& vertexPath, const std::string& fragmentPath)
+	void AssetManager::LoadShader(const std::string& key, const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragmentPath)
 	{
 		if (s_Shaders.find(key) == s_Shaders.end()) {
-			s_Shaders[key] = Shader::Create(vertexPath, fragmentPath);
+			s_Shaders[key] = Shader::Create(depthInfo, vertexPath, fragmentPath);
 		}
 		else {
 			HYRO_LOG_CORE_ERROR("Tried to laod Shader with allready existing key!");

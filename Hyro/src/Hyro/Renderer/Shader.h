@@ -4,6 +4,7 @@
 
 #include "Hyro/Core/Memory.h"
 #include "Hyro/Renderer/Vertex.h"
+#include "Hyro/Renderer/GraphicsPipeline.h"
 
 
 
@@ -90,7 +91,7 @@ namespace Hyro {
 		virtual VertexLayout GetVertexLayout() const = 0;
 		virtual ShaderReflectionData GetReflectionData() const = 0;
 
-		static Ref<Shader> Create(const std::string& vertexPath, const std::string& fragmentPath);
+		static Ref<Shader> Create(const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragmentPath);
 	};
 
 }

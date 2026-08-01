@@ -2,7 +2,7 @@
 #include "Hyro/Core/Logger.h"
 
 #define BIT(x) (1 << x)
-#define HYRO_ASSERT(x) assert((x))
+#define HYRO_ASSERT(x) assert((x)); if(!(x)) __debugbreak()
 #define HYRO_STATIC_ASSERT(x) static_assert((x))
 
 

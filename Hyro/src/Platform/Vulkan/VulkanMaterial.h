@@ -2,6 +2,7 @@
 #include "Hyro/Renderer/Material.h"
 
 #include "Platform/Vulkan/VulkanBase.h"
+#include "Hyro/Renderer/Utils/ShaderUtils.h"
 
 
 namespace Hyro {
@@ -12,9 +13,11 @@ namespace Hyro {
 
 		void SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer) override;
 
-		void SetTextures(const std::array<Ref<Texture>, 16>& textures) override;
-		void SetTexture(const Ref<Texture>& texture, uint32_t slot) override { }
+		void SetSamplers(const std::array<Ref<Texture>, 16>& textures) override;
+		void SetSampler(const Ref<Texture>& texture, uint32_t slot) override { }
 		void SetPushConstantBlock(const PushConstantBlock& block) override;
+
+		void SetSamplerCube(const Ref<Cubemap>& cubemap) override;
 
 		void Bind() override;
 		void Bind(void* commandBuffer) override;
@@ -25,13 +28,17 @@ namespace Hyro {
 	private:
 		Ref<Shader> m_Shader;
 		std::unordered_map<uint32_t, Ref<UniformBuffer>> m_UniformBuffers;
-		std::array<Ref<Texture>, 16> m_Textures;
+		std::vector<Ref<Texture>> m_Textures;
+		
+		Ref<Cubemap> m_Cubemap;
 
 		Ref<Texture> m_FallbackTexture;
 
 		std::vector<PushConstantBlock> m_PushConstantBlocks;
 
 		std::vector<VkDescriptorSet> m_DescriptorSets;
+
+		ShaderReflectionData m_ReflectionData;
 
 		bool m_IsDirty = false;
 	};

@@ -52,7 +52,7 @@ namespace Hyro {
 		glUniformBlockBinding(openGLShader->GetProgram(), uniformBlockIndex, uniformBuffer->GetBinding());
 	}
 
-	void OpenGLMaterial::SetTextures(const std::array<Ref<Texture>, 16>& textures)
+	void OpenGLMaterial::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
 	{
 		m_Shader->Bind();
 		m_Textures[0] = m_FallbackTexture;
@@ -67,7 +67,7 @@ namespace Hyro {
 		}
 	}
 
-	void OpenGLMaterial::SetTexture(const Ref<Texture>& texture, uint32_t slot)
+	void OpenGLMaterial::SetSampler(const Ref<Texture>& texture, uint32_t slot)
 	{
 		HYRO_ASSERT(slot < 16);
 

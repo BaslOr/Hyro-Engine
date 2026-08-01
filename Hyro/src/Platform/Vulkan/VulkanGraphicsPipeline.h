@@ -4,18 +4,19 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <cstdint>
 
 #include "Hyro/Renderer/Utils/ShaderUtils.h"
 #include "Hyro/Renderer/Vertex.h"
-#include <cstdint>
-#include <Hyro/Renderer/Shader.h>
+#include "Hyro/Renderer/Shader.h"
+#include "Hyro/Renderer/GraphicsPipeline.h"
 
 
 namespace Hyro {
 
 	class VulkanGraphicsPipeline {
 	public:
-		VulkanGraphicsPipeline(const std::string& vertexPath, const std::string& fragmentPath);
+		VulkanGraphicsPipeline(const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragmentPath);
 		~VulkanGraphicsPipeline();
 
 		inline VkPipeline GetVkPipeline() const { return m_Pipeline; }
@@ -36,7 +37,6 @@ namespace Hyro {
 		std::string ReadFile(const std::string& filepath);
 		VkShaderModule CreateShaderModule(const std::vector<uint32_t>& code);
 
-		static VkDescriptorType HyroDescriptorTypeToVulkanType(DescriptorType type);
 		static VkShaderStageFlags HyroShaderStageToVulkanStage(ShaderStage stage);
 		static VkFormat HyroFormatToVulkanFormat(VertexAttributeType format);
 		static VertexAttributeType VkTypeToHyroType(VkFormat format);
@@ -46,6 +46,8 @@ namespace Hyro {
 		VkDescriptorSetLayout m_DescriptorSetLayout;
 		VkPipelineLayout m_PipelineLayout;		
 		VkPipeline m_Pipeline;
+
+		DepthInfo m_DepthInfo;
 
 		VertexLayout m_VertexLayout;
 		ShaderReflectionData m_ReflectionData;

@@ -10,7 +10,7 @@ namespace Hyro {
 
 	class OpenGLShader : public Shader {
 	public:
-		OpenGLShader(const std::string& vertexPath, const std::string& fragPath);
+		OpenGLShader(const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragPath);
 		~OpenGLShader();
 
 		void Bind() const override;
@@ -33,6 +33,8 @@ namespace Hyro {
 		void CheckShaderCompilation(uint32_t shader);
 		void CheckLinkingErrors();
 
+		static uint32_t HyroCompareOpToOpenGLDepthFunc(DepthInfo::CompareOp compareOp);
+
 		uint32_t CreateShader(uint32_t shaderType, const char* shaderSource);
 		std::string ReadShaderFromFile(const std::string& filePath);
 
@@ -42,6 +44,8 @@ namespace Hyro {
 
 		VertexLayout m_VertexLayout;
 		ShaderReflectionData m_ReflectionData;
+
+		DepthInfo m_DepthInfo;
 	};
 
 }

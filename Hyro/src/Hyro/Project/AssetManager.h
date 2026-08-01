@@ -5,6 +5,7 @@
 #include "Hyro/Renderer/RenderingObjects/Texture.h"
 #include "Hyro/Renderer/Shader.h"
 #include "Hyro/Renderer/RenderPrimitives.h"
+#include "Hyro/Renderer/GraphicsPipeline.h"
 
 namespace Hyro {
 
@@ -14,7 +15,7 @@ namespace Hyro {
 		static Ref<Texture> GetTexture(const std::string& key);
 		static Ref<Texture> GetFallbackTexture();
 
-		static void LoadShader(const std::string& key, const std::string& vertexPath, const std::string& fragmentPath);
+		static void LoadShader(const std::string& key, const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragmentPath);
 		static Ref<Shader> GetShader(const std::string& key);
 
 		static void LoadMesh(const std::string& key, const std::string& path);

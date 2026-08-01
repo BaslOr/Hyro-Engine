@@ -25,12 +25,12 @@ namespace Hyro {
 
 	void Renderer3D::DrawMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
 	{
-		PushConstantBlock transforms{};
+		PushConstantBlock transforms("Transforms");;
 		Uniform model("u_Model", DescriptorType::Matrix, (void*)glm::value_ptr(transform));
 		transforms.Push(model);
 		m_Data.Material->SetPushConstantBlock(transforms);
 		m_Data.TexturesSlots[1] = mesh->Sprite;
-		m_Data.Material->SetTextures(m_Data.TexturesSlots);
+		m_Data.Material->SetSamplers(m_Data.TexturesSlots);
 
 		RenderCommand::Submit(mesh->VAO, m_Data.Material, mesh->Count);
 	}
@@ -41,7 +41,7 @@ namespace Hyro {
 		data.MVP = mvp;
 		m_Data.UBO->SetData(data);
 		std::array<Ref<Texture>, 16> textures{};
-		m_Data.Material->SetTextures(textures);
+		m_Data.Material->SetSamplers(textures);
 	}
 
 	void Renderer3D::EndScene()

@@ -53,15 +53,20 @@ namespace Hyro {
 
 		m_View = CreateImageView(m_Texture, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 
-		CreateSampler();
+		m_Sampler = CreateSampler(VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_LINEAR);
+	}
 
-		m_IsNull = false;
+	VulkanTexture::VulkanTexture(VkImage image, VkImageView imageView, VkSampler sampler)
+		: m_Texture(image), m_View(imageView), m_Sampler(sampler)
+	{
 	}
 
 	VulkanTexture::~VulkanTexture()
 	{
 		auto device = VulkanDevice::GetVkDevice();
+		vkDestroyImageView(device, m_View, g_VulkanAllocationCallback);
 		vkDestroyImage(device, m_Texture, g_VulkanAllocationCallback);
+		vkDestroySampler(device, m_Sampler, g_VulkanAllocationCallback);
 		vkFreeMemory(device, m_Memory, g_VulkanAllocationCallback);
 	}
 
@@ -88,7 +93,7 @@ namespace Hyro {
 		return VkFormat{};
 	}
 
-	void VulkanTexture::CreateSampler()
+	VkSampler VulkanTexture::CreateSampler(VkSamplerAddressMode addressMode, VkSamplerMipmapMode mipMode)
 	{
 		VkPhysicalDeviceProperties properties{};
 		vkGetPhysicalDeviceProperties(VulkanDevice::GetVkPhysicalDevice(), &properties);
@@ -97,26 +102,31 @@ namespace Hyro {
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 		samplerInfo.minFilter = VK_FILTER_LINEAR;
 		samplerInfo.magFilter = VK_FILTER_LINEAR;
-		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeU = addressMode;
+		samplerInfo.addressModeV = addressMode;
+		samplerInfo.addressModeW = addressMode;
 		samplerInfo.anisotropyEnable = VK_TRUE;
 		samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
 		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 		samplerInfo.unnormalizedCoordinates = VK_FALSE;
 		samplerInfo.compareEnable = VK_FALSE;
 		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		samplerInfo.mipmapMode = mipMode;
 		samplerInfo.mipLodBias = 0.0f;
 		samplerInfo.minLod = 0.0f;
 		samplerInfo.maxLod = 0.0f;
 
-		if (vkCreateSampler(VulkanDevice::GetVkDevice(), &samplerInfo, g_VulkanAllocationCallback, &m_Sampler) != VK_SUCCESS) {
+		VkSampler sampler;
+		if (vkCreateSampler(VulkanDevice::GetVkDevice(), &samplerInfo, g_VulkanAllocationCallback, &sampler) != VK_SUCCESS) {
 			HYRO_LOG_CORE_ERROR("Failed to create Sampler!");
 		}
+
+		return sampler;
 	}
 
-	void VulkanTexture::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
+	void VulkanTexture::CreateImage(uint32_t width, uint32_t height,
+		VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+		VkImage& image, VkDeviceMemory& imageMemory)
 	{
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -152,7 +162,7 @@ namespace Hyro {
 		vkBindImageMemory(VulkanDevice::GetVkDevice(), image, imageMemory, 0);
 	}
 
-	void VulkanTexture::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspect)
+	void VulkanTexture::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspect, uint32_t layerCount)
 	{
 		VkCommandBuffer commandBuffer = VulkanCommandPool::BeginSingleTimeCommands();
 
@@ -167,9 +177,7 @@ namespace Hyro {
 		barrier.subresourceRange.baseMipLevel = 0;
 		barrier.subresourceRange.levelCount = 1;
 		barrier.subresourceRange.baseArrayLayer = 0;
-		barrier.subresourceRange.layerCount = 1;
-		barrier.srcAccessMask = 0; // TODO
-		barrier.dstAccessMask = 0; // TODO
+		barrier.subresourceRange.layerCount = layerCount;
 
 		VkPipelineStageFlags sourceStage;
 		VkPipelineStageFlags destinationStage;
@@ -212,51 +220,55 @@ namespace Hyro {
 		VulkanCommandPool::EndSingleTimeCommands(commandBuffer);
 	}
 
-	void VulkanTexture::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
+	void VulkanTexture::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount, uint32_t layerSize)
 	{
 		VkCommandBuffer commandBuffer = VulkanCommandPool::BeginSingleTimeCommands();
 
-		VkBufferImageCopy region{};
-		region.bufferOffset = 0;
-		region.bufferRowLength = 0;
-		region.bufferImageHeight = 0;
+		std::vector<VkBufferImageCopy> regions;
+		regions.reserve(layerCount);
 
-		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		region.imageSubresource.mipLevel = 0;
-		region.imageSubresource.baseArrayLayer = 0;
-		region.imageSubresource.layerCount = 1;
+		for (uint32_t i = 0; i < layerCount; ++i)
+		{
+			VkBufferImageCopy region{};
+			region.bufferOffset = static_cast<VkDeviceSize>(i) * layerSize;
+			region.bufferRowLength = 0;
+			region.bufferImageHeight = 0;
 
-		region.imageOffset = { 0, 0, 0 };
-		region.imageExtent = {
-			width,
-			height,
-			1
-		};
+			region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			region.imageSubresource.mipLevel = 0;
+			region.imageSubresource.baseArrayLayer = i;
+			region.imageSubresource.layerCount = 1;
+
+			region.imageOffset = { 0, 0, 0 };
+			region.imageExtent = { width, height, 1 };
+
+			regions.push_back(region);
+		}
 
 		vkCmdCopyBufferToImage(
 			commandBuffer,
 			buffer,
 			image,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			1,
-			&region
+			static_cast<uint32_t>(regions.size()),
+			regions.data()
 		);
 
 		VulkanCommandPool::EndSingleTimeCommands(commandBuffer);
 	}
 
-	VkImageView VulkanTexture::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+	VkImageView VulkanTexture::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType, uint32_t layerCount)
 	{
 		VkImageViewCreateInfo viewInfo{};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		viewInfo.image = image;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.viewType = viewType;
 		viewInfo.format = format;
 		viewInfo.subresourceRange.aspectMask = aspectFlags;
 		viewInfo.subresourceRange.baseMipLevel = 0;
 		viewInfo.subresourceRange.levelCount = 1;
 		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
+		viewInfo.subresourceRange.layerCount = layerCount;
 
 		VkImageView imageView;
 		if (vkCreateImageView(VulkanDevice::GetVkDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
