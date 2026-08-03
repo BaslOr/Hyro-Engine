@@ -79,8 +79,6 @@ namespace Hyro {
     {
         if (g_CurrentBuildConfig == BuildConfig::Debug)
             SetupDebugCallback();
-
-        glEnable(GL_DEPTH_TEST);
     }
 
     void OpenGLAPI::BeginRenderPass()

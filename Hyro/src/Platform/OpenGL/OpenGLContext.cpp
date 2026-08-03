@@ -20,6 +20,9 @@ namespace Hyro {
 		{
 			HYRO_LOG_CORE_FATAL("Failed to initialize GLAD");
 		}
+
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_FRAMEBUFFER_SRGB);
 	}
 
 	void OpenGLContext::SwapBuffers() const

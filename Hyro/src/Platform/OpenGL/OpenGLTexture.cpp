@@ -10,8 +10,10 @@ namespace Hyro {
 	static uint32_t NumChannelsToOpenGLFormat(int nrChannels) {
 		if (nrChannels == 4)
 			return GL_RGBA;
-		else
+		else if (nrChannels == 3)
 			return GL_RGB;
+		else
+			HYRO_ASSERT(false, "Unknown number of channels");
 	}
 
 	OpenGLTexture::OpenGLTexture(const std::string& filePath)
@@ -31,7 +33,7 @@ namespace Hyro {
 
 		if (data)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		else {
