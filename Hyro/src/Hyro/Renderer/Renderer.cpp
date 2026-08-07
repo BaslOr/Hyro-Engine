@@ -29,7 +29,7 @@ namespace Hyro {
 		depthInfo.DepthFunc = DepthInfo::CompareOp::LessEqual;
 		AssetManager::LoadShader("Cubemap", depthInfo, vertexShaderPath, fragmentShaderPath);
 
-		//Inti Cubemap
+		//Init Cubemap
 		auto cubeVertices = MeshFactory::GetCubePositions();
 		auto cubeIndices = MeshFactory::GetCubeIndices();
 		auto cubemapShader = AssetManager::GetShader("Cubemap");

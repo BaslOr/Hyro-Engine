@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Hyro/Core/Core.h"
+#include "Hyro/Project/AssetManager.h"
 
 namespace Hyro {
 
@@ -23,6 +24,9 @@ namespace Hyro {
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_FRAMEBUFFER_SRGB);
+
+		DepthInfo depthInfo{};
+		AssetManager::LoadShader("OpenGLFramebuffer", depthInfo, "Assets/Shaders/OpenGLFramebuffer.vert", "Assets/Shaders/OpenGLFramebuffer.frag");
 	}
 
 	void OpenGLContext::SwapBuffers() const

@@ -16,6 +16,11 @@ namespace Hyro {
 			HYRO_ASSERT(false, "Unknown number of channels");
 	}
 
+	OpenGLTexture::OpenGLTexture(uint32_t glID)
+		: m_Texture(glID)
+	{
+	}
+
 	OpenGLTexture::OpenGLTexture(const std::string& filePath)
 	{
 		int width, height, nrChannels;

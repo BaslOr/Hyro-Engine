@@ -1,8 +1,14 @@
 #pragma once
 #include "Hyro/Renderer/GraphicsContext.h"
 
+#include "Hyro/Renderer/RenderingObjects/VertexBuffer.h"
+#include "Hyro/Renderer/RenderingObjects/IndexBuffer.h"
+#include "Hyro/Renderer/Shader.h"
+
+
 
 namespace Hyro {
+
 
 	class OpenGLContext : public GraphicsContext {
 	public:
