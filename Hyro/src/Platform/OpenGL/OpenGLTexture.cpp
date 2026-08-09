@@ -40,12 +40,13 @@ namespace Hyro {
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
+		    stbi_image_free(data);
 		}
 		else {
 			HYRO_LOG_CORE_ERROR("Failed to load texture! Path: {0}", filePath.c_str());
 		}
 
-		stbi_image_free(data);
+		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 
 	OpenGLTexture::~OpenGLTexture()

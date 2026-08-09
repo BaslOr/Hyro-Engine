@@ -64,7 +64,6 @@ namespace Hyro {
 		VkImageView m_DepthView;
 
 		Ref<VulkanSurface> m_Surface;
-
 	};
 
 }
