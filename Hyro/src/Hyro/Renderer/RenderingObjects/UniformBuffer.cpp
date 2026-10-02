@@ -8,7 +8,7 @@
 
 namespace Hyro {
 
-    Ref<UniformBuffer> UniformBuffer::Create()
+    Ref<UniformBuffer> UniformBuffer::Create(uint32_t binding, uint32_t size)
     {
         switch (SceneRenderer::GetAPI())
         {
@@ -17,10 +17,10 @@ namespace Hyro {
             return nullptr;
             break;
         case GraphicsAPIType::OpenGL:
-            return CreateRef<OpenGLUniformBuffer>();
+            return CreateRef<OpenGLUniformBuffer>(binding, size);
             break;
         case GraphicsAPIType::Vulkan:
-            return CreateRef<VulkanUniformBuffer>();
+            return CreateRef<VulkanUniformBuffer>(size);
             break;
         }
     }

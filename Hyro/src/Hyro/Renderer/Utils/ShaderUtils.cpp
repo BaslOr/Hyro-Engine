@@ -91,8 +91,8 @@ namespace Hyro {
             std::vector<SpvReflectDescriptorSet*> sets(count);
             spvReflectEnumerateDescriptorSets(&modules[i], &count, sets.data());
 
+            uint32_t descirptorOffset = 0;
             for (const auto set : sets) {
-
                 for (size_t j = 0; j < set->binding_count; ++j) {
                     const auto binding = set->bindings[j];
                     ShaderReflectionData::Descriptor descriptorInfo{};
@@ -103,6 +103,8 @@ namespace Hyro {
                     descriptorInfo.Count = binding->count;
                     descriptorInfo.Stage = i == 0 ? ShaderStage::Vertex : ShaderStage::Fragment;
                     descriptorInfo.Type = SpvDescriptorTypeToHyroType(binding->descriptor_type);
+
+                    descriptorInfo.BlockSize = descriptorInfo.Type == DescriptorType::UniformBuffer ? binding->block.size: 0;
 
                     data.Descriptors.push_back(descriptorInfo);
                 }
@@ -291,8 +293,8 @@ namespace Hyro {
         if (exitCode != 0) {
             std::ifstream logFile(logPath);
             std::string log((std::istreambuf_iterator<char>(logFile)), std::istreambuf_iterator<char>());
-            std::filesystem::remove(logPath);
             HYRO_LOG_CORE_ERROR("Shader-Kompilierung fehlgeschlagen (" + sourcePath.string() + "):\n" + log);
+            std::filesystem::remove(logPath);
         }
 #else
         int result = std::system((cmd + " > \"" + logPath.string() + "\" 2>&1").c_str());

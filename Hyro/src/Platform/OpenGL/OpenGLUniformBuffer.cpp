@@ -6,16 +6,13 @@
 
 namespace Hyro {
 
-	OpenGLUniformBuffer::OpenGLUniformBuffer()
+	OpenGLUniformBuffer::OpenGLUniformBuffer(uint32_t binding, uint32_t size)
+		: m_Size(size)
 	{
 		glCreateBuffers(1, &m_Buffer);
 		Bind();
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformBufferData), nullptr, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_Buffer);
-
-		static uint32_t nextBinding = 0;
-		m_Binding = nextBinding;
-		++nextBinding;
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(TransformData), nullptr, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_Buffer);
 	}
 
 	OpenGLUniformBuffer::~OpenGLUniformBuffer()
@@ -23,10 +20,10 @@ namespace Hyro {
 		glDeleteBuffers(1, &m_Buffer);
 	}
 
-	void OpenGLUniformBuffer::SetData(const UniformBufferData& ubo)
+	void OpenGLUniformBuffer::SetData(void* data)
 	{
 		Bind();
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(UniformBufferData), &ubo);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, m_Size, data);
 	}
 
 	void OpenGLUniformBuffer::Bind() const

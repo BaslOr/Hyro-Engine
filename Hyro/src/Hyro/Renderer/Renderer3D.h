@@ -14,7 +14,8 @@ namespace Hyro {
 	struct Renderer3DData {
 		Ref<Shader> Shader;
 		Ref<Material> Material;
-		Ref<UniformBuffer> UBO;
+		Ref<UniformBuffer> TransformBuffer;
+		Ref<UniformBuffer> MaterialBuffer;
 
 		size_t CurrentTextureSlot = 0;
 		std::array<Ref<Texture>, 16> TexturesSlots;
@@ -23,7 +24,7 @@ namespace Hyro {
 
 	class Renderer3D {
 	public:
-		static void DrawMesh(const Ref<Mesh>& mesh, const glm::mat4& transform);
+		static void DrawMesh(const Ref<PBRMesh>& mesh, const glm::mat4& transform);
 
 	private:
 		static void BeginScene(const glm::mat4& mvp);

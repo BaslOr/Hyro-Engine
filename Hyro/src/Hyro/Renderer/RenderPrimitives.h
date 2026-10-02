@@ -9,12 +9,15 @@
 
 namespace Hyro {
 
-    struct Mesh {
+    struct PBRMesh {
     public:
-        Mesh(const std::vector<Vertex3D>& vertices, const std::vector<uint32_t>& indices, Ref<Texture> texture);
+        PBRMesh(const std::vector<Vertex3D>& vertices, const std::vector<uint32_t>& indices, Ref<Texture> albedo, Ref<Texture> normal, Ref<Texture> AmbientOcclusion, Ref<Texture> Rougness);
 
         Ref<VertexArray> VAO;
-        Ref<Texture> Sprite;
+        Ref<Texture> Albedo;
+		Ref<Texture> Normal;
+		Ref<Texture> AmbientOcclusion;
+		Ref<Texture> Roughness;
         uint32_t Count;
 
     private:

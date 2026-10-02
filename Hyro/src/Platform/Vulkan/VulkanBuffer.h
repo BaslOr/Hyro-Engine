@@ -61,22 +61,23 @@ namespace Hyro {
 
 	class VulkanUniformBuffer : public UniformBuffer {
 	public:
-		VulkanUniformBuffer();
+		VulkanUniformBuffer(uint32_t size);
 		~VulkanUniformBuffer();
 
 		void Bind() const override;
 		void Bind(void* commandBuffer, void* pipelineLayout) const override;
 
-		void SetData(const UniformBufferData& ubo) override;
-
-		uint32_t GetBinding() const { return 0; }
+		void SetData(void* data) override;
 
 		inline VkBuffer GetBufferAtIndex(size_t index) const { return m_Buffers[index]; }
+		inline uint32_t GetSize() const { return m_Size; }
 
 	private:
 		std::vector<VkBuffer> m_Buffers;
 		std::vector<VkDeviceMemory> m_BufferMemories;
 		std::vector<void*> m_MappedMemories;
+
+		uint32_t m_Size;
 	};
 
 }

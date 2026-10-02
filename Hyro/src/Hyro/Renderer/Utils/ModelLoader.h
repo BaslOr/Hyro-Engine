@@ -9,7 +9,8 @@ namespace Hyro {
 
 	class ModelLoader {
 	public:
-		inline static Ref<Mesh> LoadMesh(const std::string& modelPath, const std::string& texturePath) {
+		inline static Ref<PBRMesh> LoadMesh(const std::string& modelPath, const std::string& albedoPath, const std::string& normalMapPath, 
+			const std::string& ambientOcclusionPath, const std::string& roughnessPath) {
 			const aiScene* scene = aiImportFile(modelPath.c_str(), aiProcess_Triangulate);
 			auto mesh = scene->mMeshes[0];
 
@@ -18,10 +19,9 @@ namespace Hyro {
 			for (uint32_t i = 0; i < mesh->mNumVertices; i++)
 			{
 				const aiVector3D v = mesh->mVertices[i];
-				const aiColor4D c = mesh->mColors[0] ? mesh->mColors[0][i] : aiColor4D(1, 1, 1, 1);
 				const aiVector3D t = mesh->mTextureCoords[0] ? mesh->mTextureCoords[0][i] : aiVector3D(0, 0, 0);
-				vertices.push_back({ { v.x, v.y, v.z }, { t.x, t.y, t.z }, { c.r, c.g, c.b, c.a } });
-				
+				const aiVector3D n = mesh->mNormals ? mesh->mNormals[i] : aiVector3D(0, 0, 1);
+				vertices.push_back({ { v.x, v.y, v.z }, { t.x, t.y, t.z }, { n.x, n.y, n.z } });
 			}
 
 			std::vector<uint32_t> indices;
@@ -34,10 +34,13 @@ namespace Hyro {
 				}
 			}
 
-			Ref<Texture> texture = Texture::Load(texturePath);
+			Ref<Texture> albedo = Texture::Load(albedoPath);
+			Ref<Texture> normal = Texture::Load(normalMapPath);
+			Ref<Texture> ao = Texture::Load(ambientOcclusionPath);
+			Ref<Texture> roughness = Texture::Load(roughnessPath);
 
-			Mesh output(vertices, indices, texture);
-			return CreateRef<Mesh>(output);
+			PBRMesh output(vertices, indices, albedo, normal, ao, roughness);
+			return CreateRef<PBRMesh>(output);
 		}
 
 	private:

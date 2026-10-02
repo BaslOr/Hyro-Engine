@@ -64,7 +64,7 @@ namespace Hyro {
 		}
 	}
 
-	Ref<Mesh> Hyro::AssetManager::GetMesh(const std::string& key)
+	Ref<PBRMesh> Hyro::AssetManager::GetMesh(const std::string& key)
 	{
 		if (s_Meshes.find(key) != s_Meshes.end()) {
 			return s_Meshes[key];

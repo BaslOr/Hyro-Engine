@@ -16,7 +16,7 @@ namespace Hyro {
         return CreateRef<Scene>();
     }
 
-    MeshHandle Scene::AddMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
+    MeshHandle Scene::AddMesh(const Ref<PBRMesh>& mesh, const glm::mat4& transform)
     {
 		m_Meshes.emplace_back(mesh, transform);
 		return static_cast<MeshHandle>(m_Meshes.size() - 1);

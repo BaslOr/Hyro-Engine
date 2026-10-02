@@ -35,6 +35,8 @@ namespace Hyro {
 			DescriptorType Type;
 			uint32_t Count;
 			ShaderStage Stage;
+
+			uint32_t BlockSize;
 		};
 
 		std::vector<Descriptor> Descriptors;

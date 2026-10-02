@@ -236,7 +236,8 @@ namespace Hyro {
     //////////////////////////Uniform Buffer///////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
-	VulkanUniformBuffer::VulkanUniformBuffer()
+	VulkanUniformBuffer::VulkanUniformBuffer(uint32_t size)
+		:m_Size(size)
 	{
 		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
 
@@ -244,15 +245,14 @@ namespace Hyro {
 		m_MappedMemories.resize(maxFramesInFlight);
 		m_BufferMemories.resize(maxFramesInFlight);
 
-		VkDeviceSize bufferSize = sizeof(UniformBufferData);
 
 		for (size_t i = 0; i < maxFramesInFlight; i++)
 		{
-			VulkanBuffer::CreateBufer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_Buffers[i], m_BufferMemories[i]);
 
 			VkDeviceSize offset = 0;
-			vkMapMemory(VulkanDevice::GetVkDevice(), m_BufferMemories[i], offset, bufferSize, 0, &m_MappedMemories[i]);
+			vkMapMemory(VulkanDevice::GetVkDevice(), m_BufferMemories[i], offset, m_Size, 0, &m_MappedMemories[i]);
 		}
 	}
 
@@ -277,13 +277,13 @@ namespace Hyro {
 
 	void VulkanUniformBuffer::Bind(void* commandBuffer, void* pipelineLayout) const
 	{
-
+		
 	}
 
-	void VulkanUniformBuffer::SetData(const UniformBufferData& ubo)
+	void VulkanUniformBuffer::SetData(void* data)
 	{
 		uint32_t index = VulkanContext::Get().GetCurrentFrameIndex();
-		memcpy(m_MappedMemories[index], &ubo, sizeof(UniformBufferData));
+		memcpy(m_MappedMemories[index], data, m_Size);
 	}
 
 }

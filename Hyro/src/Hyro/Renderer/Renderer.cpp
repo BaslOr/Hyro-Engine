@@ -20,9 +20,9 @@ namespace Hyro {
 		std::string fragmentShaderPath = "Assets/Shaders/Shader2D.frag";
 		DepthInfo depthInfo{};
 		AssetManager::LoadShader("Default2D", depthInfo, vertexShaderPath, fragmentShaderPath);
-		vertexShaderPath = "Assets/Shaders/Shader3D.vert";
-		fragmentShaderPath = "Assets/Shaders/Shader3D.frag";
-		AssetManager::LoadShader("Default3D", depthInfo, vertexShaderPath, fragmentShaderPath);
+		vertexShaderPath = "Assets/Shaders/PBR.vert";
+		fragmentShaderPath = "Assets/Shaders/PBR.frag";
+		AssetManager::LoadShader("PBR", depthInfo, vertexShaderPath, fragmentShaderPath);
 		vertexShaderPath = "Assets/Shaders/Cubemap.vert";
 		fragmentShaderPath = "Assets/Shaders/Cubemap.frag";
 		depthInfo.DepthWrite = false;
@@ -45,16 +45,6 @@ namespace Hyro {
 		m_CubemapMaterial = Material::Create(cubemapShader);
 		m_Cubemap = Cubemap::Create("Assets/Textures/Cubemap.hdr");
 		m_CubemapMaterial->SetSamplerCube(m_Cubemap);
-
-
-
-		if (m_GraphicsAPIType == GraphicsAPIType::OpenGL) {
-			m_OpenGLTransformUniformBuffer = UniformBuffer::Create();
-		}
-		else if (m_GraphicsAPIType == GraphicsAPIType::Vulkan) {
-			m_Vulkan2DTransformUniformBuffer = UniformBuffer::Create();
-			m_Vulkan3DTransformUniformBuffer = UniformBuffer::Create();
-		}
 
 
 		//Init Subsystems/-components
@@ -89,29 +79,6 @@ namespace Hyro {
 	void SceneRenderer::EndScene()
 	{
 		RenderCommand::EndRenderPass();
-	}
-
-	//Find better Solution in future
-	//The problem is that OpenGL requieres one UBO while Vulkan requiers two
-	//Solve this problem when adding reflection to shader or sumn
-	Ref<UniformBuffer> SceneRenderer::GetRenderer2DTransformUnifromBuffer()
-	{
-		if (m_GraphicsAPIType == GraphicsAPIType::OpenGL) {
-			return m_OpenGLTransformUniformBuffer;
-		}
-		else if (m_GraphicsAPIType == GraphicsAPIType::Vulkan) {
-			return m_Vulkan2DTransformUniformBuffer;
-		}
-	}
-
-	Ref<UniformBuffer> SceneRenderer::GetRenderer3DTransformUnifromBuffer()
-	{
-		if (m_GraphicsAPIType == GraphicsAPIType::OpenGL) {
-			return m_OpenGLTransformUniformBuffer;
-		}
-		else if (m_GraphicsAPIType == GraphicsAPIType::Vulkan) {
-			return m_Vulkan3DTransformUniformBuffer;
-		}
 	}
 
 }

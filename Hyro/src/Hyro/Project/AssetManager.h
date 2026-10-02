@@ -19,12 +19,12 @@ namespace Hyro {
 		static Ref<Shader> GetShader(const std::string& key);
 
 		static void LoadMesh(const std::string& key, const std::string& path);
-		static Ref<Mesh> GetMesh(const std::string& key);
+		static Ref<PBRMesh> GetMesh(const std::string& key);
 
 	private:
 		static inline std::unordered_map<std::string, Ref<Texture>> s_Textures;
 		static inline std::unordered_map<std::string, Ref<Shader>> s_Shaders;
-		static inline std::unordered_map<std::string, Ref<Mesh>> s_Meshes;
+		static inline std::unordered_map<std::string, Ref<PBRMesh>> s_Meshes;
 	};
 
 }

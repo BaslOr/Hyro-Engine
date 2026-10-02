@@ -92,21 +92,21 @@ namespace Hyro {
 	public:
 		glm::vec3 Position;
 		glm::vec3 UV;
-		glm::vec4 Color;
+		glm::vec3 Normal;
 
 		Vertex3D()
-			: Position(0.f, 0.f, 0.f), UV(0.f, 0.f, 0.0f), Color(0.f, 0.f, 0.f, 0.f)
+			: Position(0.f, 0.f, 0.f), UV(0.f, 0.f, 0.0f), Normal(0.f, 0.f, 1.f)
 		{
 
 		}
 
-		Vertex3D(const glm::vec3& position, const glm::vec3& uv, const glm::vec4& color)
-			: Position(position), UV(uv), Color(color)
+		Vertex3D(const glm::vec3& position, const glm::vec3& uv, const glm::vec3& normal)
+			: Position(position), UV(uv), Normal(normal)
 		{
 		}
 
-		Vertex3D(float x, float y, float z, float u, float v, float w, float r, float g, float b, float a)
-			: Position({ x, y, z }), UV({ u, v, w }), Color({ r, g, b, a })
+		Vertex3D(float x, float y, float z, float u, float v, float w, float r, float g, float b)
+			: Position({ x, y, z }), UV({ u, v, w }), Normal({ r, g, b })
 		{
 		}
 	};

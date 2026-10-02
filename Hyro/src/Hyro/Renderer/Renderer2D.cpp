@@ -21,14 +21,13 @@ namespace Hyro {
 		m_Data.IBO = IndexBuffer::Create(m_Data.MaxIndicesCount * sizeof(uint32_t));
 		m_Data.Indices.resize(m_Data.MaxIndicesCount);
 
-		m_Data.UBO = SceneRenderer::GetRenderer2DTransformUnifromBuffer();
 
 		m_Data.VAO->AddVertexBuffer(m_Data.VBO);
 		m_Data.VAO->SetIndexBuffer(m_Data.IBO);
 
 
 		m_Data.Material = Material::Create(m_Data.Shader);
-		m_Data.Material->SetUnifromBuffer(m_Data.UBO);
+		m_Data.UBO = m_Data.Material->RetrieveUniformBuffer("transform");
 
 		RenderCommand::SetClearColor(glm::vec4(0.2f, 0.5f, 0.8f, 1.f));
 	}
@@ -43,9 +42,9 @@ namespace Hyro {
 		m_Data.Indices.clear();
 		m_Data.Count = 0;
 
-		UniformBufferData data{};
+		TransformData data{};
 		data.MVP = projection;
-		m_Data.UBO->SetData(data);
+		m_Data.UBO->SetData(&data);
 	}
 
 	void Renderer2D::EndScene()
@@ -59,7 +58,7 @@ namespace Hyro {
 		m_Data.IBO->SetData(m_Data.Indices);
 		m_Data.Material->SetSamplers(m_Data.Textures);
 
-		PushConstantBlock transfroms("Transforms");
+		PushConstantBlock transfroms("transform");
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		Uniform model("u_Model", DescriptorType::Matrix, glm::value_ptr(modelMatrix));
 		transfroms.Push(model);

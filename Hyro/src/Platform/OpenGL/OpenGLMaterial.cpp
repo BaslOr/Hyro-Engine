@@ -42,14 +42,28 @@ namespace Hyro {
 		for (size_t i = 0; i < m_Textures.size(); ++i) {
 			m_Textures[i] = m_FallbackTexture;
 		}
+
+
+		for (const auto& descriptor : m_ReflectionData.Descriptors) {
+			if (descriptor.Type == DescriptorType::UniformBuffer) {
+				//If UBO is not created - create it
+				//Keep in mind that OpenGL uses one UniformBuffer for all Shaders
+				if (s_UniformBuffersByBinding.find(descriptor.Binding) == s_UniformBuffersByBinding.end()) {
+					Ref<UniformBuffer> ubo = UniformBuffer::Create(descriptor.Binding, descriptor.BlockSize);
+					s_UniformBuffersByBinding[descriptor.Binding] = ubo;
+					s_UniformBuffersByName[descriptor.Name] = ubo;
+				}
+			}
+		}
 	}
 
-	void OpenGLMaterial::SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer)
+	Ref<UniformBuffer> OpenGLMaterial::RetrieveUniformBuffer(const std::string& name) const
 	{
-		m_UniformBuffers[uniformBuffer->GetBinding()] = uniformBuffer;
-		OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
-		uint32_t uniformBlockIndex = glGetUniformBlockIndex(openGLShader->GetProgram(), "UniformBufferObject");
-		glUniformBlockBinding(openGLShader->GetProgram(), uniformBlockIndex, uniformBuffer->GetBinding());
+		if (s_UniformBuffersByName.find(name) != s_UniformBuffersByName.end())
+			return s_UniformBuffersByName[name];
+
+		HYRO_ASSERT(false, "Failed to find Uniform Buffer with name: {}", name.c_str());
+		return nullptr;
 	}
 
 	void OpenGLMaterial::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
@@ -86,7 +100,7 @@ namespace Hyro {
 	void OpenGLMaterial::Bind()
 	{
 		m_Shader->Bind();
-		for (auto& [binding, ubo] : m_UniformBuffers)
+		for (auto& [binding, ubo] : s_UniformBuffersByBinding)
 		{
 			ubo->Bind();
 		}

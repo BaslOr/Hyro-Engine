@@ -3,7 +3,6 @@
 
 #include "Hyro/Project/AssetManager.h"
 #include "Hyro/Renderer/RenderCommand.h"
-#include "Hyro/Renderer/Renderer.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -12,10 +11,11 @@ namespace Hyro {
 
 	void Renderer3D::Init()
 	{
-		m_Data.UBO = SceneRenderer::GetRenderer3DTransformUnifromBuffer();
-		m_Data.Shader = AssetManager::GetShader("Default3D");
+		m_Data.Shader = AssetManager::GetShader("PBR");
 		m_Data.Material = Material::Create(m_Data.Shader);
-		m_Data.Material->SetUnifromBuffer(m_Data.UBO);
+
+		//m_Data.MaterialBuffer = m_Data.Material->RetrieveUniformBuffer("material");
+		m_Data.TransformBuffer = m_Data.Material->RetrieveUniformBuffer("transform");
 	}
 
 	void Renderer3D::Shutdown()
@@ -23,13 +23,25 @@ namespace Hyro {
 
 	}
 
-	void Renderer3D::DrawMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
+	void Renderer3D::DrawMesh(const Ref<PBRMesh>& mesh, const glm::mat4& transform)
 	{
-		PushConstantBlock transforms("Transforms");;
+		PushConstantBlock transforms("transform");;
 		Uniform model("u_Model", DescriptorType::Matrix, (void*)glm::value_ptr(transform));
 		transforms.Push(model);
+
+		struct MaterialData {
+			float Metallic;
+			float Roughness;
+			float AO;
+		};
+		MaterialData materialData{ /*TODO*/ };
+
+
 		m_Data.Material->SetPushConstantBlock(transforms);
-		m_Data.TexturesSlots[1] = mesh->Sprite;
+		m_Data.TexturesSlots[1] = mesh->Albedo;
+		m_Data.TexturesSlots[2] = mesh->Normal;
+		m_Data.TexturesSlots[3] = mesh->Roughness;
+		m_Data.TexturesSlots[4] = mesh->AmbientOcclusion;
 		m_Data.Material->SetSamplers(m_Data.TexturesSlots);
 
 		RenderCommand::Submit(mesh->VAO, m_Data.Material, mesh->Count);
@@ -37,11 +49,9 @@ namespace Hyro {
 
 	void Renderer3D::BeginScene(const glm::mat4& mvp)
 	{
-		UniformBufferData data{};
+		TransformData data{};
 		data.MVP = mvp;
-		m_Data.UBO->SetData(data);
-		std::array<Ref<Texture>, 16> textures{};
-		m_Data.Material->SetSamplers(textures);
+		m_Data.TransformBuffer->SetData(&data);
 	}
 
 	void Renderer3D::EndScene()

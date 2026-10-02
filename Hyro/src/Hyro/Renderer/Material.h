@@ -32,7 +32,8 @@ namespace Hyro {
 	public:
 		static Ref<Material> Create(Ref<Shader> shader);
 
-		virtual void SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer) = 0;
+		virtual Ref<UniformBuffer> RetrieveUniformBuffer(const std::string& name) const = 0;
+
 		virtual void SetSamplers(const std::array<Ref<Texture>, 16>& textures) = 0;
 		virtual void SetSampler(const Ref<Texture>& texture, uint32_t slot) = 0;
 		virtual void SetPushConstantBlock(const PushConstantBlock& block) = 0;

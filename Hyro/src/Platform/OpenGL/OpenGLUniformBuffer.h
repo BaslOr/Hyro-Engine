@@ -5,19 +5,18 @@ namespace Hyro {
 
 	class OpenGLUniformBuffer : public UniformBuffer {
 	public:
-		OpenGLUniformBuffer();
+		OpenGLUniformBuffer(uint32_t binding, uint32_t size);
 		~OpenGLUniformBuffer();
 
-		void SetData(const UniformBufferData& ubo) override;
+		void SetData(void* data) override;
 
 		void Bind() const override;
 		void Bind(void* commandBuffer, void* pipelineLayout) const override;
 
-		uint32_t GetBinding() const { return m_Binding; }
-
 	private:
 		uint32_t m_Buffer;
 		uint32_t m_Binding;
+		uint32_t m_Size;
 	};
 
 }

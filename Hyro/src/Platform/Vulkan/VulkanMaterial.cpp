@@ -18,6 +18,7 @@ namespace Hyro {
 		: m_Shader(shader)
 	{
 		m_ReflectionData = m_Shader->GetReflectionData();
+		m_FallbackTexture = AssetManager::GetFallbackTexture();
 
 		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
 		m_DescriptorSets.resize(maxFramesInFlight);
@@ -35,13 +36,25 @@ namespace Hyro {
 			}
 		}
 
-		m_FallbackTexture = AssetManager::GetFallbackTexture();
+
+		for (const auto& descriptor : m_ReflectionData.Descriptors) {
+			if (descriptor.Type == DescriptorType::UniformBuffer) {
+				Ref<UniformBuffer> ubo = UniformBuffer::Create(descriptor.Binding, descriptor.BlockSize);//Technichally binding is not neccesarry to pass but for compatibility reasons(OpenGL)
+				m_UniformBuffersByBinding[descriptor.Binding] = ubo;
+				m_UniformBuffersByName[descriptor.Name] = ubo;
+
+				m_IsDirty = true;
+			}
+		}
 	}
 
-	void VulkanMaterial::SetUnifromBuffer(Ref<UniformBuffer> uniformBuffer)
+	Ref<UniformBuffer> VulkanMaterial::RetrieveUniformBuffer(const std::string& name) const
 	{
-		m_UniformBuffers[uniformBuffer->GetBinding()] = uniformBuffer;
-		m_IsDirty = true;
+		if (m_UniformBuffersByName.find(name) != m_UniformBuffersByName.end())
+			return m_UniformBuffersByName[name];
+
+		HYRO_ASSERT(false, "Failed to find Uniform Buffer with name: {}", name.c_str());
+		return nullptr;
 	}
 
 	void VulkanMaterial::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
@@ -113,6 +126,7 @@ namespace Hyro {
 
 	void VulkanMaterial::UpdateDescriptorSets()
 	{
+		//Definitely needs to be reafactored but fine for now
 		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
 
 		std::vector<VkWriteDescriptorSet> writes;
@@ -120,48 +134,51 @@ namespace Hyro {
 
 
 		std::vector<VkDescriptorImageInfo> imageInfos(m_Textures.size());
-		VkDescriptorBufferInfo bufferInfo{};
+		std::vector<VkDescriptorBufferInfo> bufferInfos(m_UniformBuffersByBinding.size());
 
 		//Descriptor sets for each frame in flight
-		for (uint32_t i = 0; i < maxFramesInFlight; i++)
+		for (uint32_t frameIndex = 0; frameIndex < maxFramesInFlight; frameIndex++)
 		{
+			size_t bufferIndex = 0;
 			//Descriptor write for each descriptor/uniform
 			for (uint32_t descriptorIndex = 0; descriptorIndex < m_ReflectionData.Descriptors.size(); ++descriptorIndex) {
 				auto& descriptor = m_ReflectionData.Descriptors[descriptorIndex];
 
 				writes[descriptorIndex].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				writes[descriptorIndex].dstSet = m_DescriptorSets[i];
+				writes[descriptorIndex].dstSet = m_DescriptorSets[frameIndex];
 				writes[descriptorIndex].dstBinding = descriptor.Binding;
 				writes[descriptorIndex].dstArrayElement = 0;
 				writes[descriptorIndex].descriptorType = VulkanShader::HyroDescriptorTypeToVulkanType(descriptor.Type);
 				writes[descriptorIndex].descriptorCount = descriptor.Count;
 				if (descriptor.Type == DescriptorType::UniformBuffer)
 				{
-					VulkanUniformBuffer* vulkanUBO = static_cast<VulkanUniformBuffer*>(m_UniformBuffers.at(0).get());
+					VulkanUniformBuffer* vulkanUBO = static_cast<VulkanUniformBuffer*>(m_UniformBuffersByBinding.at(descriptor.Binding).get());
 
-					bufferInfo.buffer = vulkanUBO->GetBufferAtIndex(i);
-					bufferInfo.offset = 0;
-					bufferInfo.range = sizeof(UniformBufferData);
+					VkDescriptorBufferInfo bufferInfo{};
+					bufferInfos[bufferIndex].buffer = vulkanUBO->GetBufferAtIndex(frameIndex);
+					bufferInfos[bufferIndex].offset = 0; //Offset is only requiered when ubo data is in the same buffer
+					bufferInfos[bufferIndex].range = vulkanUBO->GetSize();
 
-					writes[descriptorIndex].pBufferInfo = &bufferInfo;
+					writes[descriptorIndex].pBufferInfo = bufferInfos.data();
+					++bufferIndex;
 				}
 				else if (descriptor.Type == DescriptorType::Sampler) {
 
-					for (size_t j = 0; j < imageInfos.size(); j++)
+					for (size_t imageIndex = 0; imageIndex < imageInfos.size(); imageIndex++)
 					{
 						if (imageInfos.size() > 1) {
-							VulkanTexture* vulkanTexture = static_cast<VulkanTexture*>(m_Textures[j].get());
+							VulkanTexture* vulkanTexture = static_cast<VulkanTexture*>(m_Textures[imageIndex].get());
 
-							imageInfos[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-							imageInfos[j].imageView = vulkanTexture->GetVkImageView();
-							imageInfos[j].sampler = vulkanTexture->GetVkSampler();
+							imageInfos[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+							imageInfos[imageIndex].imageView = vulkanTexture->GetVkImageView();
+							imageInfos[imageIndex].sampler = vulkanTexture->GetVkSampler();
 						}
 						else {
 							VulkanCubemap* vulkanCubemap = static_cast<VulkanCubemap*>(m_Cubemap.get());
 
-							imageInfos[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-							imageInfos[j].imageView = vulkanCubemap->GetVkImageView();
-							imageInfos[j].sampler = vulkanCubemap->GetVkSampler();
+							imageInfos[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+							imageInfos[imageIndex].imageView = vulkanCubemap->GetVkImageView();
+							imageInfos[imageIndex].sampler = vulkanCubemap->GetVkSampler();
 						}
 					}
 

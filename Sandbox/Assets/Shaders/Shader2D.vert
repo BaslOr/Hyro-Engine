@@ -11,7 +11,7 @@ layout(location = 2) out vec2 fragUV;
 
 layout(std140, binding = 0) uniform UniformBufferObject {
     mat4 MVP;
-} ubo;
+} transform;
 
 
 #ifdef VULKAN
@@ -24,7 +24,7 @@ uniform mat4 u_Model;
 #endif
 
 void main() {
-    gl_Position = ubo.MVP * u_Model * vec4(inPosition, 1.0);
+    gl_Position = transform.MVP * u_Model * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragSpriteIndex = inSpriteIndex;
     fragUV = inUV;

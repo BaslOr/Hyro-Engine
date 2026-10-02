@@ -6,20 +6,23 @@
 namespace Hyro {
 
 
-	struct UniformBufferData {
+	struct TransformData {
 		glm::mat4 MVP;
 	};
 
 	class UniformBuffer {
 	public:
-		static Ref<UniformBuffer> Create();
 
-		virtual void SetData(const UniformBufferData& ubo) = 0;
+		virtual void SetData(void* data) = 0;
 
 		virtual void Bind() const = 0;
 		virtual void Bind(void* commandBuffer, void* pipelineLayout) const = 0;
 
-		virtual uint32_t GetBinding() const = 0;
+
+	private:
+		friend class OpenGLMaterial; friend class VulkanMaterial; //Uniform buffers should only be created by shaders, as they are bound to a specific binding point in the shader
+
+		static Ref<UniformBuffer> Create(uint32_t binding, uint32_t size);
 	};
 
 }
