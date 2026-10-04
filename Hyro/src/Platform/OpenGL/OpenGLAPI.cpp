@@ -106,7 +106,7 @@ namespace Hyro {
         m_FramebufferData.VertexArray->AddVertexBuffer(m_FramebufferData.VertexBuffer);
         m_FramebufferData.VertexArray->SetIndexBuffer(m_FramebufferData.IndexBuffer);
 
-        m_FramebufferData.Material = Material::Create(m_FramebufferData.Shader);
+        m_FramebufferData.Material = ShaderBindings::Create(m_FramebufferData.Shader);
         m_FramebufferData.Material->SetSampler(AssetManager::GetFallbackTexture(), 0);
     }
 
@@ -131,14 +131,14 @@ namespace Hyro {
 		Submit(m_FramebufferData.VertexArray, m_FramebufferData.Material, 6);
     }
 
-    void OpenGLAPI::Submit(Ref<VertexArray> vao, Ref<Material> material, uint32_t count)
+    void OpenGLAPI::Submit(Ref<VertexArray> vao, Ref<ShaderBindings> material, uint32_t count)
 	{
         vao->Bind();
         material->Bind();
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
-    void OpenGLAPI::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<Material> material, Ref<Cubemap> cubemap)
+    void OpenGLAPI::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, Ref<Cubemap> cubemap)
     {
         vertexArray->Bind();
         material->Bind();

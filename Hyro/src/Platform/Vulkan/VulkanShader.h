@@ -21,9 +21,13 @@ namespace Hyro {
 		VkPipelineLayout GetVkPipelineLayout() const { return m_Pipeline->GetVkPipelineLayout(); }
 		VkDescriptorSetLayout GetVkDescriptorSetLayout() const { return m_Pipeline->GetVkDescriptorSetLayout(); }
 
+		const std::string& GetPath() const override { return m_Path; }
+
 		static VkDescriptorType HyroDescriptorTypeToVulkanType(DescriptorType type);
 
 	private:
 		Ref<VulkanGraphicsPipeline> m_Pipeline;
+
+		std::string m_Path;
 	};
 }

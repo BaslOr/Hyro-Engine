@@ -3,7 +3,7 @@
 
 #include "Hyro/Core/Memory.h"
 #include "Hyro/Renderer/RenderingObjects/VertexArray.h"
-#include "Hyro/Renderer/Material.h"
+#include "Hyro/Renderer/ShaderBindings.h"
 #include "Hyro/Renderer/Cubemap.h"
 
 namespace Hyro {
@@ -22,8 +22,8 @@ namespace Hyro {
 		virtual void BeginRenderPass() = 0;
 		virtual void EndRenderPass() = 0;
 
-		virtual void Submit(Ref<VertexArray> vertexArray, Ref<Material> material, uint32_t count) = 0;
-		virtual void SubmitCubemap(Ref<VertexArray> vertexArray, Ref<Material> material, Ref<Cubemap> cubemap) = 0;
+		virtual void Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, uint32_t count) = 0;
+		virtual void SubmitCubemap(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, Ref<Cubemap> cubemap) = 0;
 
 		virtual void SetClearColor(const glm::vec4&	color) = 0;
 	};

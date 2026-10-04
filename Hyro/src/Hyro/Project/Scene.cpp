@@ -16,16 +16,18 @@ namespace Hyro {
         return CreateRef<Scene>();
     }
 
-    MeshHandle Scene::AddMesh(const Ref<PBRMesh>& mesh, const glm::mat4& transform)
+    MeshHandle Scene::AddMesh(const Ref<Mesh>& mesh, const Ref<Material>& material, const glm::mat4& transform)
     {
-		m_Meshes.emplace_back(mesh, transform);
-		return static_cast<MeshHandle>(m_Meshes.size() - 1);
+		m_Meshes.emplace_back(mesh, material, transform);
+        return static_cast<MeshHandle>(m_Meshes.size() - 1);
     }
 
-    MeshHandle Hyro::Scene::AddCube(const glm::mat4& transform)
-    {
-		return AddMesh(MeshFactory::CreateCube(), transform);
-    }
+	//TODO: Implement this function, but for now we will just use AddMesh with a cube mesh
+  //  MeshHandle Hyro::Scene::AddCube(const glm::mat4& transform)
+  //  {
+		//auto defaultMaterial = AssetManager::GetMaterial("Default");
+		//return AddMesh(MeshFactory::CreateCube(), defaultMaterial, transform);
+  //  }
 
     void Scene::SetMeshTransform(MeshHandle handle, const glm::mat4& transform)
     {
@@ -89,7 +91,7 @@ namespace Hyro {
         Renderer3D::BeginScene(viewProjection);
         for (auto& meshInstance : m_Meshes)
         {
-            Renderer3D::DrawMesh(meshInstance.Mesh, meshInstance.Transform);
+            Renderer3D::DrawMesh(meshInstance.Mesh, meshInstance.Surface, meshInstance.Transform);
         }
         Renderer3D::EndScene();
 

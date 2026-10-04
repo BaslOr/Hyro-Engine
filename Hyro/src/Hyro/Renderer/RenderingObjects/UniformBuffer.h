@@ -20,7 +20,7 @@ namespace Hyro {
 
 
 	private:
-		friend class OpenGLMaterial; friend class VulkanMaterial; //Uniform buffers should only be created by shaders, as they are bound to a specific binding point in the shader
+		friend class OpenGLShaderBindings; friend class VulkanShaderBindings; //Uniform buffers should only be created by shaders, as they are bound to a specific binding point in the shader
 
 		static Ref<UniformBuffer> Create(uint32_t binding, uint32_t size);
 	};

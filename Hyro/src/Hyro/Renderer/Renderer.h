@@ -4,6 +4,7 @@
 #include "Hyro/Renderer/GraphicsAPI.h"
 #include "Hyro/Renderer/RenderCommand.h"
 #include "Hyro/Renderer/Cubemap.h"
+#include "Hyro/Renderer/RenderPrimitives.h"
 
 
 namespace Hyro {
@@ -18,19 +19,23 @@ namespace Hyro {
 
 		inline static GraphicsAPIType GetAPI() { return m_GraphicsAPIType; }
 
+		inline static Ref<Material> GetDefault3DMaterial() { return m_DefaultSurface; }
+
 	private:
 		friend class Renderer2D;
 		friend class Renderer3D;
 
-
+	
 	private:
 		static inline GraphicsAPIType m_GraphicsAPIType = GraphicsAPIType::Vulkan;
 
 		static inline Ref<Cubemap> m_Cubemap;
-		static inline Ref<Material> m_CubemapMaterial;
+		static inline Ref<ShaderBindings> m_CubemapBindings;
 		static inline Ref<VertexArray> m_CubemapVAO;
 		static inline Ref<VertexBuffer> m_CubemapVBO;
 		static inline Ref<IndexBuffer> m_CubemapIBO;
+
+		static inline Ref<Material> m_DefaultSurface;
 	};
 
 }

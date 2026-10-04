@@ -26,7 +26,7 @@ namespace Hyro {
 		m_Data.VAO->SetIndexBuffer(m_Data.IBO);
 
 
-		m_Data.Material = Material::Create(m_Data.Shader);
+		m_Data.Material = ShaderBindings::Create(m_Data.Shader);
 		m_Data.UBO = m_Data.Material->RetrieveUniformBuffer("transform");
 
 		RenderCommand::SetClearColor(glm::vec4(0.2f, 0.5f, 0.8f, 1.f));

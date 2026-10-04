@@ -12,7 +12,7 @@
 namespace Hyro {
 
 	OpenGLShader::OpenGLShader(const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragPath)
-		: m_Program(0), m_DepthInfo(depthInfo)
+		: m_Program(0), m_DepthInfo(depthInfo), m_Path(vertexPath + " | " + fragPath)
 	{
 		std::string vertexSource = ReadShaderFromFile(vertexPath);
 		std::string fragmentSource = ReadShaderFromFile(fragPath);

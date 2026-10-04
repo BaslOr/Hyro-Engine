@@ -6,8 +6,7 @@
 
 namespace Hyro {
 
-	PBRMesh::PBRMesh(const std::vector<Vertex3D>& vertices, const std::vector<uint32_t>& indices, Ref<Texture> albedo, Ref<Texture> normal, Ref<Texture> ambientOcclusion, Ref<Texture> rougness)
-		: Albedo(albedo), Normal(normal), AmbientOcclusion(ambientOcclusion), Roughness(rougness)
+	Mesh::Mesh(const std::vector<Vertex3D>& vertices, const std::vector<uint32_t>& indices)
 	{
         static Ref<Shader> shader3D = AssetManager::GetShader("PBR");
 

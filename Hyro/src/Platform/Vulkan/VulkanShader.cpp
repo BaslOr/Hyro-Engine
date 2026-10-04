@@ -6,6 +6,7 @@
 namespace Hyro {
 
 	VulkanShader::VulkanShader(const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragmentPath)
+		: m_Path(vertexPath + " | " + fragmentPath)
 	{
 		m_Pipeline = CreateRef<VulkanGraphicsPipeline>(depthInfo, vertexPath, fragmentPath);
 	}

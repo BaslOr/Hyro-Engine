@@ -14,7 +14,8 @@ namespace Hyro {
 	using SpriteHandle = uint32_t;
 
 	struct MeshInstance {
-		Ref<PBRMesh> Mesh;
+		Ref<Mesh> Mesh;
+		Ref<Material> Surface;
 		glm::mat4 Transform;
 	};
 
@@ -95,8 +96,8 @@ namespace Hyro {
 	public:
 		static Ref<Scene> Create();
 
-		MeshHandle AddMesh(const Ref<PBRMesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f));
-		MeshHandle AddCube(const glm::mat4& transform = glm::mat4(1.0f));
+		MeshHandle AddMesh(const Ref<Mesh>& mesh, const Ref<Material>& material, const glm::mat4& transform = glm::mat4(1.0f));
+		//MeshHandle AddCube(const glm::mat4& transform = glm::mat4(1.0f));
 		void SetMeshTransform(MeshHandle handle, const glm::mat4& transform);
 
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "Hyro/Renderer/Material.h"
+#include "Hyro/Renderer/ShaderBindings.h"
 
 #include "Platform/Vulkan/VulkanBase.h"
 #include "Hyro/Renderer/Utils/ShaderUtils.h"
@@ -9,9 +9,9 @@
 
 namespace Hyro {
 
-	class VulkanMaterial : public Material {
+	class VulkanShaderBindings : public ShaderBindings {
 	public:
-		VulkanMaterial(Ref<Shader> shader);
+		VulkanShaderBindings(Ref<Shader> shader);
 
 		Ref<UniformBuffer> RetrieveUniformBuffer(const std::string& name) const override;
 

@@ -28,9 +28,9 @@ namespace Hyro {
 		std::vector<Uniform> m_Uniforms;
 	};
 
-	class Material {
+	class ShaderBindings {
 	public:
-		static Ref<Material> Create(Ref<Shader> shader);
+		static Ref<ShaderBindings> Create(Ref<Shader> shader);
 
 		virtual Ref<UniformBuffer> RetrieveUniformBuffer(const std::string& name) const = 0;
 

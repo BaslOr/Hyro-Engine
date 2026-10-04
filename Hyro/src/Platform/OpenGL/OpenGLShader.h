@@ -21,11 +21,14 @@ namespace Hyro {
 
 		uint32_t GetProgram() const { return m_Program; }
 
+		const std::string& GetPath() const override { return m_Path; }
+
+
 		void SetUnifrom(Uniform uniform);
 
 
 	private:
-		friend class OpenGLMaterial;
+		friend class OpenGLShaderBindings;
 
 		int GetUniformLocation(const std::string& name) const;
 		bool CheckLocation(int location) const;
@@ -46,6 +49,8 @@ namespace Hyro {
 		ShaderReflectionData m_ReflectionData;
 
 		DepthInfo m_DepthInfo;
+
+		std::string m_Path;
 	};
 
 }

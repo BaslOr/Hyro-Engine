@@ -18,12 +18,12 @@ namespace Hyro {
 		m_API->EndRenderPass();
 	}
 
-	void RenderCommand::Submit(Ref<VertexArray> vertexArray, Ref<Material> material, uint32_t count)
+	void RenderCommand::Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, uint32_t count)
 	{
 		m_API->Submit(vertexArray, material, count);
 	}
 
-	void RenderCommand::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<Material> material, Ref<Cubemap> cubemap)
+	void RenderCommand::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, Ref<Cubemap> cubemap)
 	{
 		m_API->SubmitCubemap(vertexArray, material, cubemap);
 	}

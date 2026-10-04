@@ -7,7 +7,7 @@
 #include "Hyro/Renderer/Vertex.h"
 #include "Hyro/Renderer/RenderingObjects/Texture.h"
 #include "Hyro/Renderer/RenderingObjects/UniformBuffer.h"
-#include "Hyro/Renderer/Material.h"
+#include "Hyro/Renderer/ShaderBindings.h"
 #include "Hyro/Renderer/RenderPrimitives.h"
 
 namespace Hyro {
@@ -22,7 +22,7 @@ namespace Hyro {
 
 		Ref<Shader> Shader;
 		Ref<UniformBuffer> UBO;
-		Ref<Material> Material;
+		Ref<ShaderBindings> Material;
 
 		std::vector<Vertex2D> Vertices;
 		std::vector<uint32_t> Indices;

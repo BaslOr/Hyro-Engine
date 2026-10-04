@@ -29,6 +29,11 @@ namespace Hyro {
 		depthInfo.DepthFunc = DepthInfo::CompareOp::LessEqual;
 		AssetManager::LoadShader("Cubemap", depthInfo, vertexShaderPath, fragmentShaderPath);
 
+		//Set Default Materials
+		AssetManager::LoadMaterial("Default2D", AssetManager::GetShader("Default2D"));
+		AssetManager::LoadMaterial("Default3D", AssetManager::GetShader("PBR"));
+		m_DefaultSurface = AssetManager::GetMaterial("Default3D");
+
 		//Init Cubemap
 		auto cubeVertices = MeshFactory::GetCubePositions();
 		auto cubeIndices = MeshFactory::GetCubeIndices();
@@ -42,9 +47,9 @@ namespace Hyro {
 		m_CubemapVAO->AddVertexBuffer(m_CubemapVBO);
 		m_CubemapVAO->SetIndexBuffer(m_CubemapIBO);
 		
-		m_CubemapMaterial = Material::Create(cubemapShader);
+		m_CubemapBindings = ShaderBindings::Create(cubemapShader);
 		m_Cubemap = Cubemap::Create("Assets/Textures/Cubemap.hdr");
-		m_CubemapMaterial->SetSamplerCube(m_Cubemap);
+		m_CubemapBindings->SetSamplerCube(m_Cubemap);
 
 
 		//Init Subsystems/-components
@@ -71,9 +76,9 @@ namespace Hyro {
 		PushConstantBlock transfroms("Transforms");
 		Uniform uniform("u_Model", DescriptorType::Matrix, (void*)glm::value_ptr(mvp));
 		transfroms.Push(uniform);
-		m_CubemapMaterial->SetPushConstantBlock(transfroms);
+		m_CubemapBindings->SetPushConstantBlock(transfroms);
 
-		RenderCommand::SubmitCubemap(m_CubemapVAO, m_CubemapMaterial, m_Cubemap);
+		RenderCommand::SubmitCubemap(m_CubemapVAO, m_CubemapBindings, m_Cubemap);
 	}
 
 	void SceneRenderer::EndScene()

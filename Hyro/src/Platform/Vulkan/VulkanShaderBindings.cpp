@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Platform/Vulkan/VulkanMaterial.h"
+#include "Platform/Vulkan/VulkanShaderBindings.h"
 
 #include "Platform/Vulkan/VulkanContext.h"
 #include "Platform/Vulkan/VulkanDescriptorPool.h"
@@ -14,7 +14,7 @@
 
 namespace Hyro {
 
-	VulkanMaterial::VulkanMaterial(Ref<Shader> shader)
+	VulkanShaderBindings::VulkanShaderBindings(Ref<Shader> shader)
 		: m_Shader(shader)
 	{
 		m_ReflectionData = m_Shader->GetReflectionData();
@@ -48,7 +48,7 @@ namespace Hyro {
 		}
 	}
 
-	Ref<UniformBuffer> VulkanMaterial::RetrieveUniformBuffer(const std::string& name) const
+	Ref<UniformBuffer> VulkanShaderBindings::RetrieveUniformBuffer(const std::string& name) const
 	{
 		if (m_UniformBuffersByName.find(name) != m_UniformBuffersByName.end())
 			return m_UniformBuffersByName[name];
@@ -57,7 +57,7 @@ namespace Hyro {
 		return nullptr;
 	}
 
-	void VulkanMaterial::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
+	void VulkanShaderBindings::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
 	{
 		m_Textures[0] = m_FallbackTexture;
 		for (size_t i = 1; i < textures.size(); ++i) {
@@ -69,13 +69,13 @@ namespace Hyro {
 		m_IsDirty = true;
 	}
 
-	void VulkanMaterial::SetSamplerCube(const Ref<Cubemap>& cubemap)
+	void VulkanShaderBindings::SetSamplerCube(const Ref<Cubemap>& cubemap)
 	{
 		m_Cubemap = cubemap;
 		m_IsDirty = true;
 	}
 
-	void VulkanMaterial::SetPushConstantBlock(const PushConstantBlock& block)
+	void VulkanShaderBindings::SetPushConstantBlock(const PushConstantBlock& block)
 	{
 		for (auto& pushConstantBlock : m_PushConstantBlocks) {
 			if (pushConstantBlock.Name.compare(block.Name) == 0) {
@@ -90,12 +90,12 @@ namespace Hyro {
 		}
 	}
 
-	void VulkanMaterial::Bind()
+	void VulkanShaderBindings::Bind()
 	{
 		HYRO_LOG_CORE_ERROR("Tried to bind Material without a CommandBuffer. This may Indicate a Bug.");
 	}
 
-	void VulkanMaterial::Bind(void* commandBuffer)
+	void VulkanShaderBindings::Bind(void* commandBuffer)
 	{
 		uint32_t currentFrameIndex = VulkanContext::Get().GetCurrentFrameIndex();
 		VulkanShader* vulkanShader = static_cast<VulkanShader*>(m_Shader.get());
@@ -124,7 +124,7 @@ namespace Hyro {
 		vkCmdBindDescriptorSets((VkCommandBuffer)commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanShader->GetVkPipelineLayout(), 0, 1, &m_DescriptorSets[currentFrameIndex], 0, nullptr);
 	}
 
-	void VulkanMaterial::UpdateDescriptorSets()
+	void VulkanShaderBindings::UpdateDescriptorSets()
 	{
 		//Definitely needs to be reafactored but fine for now
 		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();

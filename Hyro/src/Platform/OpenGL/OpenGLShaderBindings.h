@@ -1,15 +1,15 @@
 #pragma once
-#include "Hyro/Renderer/Material.h"
+#include "Hyro/Renderer/ShaderBindings.h"
 #include "Hyro/Renderer/RenderingObjects/Texture.h"
 #include "Hyro/Renderer/Utils/ShaderUtils.h"
 #include <string>
-#include <Hyro/Renderer/RenderingObjects/UniformBuffer.h>
+#include "Hyro/Renderer/RenderingObjects/UniformBuffer.h"
 
 namespace Hyro {
 
-	class OpenGLMaterial : public Material {
+	class OpenGLShaderBindings : public ShaderBindings {
 	public:
-		OpenGLMaterial(Ref<Shader> shader);
+		OpenGLShaderBindings(Ref<Shader> shader);
 
 		Ref<UniformBuffer> RetrieveUniformBuffer(const std::string& name) const override;
 

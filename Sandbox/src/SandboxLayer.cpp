@@ -23,13 +23,14 @@ SandboxLayer::SandboxLayer()
 	
 	glm::mat4 meshTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
 	meshTransform = glm::rotate(meshTransform, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	meshTransform = glm::rotate(meshTransform, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	Hyro::Ref<Hyro::PBRMesh> mesh = Hyro::ModelLoader::LoadMesh("Assets/Models/DamagedHelmet/glTF/DamagedHelmet.gltf",
-		"Assets/Models/DamagedHelmet/glTF/Default_albedo.jpg",
-		"Assets/Models/DamagedHelmet/glTF/Default_normal.jpg",
-		"Assets/Models/DamagedHelmet/glTF/Default_AO.jpg",
-		"Assets/Models/DamagedHelmet/glTF/Default_metalRoughness.jpg");
-	m_Scene->AddMesh(mesh, meshTransform);
+	meshTransform = glm::rotate(meshTransform, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));	
+	Hyro::Ref<Hyro::Mesh> mesh = Hyro::ModelLoader::LoadMesh("Assets/Models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+	Hyro::Ref<Hyro::Material> material = Hyro::AssetManager::LoadMaterial("DamagedHelmet", Hyro::AssetManager::GetShader("PBR"));
+	material->SetAlbedo(Hyro::AssetManager::LoadTexture("DamagedHelmet_Albedo", "Assets/Models/DamagedHelmet/glTF/Default_albedo.jpg"));
+	material->SetNormal(Hyro::AssetManager::LoadTexture("DamagedHelmet_Normal", "Assets/Models/DamagedHelmet/glTF/Default_normal.jpg"));
+	material->SetAmbientOcclusion(Hyro::AssetManager::LoadTexture("DamagedHelmet_AO", "Assets/Models/DamagedHelmet/glTF/Default_AO.jpg"));
+	material->SetRoughness(Hyro::AssetManager::LoadTexture("DamagedHelmet_Roughness", "Assets/Models/DamagedHelmet/glTF/Default_metalRoughness.jpg"));
+	m_Scene->AddMesh(mesh, material, meshTransform);
 }
 
 void SandboxLayer::OnUpdate(const Hyro::TimeStep deltaTime)

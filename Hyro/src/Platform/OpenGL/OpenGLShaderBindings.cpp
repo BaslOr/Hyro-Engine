@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Platform/OpenGL/OpenGLMaterial.h"
+#include "Platform/OpenGL/OpenGLShaderBindings.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 
 #include "Hyro/Project/AssetManager.h"
@@ -11,7 +11,7 @@
 
 namespace Hyro {
 
-	OpenGLMaterial::OpenGLMaterial(Ref<Shader> shader)
+	OpenGLShaderBindings::OpenGLShaderBindings(Ref<Shader> shader)
 		: m_Shader(shader)
 	{
 		m_Shader->Bind();
@@ -57,7 +57,7 @@ namespace Hyro {
 		}
 	}
 
-	Ref<UniformBuffer> OpenGLMaterial::RetrieveUniformBuffer(const std::string& name) const
+	Ref<UniformBuffer> OpenGLShaderBindings::RetrieveUniformBuffer(const std::string& name) const
 	{
 		if (s_UniformBuffersByName.find(name) != s_UniformBuffersByName.end())
 			return s_UniformBuffersByName[name];
@@ -66,7 +66,7 @@ namespace Hyro {
 		return nullptr;
 	}
 
-	void OpenGLMaterial::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
+	void OpenGLShaderBindings::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
 	{
 		m_Shader->Bind();
 		m_Textures[0] = m_FallbackTexture;
@@ -81,7 +81,7 @@ namespace Hyro {
 		}
 	}
 
-	void OpenGLMaterial::SetSampler(const Ref<Texture>& texture, uint32_t slot)
+	void OpenGLShaderBindings::SetSampler(const Ref<Texture>& texture, uint32_t slot)
 	{
 		HYRO_ASSERT(slot < 16);
 
@@ -89,7 +89,7 @@ namespace Hyro {
 		texture->Bind(slot);
 	}
 
-	void OpenGLMaterial::SetPushConstantBlock(const PushConstantBlock& block)
+	void OpenGLShaderBindings::SetPushConstantBlock(const PushConstantBlock& block)
 	{
 		for (auto& unifrom : block.GetUniforms()) {
 			OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
@@ -97,7 +97,7 @@ namespace Hyro {
 		}
 	}
 
-	void OpenGLMaterial::Bind()
+	void OpenGLShaderBindings::Bind()
 	{
 		m_Shader->Bind();
 		for (auto& [binding, ubo] : s_UniformBuffersByBinding)
@@ -110,7 +110,7 @@ namespace Hyro {
 		}
 	}
 
-	void OpenGLMaterial::Bind(void* commandBuffer)
+	void OpenGLShaderBindings::Bind(void* commandBuffer)
 	{
 		HYRO_LOG_CORE_WARN("OpenGLMaterial::Bind(void* commandBuffer) is not implemented. Command buffers are not used in OpenGL.");
 	}

@@ -8,15 +8,15 @@ namespace Hyro {
 
 	class MeshFactory {
     public:
-		inline static Ref<PBRMesh> CreateCube()
+		inline static Ref<Mesh> CreateCube()
 		{
 			auto vertices = GetCubeVertices();
 			auto indices = GetCubeIndices();
             Ref<Texture> defaultTex = AssetManager::GetTexture("Default");
 
-            PBRMesh mesh(vertices, indices, defaultTex, defaultTex, defaultTex, defaultTex);
+            Mesh mesh(vertices, indices);
 
-			return CreateRef<PBRMesh>(mesh);
+			return CreateRef<Mesh>(mesh);
 		}
 
         inline static std::vector<glm::vec3> GetCubePositions() {

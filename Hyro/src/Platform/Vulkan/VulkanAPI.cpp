@@ -138,7 +138,7 @@ namespace Hyro {
         VulkanContext::Get().IncreaseImageIndex();
     }
 
-    void VulkanAPI::Submit(Ref<VertexArray> vertexArray, Ref<Material> material, uint32_t count)
+    void VulkanAPI::Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, uint32_t count)
     {
         uint32_t currentFrame = VulkanContext::Get().GetCurrentFrameIndex();
 
@@ -148,7 +148,7 @@ namespace Hyro {
         vkCmdDrawIndexed(m_CommandBuffers[currentFrame], count, 1, 0, 0, 0);
     }
 
-    void VulkanAPI::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<Material> material, Ref<Cubemap> cubemap)
+    void VulkanAPI::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, Ref<Cubemap> cubemap)
     {
         Submit(vertexArray, material, 36);
     }

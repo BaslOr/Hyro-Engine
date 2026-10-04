@@ -3,7 +3,7 @@
 #include "Hyro/Renderer/Shader.h"
 #include "Hyro/Renderer/RenderingObjects/Texture.h"
 #include "Hyro/Renderer/RenderingObjects/UniformBuffer.h"
-#include "Hyro/Renderer/Material.h"
+#include "Hyro/Renderer/ShaderBindings.h"
 #include "Hyro/Renderer/RenderPrimitives.h"
 
 #include <array>
@@ -13,7 +13,7 @@ namespace Hyro {
 
 	struct Renderer3DData {
 		Ref<Shader> Shader;
-		Ref<Material> Material;
+		Ref<ShaderBindings> Material;
 		Ref<UniformBuffer> TransformBuffer;
 		Ref<UniformBuffer> MaterialBuffer;
 
@@ -24,7 +24,7 @@ namespace Hyro {
 
 	class Renderer3D {
 	public:
-		static void DrawMesh(const Ref<PBRMesh>& mesh, const glm::mat4& transform);
+		static void DrawMesh(const Ref<Mesh>& mesh, const Ref<Material>& surface, const glm::mat4& transform);
 
 	private:
 		static void BeginScene(const glm::mat4& mvp);

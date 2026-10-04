@@ -9,8 +9,7 @@ namespace Hyro {
 
 	class ModelLoader {
 	public:
-		inline static Ref<PBRMesh> LoadMesh(const std::string& modelPath, const std::string& albedoPath, const std::string& normalMapPath, 
-			const std::string& ambientOcclusionPath, const std::string& roughnessPath) {
+		inline static Ref<Mesh> LoadMesh(const std::string& modelPath) {
 			const aiScene* scene = aiImportFile(modelPath.c_str(), aiProcess_Triangulate);
 			auto mesh = scene->mMeshes[0];
 
@@ -34,13 +33,14 @@ namespace Hyro {
 				}
 			}
 
-			Ref<Texture> albedo = Texture::Load(albedoPath);
-			Ref<Texture> normal = Texture::Load(normalMapPath);
-			Ref<Texture> ao = Texture::Load(ambientOcclusionPath);
-			Ref<Texture> roughness = Texture::Load(roughnessPath);
+			//Ref<Texture> albedo = Texture::Load(albedoPath);
+			//Ref<Texture> normal = Texture::Load(normalMapPath);
+			//Ref<Texture> ao = Texture::Load(ambientOcclusionPath);
+			//Ref<Texture> roughness = Texture::Load(roughnessPath);
 
-			PBRMesh output(vertices, indices, albedo, normal, ao, roughness);
-			return CreateRef<PBRMesh>(output);
+			Mesh output(vertices, indices);
+			aiReleaseImport(scene);
+			return CreateRef<Mesh>(output);
 		}
 
 	private:

@@ -4,13 +4,15 @@
 
 namespace Hyro {
 
-	void AssetManager::LoadTexture(const std::string& key, const std::string& path)
+	Ref<Texture> AssetManager::LoadTexture(const std::string& key, const std::string& path)
 	{
 		if (s_Textures.find(key) == s_Textures.end()) {
 			s_Textures[key] = Texture::Load(path);
+			return s_Textures[key];
 		}
 		else {
 			HYRO_LOG_CORE_ERROR("Tried to laod Texture with allready existing key!");
+			return nullptr;
 		}
 	}
 
@@ -34,13 +36,15 @@ namespace Hyro {
 		return s_Textures["FALLBACK_TEXTURE"];
 	}
 
-	void AssetManager::LoadShader(const std::string& key, const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragmentPath)
+	Ref<Shader> AssetManager::LoadShader(const std::string& key, const DepthInfo& depthInfo, const std::string& vertexPath, const std::string& fragmentPath)
 	{
 		if (s_Shaders.find(key) == s_Shaders.end()) {
 			s_Shaders[key] = Shader::Create(depthInfo, vertexPath, fragmentPath);
+			return s_Shaders[key];
 		}
 		else {
 			HYRO_LOG_CORE_ERROR("Tried to laod Shader with allready existing key!");
+			return nullptr;
 		}
 	}
 
@@ -54,17 +58,19 @@ namespace Hyro {
 		return nullptr;
 	}
 
-	void Hyro::AssetManager::LoadMesh(const std::string& key, const std::string& path)
+	Ref<Mesh> AssetManager::LoadMesh(const std::string& key, const std::string& path)
 	{
 		if (s_Meshes.find(key) == s_Meshes.end()) {
-			//s_Meshes[key] = Mesh::Load(path); TODO Implement ModelLoader
+			//s_Meshes[key] = Mesh::Load(path); TODO: Save Meshes to AssetManager
+			return nullptr;
 		}
 		else {
 			HYRO_LOG_CORE_ERROR("Tried to load Mesh with already existing key!");
+			return nullptr;
 		}
 	}
 
-	Ref<PBRMesh> Hyro::AssetManager::GetMesh(const std::string& key)
+	Ref<Mesh> Hyro::AssetManager::GetMesh(const std::string& key)
 	{
 		if (s_Meshes.find(key) != s_Meshes.end()) {
 			return s_Meshes[key];
@@ -72,6 +78,43 @@ namespace Hyro {
 
 		HYRO_LOG_CORE_ERROR("Failed to find Mesh with key: {0}!", key.c_str());
 		return nullptr;
+	}
+
+	Ref<Material> Hyro::AssetManager::LoadMaterial(const std::string& key, const Ref<Shader>& shader) {
+		if (s_Materials.find(key) == s_Materials.end()) {
+			return s_Materials[key] = Material::Create(shader);
+		}
+		else {
+			HYRO_LOG_CORE_ERROR("Tried to load Material with already existing key!");
+			return nullptr;
+		}
+	}
+
+	Ref<Material> Hyro::AssetManager::GetMaterial(const std::string& key)
+	{
+		if (s_Materials.find(key) != s_Materials.end()) {
+			return s_Materials[key];
+		}
+
+		HYRO_LOG_CORE_ERROR("Failed to find Material with key: {0}!", key.c_str());
+		return nullptr;
+	}
+
+	Ref<Material> Hyro::AssetManager::GetDefaultMaterial(const Ref<Shader>& shader)
+	{
+		if (s_Materials.find("Default" + shader->GetPath()) == s_Materials.end()) {
+			auto material = Material::Create(shader);
+			auto texture = GetTexture("Default");
+
+			material->SetAlbedo(texture);
+			material->SetAmbientOcclusion(texture);
+			material->SetNormal(texture);
+			material->SetRoughness(texture);
+			
+			s_Materials["Default" + shader->GetPath()] = std::move(material);
+		}
+
+		return s_Materials["Default" + shader->GetPath()];
 	}
 
 }
