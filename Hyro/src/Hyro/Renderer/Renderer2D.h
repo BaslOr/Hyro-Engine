@@ -17,12 +17,9 @@ namespace Hyro {
 		Ref<VertexBuffer> VBO;
 		Ref<IndexBuffer> IBO;
 
-		size_t CurrentTextureSlot = 0;
-		std::array<Ref<Texture>, 16> Textures;
-
 		Ref<Shader> Shader;
 		Ref<UniformBuffer> UBO;
-		Ref<ShaderBindings> Material;
+		Ref<ShaderBindings> ShaderBindings;
 
 		std::vector<Vertex2D> Vertices;
 		std::vector<uint32_t> Indices;
@@ -30,7 +27,6 @@ namespace Hyro {
 
 		uint32_t MaxVerticesCount = 2000;
 		uint32_t MaxIndicesCount = 6000;
-		uint32_t MaxTextureSlots = 16;
 	};
 
 
@@ -50,10 +46,8 @@ namespace Hyro {
 
 		static void DrawQuadWithTextureIndex(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float textureIndex);
 
-		static uint32_t GetSlotOfTexture(const Ref<Texture>& texture);
-
 	private:
-		inline static Renderer2DData m_Data;
+		inline static Renderer2DData s_Data;
 
 		friend class Scene;
 		friend class SceneRenderer;

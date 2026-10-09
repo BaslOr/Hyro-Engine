@@ -14,20 +14,20 @@ namespace Hyro {
 
 	void Renderer2D::Init()
 	{
-		m_Data.Shader = AssetManager::GetShader("Default2D");
-		m_Data.VAO = VertexArray::Create();
-		m_Data.VBO = VertexBuffer::Create(m_Data.Shader->GetVertexLayout(), m_Data.MaxVerticesCount);
-		m_Data.Vertices.resize(m_Data.MaxVerticesCount);
-		m_Data.IBO = IndexBuffer::Create(m_Data.MaxIndicesCount * sizeof(uint32_t));
-		m_Data.Indices.resize(m_Data.MaxIndicesCount);
+		s_Data.Shader = AssetManager::GetShader("Default2D");
+		s_Data.VAO = VertexArray::Create();
+		s_Data.VBO = VertexBuffer::Create(s_Data.Shader->GetVertexLayout(), s_Data.MaxVerticesCount);
+		s_Data.Vertices.resize(s_Data.MaxVerticesCount);
+		s_Data.IBO = IndexBuffer::Create(s_Data.MaxIndicesCount * sizeof(uint32_t));
+		s_Data.Indices.resize(s_Data.MaxIndicesCount);
 
 
-		m_Data.VAO->AddVertexBuffer(m_Data.VBO);
-		m_Data.VAO->SetIndexBuffer(m_Data.IBO);
+		s_Data.VAO->AddVertexBuffer(s_Data.VBO);
+		s_Data.VAO->SetIndexBuffer(s_Data.IBO);
 
 
-		m_Data.Material = ShaderBindings::Create(m_Data.Shader);
-		m_Data.UBO = m_Data.Material->RetrieveUniformBuffer("transform");
+		s_Data.ShaderBindings = ShaderBindings::Create(s_Data.Shader);
+		s_Data.UBO = s_Data.ShaderBindings->RetrieveUniformBuffer("transform");
 
 		RenderCommand::SetClearColor(glm::vec4(0.2f, 0.5f, 0.8f, 1.f));
 	}
@@ -38,13 +38,13 @@ namespace Hyro {
 
 	void Renderer2D::BeginScene(const glm::mat4& projection)
 	{
-		m_Data.Vertices.clear();
-		m_Data.Indices.clear();
-		m_Data.Count = 0;
+		s_Data.Vertices.clear();
+		s_Data.Indices.clear();
+		s_Data.Count = 0;
 
 		TransformData data{};
 		data.MVP = projection;
-		m_Data.UBO->SetData(&data);
+		s_Data.UBO->SetData(&data);
 	}
 
 	void Renderer2D::EndScene()
@@ -54,57 +54,59 @@ namespace Hyro {
 
 	void Renderer2D::Flush()
 	{
-		m_Data.VBO->SetData(m_Data.Vertices);
-		m_Data.IBO->SetData(m_Data.Indices);
-		m_Data.Material->SetSamplers(m_Data.Textures);
+		s_Data.VBO->SetData(s_Data.Vertices);
+		s_Data.IBO->SetData(s_Data.Indices);
 
 		PushConstantBlock transfroms("transform");
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		Uniform model("u_Model", DescriptorType::Matrix, glm::value_ptr(modelMatrix));
 		transfroms.Push(model);
-		m_Data.Material->SetPushConstantBlock(transfroms);
+		s_Data.ShaderBindings->SetPushConstantBlock(transfroms);
 
-		RenderCommand::Submit(m_Data.VAO, m_Data.Material, static_cast<uint32_t>(m_Data.Indices.size()));
+		RenderCommand::Submit(s_Data.VAO, s_Data.ShaderBindings, static_cast<uint32_t>(s_Data.Indices.size()));
+
+		s_Data.Vertices.clear();
+		s_Data.Indices.clear();
+		s_Data.Count = 0;
+		s_Data.ShaderBindings->FlushTextureSlots();
 	}
 
 	void Renderer2D::DrawQuadWithTextureIndex(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float textureIndex)
 	{
-		if (m_Data.Vertices.size() + 4 > m_Data.MaxVerticesCount) {
+		if (s_Data.Vertices.size() + 4 > s_Data.MaxVerticesCount)
 			Flush();
-		}
-		if (m_Data.Indices.size() + 6 > m_Data.MaxIndicesCount) {
+		if (s_Data.Indices.size() + 6 > s_Data.MaxIndicesCount)
 			Flush();
-		}
 
 		//Bottom, Left
-		m_Data.Vertices.push_back({ position.x, position.y, 0.0f,
+		s_Data.Vertices.push_back({ position.x, position.y, 0.0f,
 			0.f, 0.f,
 			color.r, color.g, color.b, color.a,
 			textureIndex });
 		//Top, Left
-		m_Data.Vertices.push_back({ position.x, position.y + size.y, 0.0f,
+		s_Data.Vertices.push_back({ position.x, position.y + size.y, 0.0f,
 			0.f, 1.f,
 			color.r, color.g, color.b, color.a,
 			textureIndex });
 		//Top, Right
-		m_Data.Vertices.push_back({ position.x + size.x, position.y + size.y, 0.0f,
+		s_Data.Vertices.push_back({ position.x + size.x, position.y + size.y, 0.0f,
 			1.f, 1.f,
 			color.r, color.g, color.b, color.a,
 			textureIndex });
 		//Bottom, Right
-		m_Data.Vertices.push_back({ position.x + size.x, position.y, 0.0f,
+		s_Data.Vertices.push_back({ position.x + size.x, position.y, 0.0f,
 			1.f, 0.f,
 			color.r, color.g, color.b, color.a,
 			textureIndex });
 
-		m_Data.Indices.push_back(0 + m_Data.Count);
-		m_Data.Indices.push_back(1 + m_Data.Count);
-		m_Data.Indices.push_back(3 + m_Data.Count);
-		m_Data.Indices.push_back(1 + m_Data.Count);
-		m_Data.Indices.push_back(2 + m_Data.Count);
-		m_Data.Indices.push_back(3 + m_Data.Count);
+		s_Data.Indices.push_back(0 + s_Data.Count);
+		s_Data.Indices.push_back(1 + s_Data.Count);
+		s_Data.Indices.push_back(3 + s_Data.Count);
+		s_Data.Indices.push_back(1 + s_Data.Count);
+		s_Data.Indices.push_back(2 + s_Data.Count);
+		s_Data.Indices.push_back(3 + s_Data.Count);
 
-		m_Data.Count += 4;
+		s_Data.Count += 4;
 	}
 
 	void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -114,31 +116,12 @@ namespace Hyro {
 
 	void Renderer2D::DrawSprite(const Ref<Sprite>& sprite, const glm::vec2& position, const glm::vec2& size)
 	{
-		int textureIndex = GetSlotOfTexture(sprite->Sprite);
+		if (s_Data.ShaderBindings->GetFreeTextureSlotCount() == 0)
+			Flush();
 
-		if (textureIndex == 0) {
-			if (m_Data.CurrentTextureSlot > m_Data.MaxTextureSlots) {
-				Flush();//Flush if there is no space in TextureSlots left
-			}
-
-			textureIndex = static_cast<int>(++m_Data.CurrentTextureSlot);
-			m_Data.Textures[textureIndex] = sprite->Sprite;
-		}
-
+		uint32_t textureIndex = s_Data.ShaderBindings->GetNextTextureSlotIndex(sprite->Sprite);
 		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 		DrawQuadWithTextureIndex(position, size, color, textureIndex);
-	}
-
-	uint32_t Renderer2D::GetSlotOfTexture(const Ref<Texture>& texture)
-	{
-		for (int i = 0; i < m_Data.MaxTextureSlots; ++i) {
-			if (m_Data.Textures[i] == texture) {
-				return i;
-			}
-		}
-
-		return 0;
 	}
 
 }

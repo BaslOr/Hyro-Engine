@@ -16,9 +16,6 @@ namespace Hyro {
 		Ref<ShaderBindings> ShaderBinding;
 		Ref<UniformBuffer> TransformBuffer;
 		Ref<UniformBuffer> MaterialBuffer;
-
-		size_t CurrentTextureSlot = 1;
-		std::array<Ref<Texture>, 16> TexturesSlots;
 	};
 
 
@@ -31,13 +28,7 @@ namespace Hyro {
 		static void EndScene();
 
 		static void Init();
-		static void Shutdown();
-
-	private:
-		static uint32_t BindTextureToNextSpot(const Ref<Texture>& texture);
-		static void FlushSlots();
-		static uint32_t RemainingTextureSlots() { return static_cast<uint32_t>(m_Data.TexturesSlots.size() - m_Data.CurrentTextureSlot); }
-		
+		static void Shutdown();		
 
 	private:
 

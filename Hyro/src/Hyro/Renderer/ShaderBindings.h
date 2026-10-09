@@ -34,6 +34,11 @@ namespace Hyro {
 
 		virtual Ref<UniformBuffer> RetrieveUniformBuffer(const std::string& name) const = 0;
 
+		virtual uint32_t GetNextTextureSlotIndex(Ref<Texture> texture) = 0;
+		virtual uint32_t GetFreeTextureSlotCount() const = 0;
+		virtual bool IsTextureBound(Ref<Texture> texture) const = 0;
+		virtual void FlushTextureSlots() = 0;
+
 		virtual void SetSamplers(const std::array<Ref<Texture>, 16>& textures) = 0;
 		virtual void SetSampler(const Ref<Texture>& texture, uint32_t slot) = 0;
 		virtual void SetPushConstantBlock(const PushConstantBlock& block) = 0;

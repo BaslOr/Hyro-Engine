@@ -23,20 +23,6 @@ namespace Hyro {
 
 	}
 
-	uint32_t Renderer3D::BindTextureToNextSpot(const Ref<Texture>& texture)
-	{
-		m_Data.ShaderBinding->SetSampler(texture, m_Data.CurrentTextureSlot);
-		++m_Data.CurrentTextureSlot;
-		return m_Data.CurrentTextureSlot - 1;
-	}
-
-	void Renderer3D::FlushSlots()
-	{
-		m_Data.CurrentTextureSlot = 1;
-		for (size_t i = 1; i < m_Data.TexturesSlots.size(); ++i)
-			m_Data.TexturesSlots[i] = nullptr;
-	}
-
 	void Renderer3D::DrawMesh(const Ref<Mesh>& mesh, const Ref<Material>& surface, const glm::mat4& transform)
 	{
 		PushConstantBlock transforms("transform");
@@ -47,11 +33,11 @@ namespace Hyro {
 		if (surface->GetRevisions() != 0)
 			m_Data.MaterialBuffer->SetData((void*)&surface->GetMaterialData());
 
-		static uint32_t albedoSlot = BindTextureToNextSpot(surface->GetAlbedo());
-		static uint32_t normalSlot = BindTextureToNextSpot(surface->GetNormal());
-		static uint32_t roughnessSlot = BindTextureToNextSpot(surface->GetRoughness());
-		static uint32_t metallicSlot = roughnessSlot; // The 3D model features a metallic rouughness texture not two seperate textures
-		static uint32_t aoSlot = BindTextureToNextSpot(surface->GetAmbientOcclusion());
+		uint32_t albedoSlot = m_Data.ShaderBinding->GetNextTextureSlotIndex(surface->GetAlbedo());
+		uint32_t normalSlot = m_Data.ShaderBinding->GetNextTextureSlotIndex(surface->GetNormal());
+		uint32_t roughnessSlot = m_Data.ShaderBinding->GetNextTextureSlotIndex(surface->GetRoughness());
+		uint32_t metallicSlot = roughnessSlot; // The 3D model features a metallic rouughness texture not two seperate textures
+		uint32_t aoSlot = m_Data.ShaderBinding->GetNextTextureSlotIndex(surface->GetAmbientOcclusion());
 		struct alignas(16) TextureSlots {
 			uint32_t AlbedoSlot;
 			uint32_t NormalSlot;

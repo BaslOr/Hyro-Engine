@@ -4,6 +4,7 @@
 #include "Hyro/Renderer/Utils/ShaderUtils.h"
 #include <string>
 #include "Hyro/Renderer/RenderingObjects/UniformBuffer.h"
+#include <cstdint>
 
 namespace Hyro {
 
@@ -12,6 +13,11 @@ namespace Hyro {
 		OpenGLShaderBindings(Ref<Shader> shader);
 
 		Ref<UniformBuffer> RetrieveUniformBuffer(const std::string& name) const override;
+
+		uint32_t GetNextTextureSlotIndex(Ref<Texture> texture);
+		uint32_t GetFreeTextureSlotCount() const;
+		bool IsTextureBound(Ref<Texture> texture) const;
+		void FlushTextureSlots();
 
 		void SetSamplers(const std::array<Ref<Texture>, 16>& textures) override;
 		void SetSampler(const Ref<Texture>& texture, uint32_t slot) override;

@@ -15,6 +15,13 @@ namespace Hyro {
 
 		Ref<UniformBuffer> RetrieveUniformBuffer(const std::string& name) const override;
 
+
+		uint32_t GetNextTextureSlotIndex(Ref<Texture> texture) override;
+		uint32_t GetFreeTextureSlotCount() const override;
+		bool IsTextureBound(Ref<Texture> texture) const override;
+		void FlushTextureSlots() override;
+
+
 		void SetSamplers(const std::array<Ref<Texture>, 16>& textures) override;
 		void SetSampler(const Ref<Texture>& texture, uint32_t slot) override;
 		void SetPushConstantBlock(const PushConstantBlock& block) override;

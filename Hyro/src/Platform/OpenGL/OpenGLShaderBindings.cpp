@@ -66,6 +66,57 @@ namespace Hyro {
 		return nullptr;
 	}
 
+	uint32_t OpenGLShaderBindings::GetNextTextureSlotIndex(Ref<Texture> texture)
+	{
+		if (texture == nullptr) {
+			HYRO_LOG_CORE_ERROR("Tried to get a texture slot for a null texture. This may indicate a bug.");
+			return 0;
+		}
+
+		if (IsTextureBound(texture))
+			return std::distance(m_Textures.begin(), std::find(m_Textures.begin(), m_Textures.end(), texture));
+
+		if (GetFreeTextureSlotCount() == 0) {
+			HYRO_LOG_CORE_ERROR("Tried to get a texture slot for a texture but all slots are full. This may indicate a bug.");
+			return 0;
+		}
+
+		uint32_t slot = 1;
+		while (slot < m_Textures.size() && m_Textures[slot] != m_FallbackTexture) {
+			slot++;
+		}
+		m_Textures[slot] = texture;
+		return slot;
+	}
+
+	uint32_t OpenGLShaderBindings::GetFreeTextureSlotCount() const
+	{
+		uint32_t freeSlots = 0;
+		for (size_t i = 1; i < m_Textures.size(); ++i) {
+			if (m_Textures[i] == m_FallbackTexture)
+				freeSlots++;
+		}
+
+		return freeSlots;
+	}
+
+	bool OpenGLShaderBindings::IsTextureBound(Ref<Texture> texture) const
+	{
+		for (size_t i = 1; i < m_Textures.size(); ++i) {
+			if (m_Textures[i] == texture)
+				return true;
+		}
+
+		return false;
+	}
+
+	void OpenGLShaderBindings::FlushTextureSlots()
+	{
+		for (size_t i = 1; i < m_Textures.size(); ++i) {
+			m_Textures[i] = m_FallbackTexture;
+		}
+	}
+
 	void OpenGLShaderBindings::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
 	{
 		m_Shader->Bind();

@@ -47,7 +47,10 @@ namespace Hyro {
 			}
 		}
 
-		//TODO: textures should be set to fallback texture by default, but this is not the case for now. This will be fixed in the future
+		for (size_t i = 0; i < m_Textures.size(); ++i) {
+			if (m_Textures[i] == nullptr)
+				m_Textures[i] = m_FallbackTexture;
+		}
 		//TODO: handle the case where a shader has no samplers, but a cubemap is set. This will be fixed in the future
 	}
 
@@ -58,6 +61,58 @@ namespace Hyro {
 
 		HYRO_ASSERT(false, "Failed to find Uniform Buffer with name: {}", name.c_str());
 		return nullptr;
+	}
+
+	uint32_t VulkanShaderBindings::GetNextTextureSlotIndex(Ref<Texture> texture)
+	{
+		if (texture == nullptr) {
+			HYRO_LOG_CORE_ERROR("Tried to get a texture slot for a null texture. This may indicate a bug.");
+			return 0;
+		}
+
+		if (IsTextureBound(texture))
+			return std::distance(m_Textures.begin(), std::find(m_Textures.begin(), m_Textures.end(), texture));
+
+		if (GetFreeTextureSlotCount() == 0) {
+			HYRO_LOG_CORE_ERROR("Tried to get a texture slot for a texture but all slots are full. This may indicate a bug.");
+			return 0;
+		}
+
+		uint32_t slot = 1;
+		while (slot < m_Textures.size() && m_Textures[slot] != m_FallbackTexture) {
+			slot++;
+		}
+		m_Textures[slot] = texture;
+		return slot;
+	}
+
+	uint32_t VulkanShaderBindings::GetFreeTextureSlotCount() const
+	{
+		uint32_t freeSlots = 0;
+		for (size_t i = 1; i < m_Textures.size(); ++i) {
+			if (m_Textures[i] == m_FallbackTexture)
+				freeSlots++;
+		}
+
+		return freeSlots;
+	}
+
+	bool VulkanShaderBindings::IsTextureBound(Ref<Texture> texture) const
+	{
+		for (size_t i = 1; i < m_Textures.size(); ++i) {
+			if (m_Textures[i] == texture)
+				return true;
+		}
+
+		return false;
+	}
+
+	void VulkanShaderBindings::FlushTextureSlots()
+	{
+		for (size_t i = 1; i < m_Textures.size(); ++i) {
+			m_Textures[i] = m_FallbackTexture;
+		}
+		m_IsDirty = true;
 	}
 
 	void VulkanShaderBindings::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
