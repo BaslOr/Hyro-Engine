@@ -25,7 +25,7 @@ namespace Hyro {
 		HYRO_ASSERT(false);
 	}
 
-	void Hyro::VulkanBuffer::CreateBufer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+	void Hyro::VulkanBuffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
 	{
 		VkBufferCreateInfo bufferInfo{};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -76,7 +76,7 @@ namespace Hyro {
 		: m_Layout(layout)
 	{
 		m_Size = layout.GetStride() * vertexCountHint;
-		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		VulkanBuffer::CreateBuffer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
 	}
 
@@ -91,7 +91,7 @@ namespace Hyro {
 	{
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingMemory;
-		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VulkanBuffer::CreateBuffer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
 
 		//Query Max Size
@@ -111,7 +111,7 @@ namespace Hyro {
 	{
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingMemory;
-		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VulkanBuffer::CreateBuffer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
 
 		//Query Max Size
@@ -130,7 +130,7 @@ namespace Hyro {
 	{
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingMemory;
-		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VulkanBuffer::CreateBuffer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
 
 		//Query Max Size
@@ -165,7 +165,7 @@ namespace Hyro {
 	VulkanIndexBuffer::VulkanIndexBuffer(uint32_t size)
 		:m_Size(size)
 	{
-		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		VulkanBuffer::CreateBuffer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
 	}
 
@@ -175,7 +175,7 @@ namespace Hyro {
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingMemory;
-		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VulkanBuffer::CreateBuffer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
 
 		void* data;
@@ -183,7 +183,7 @@ namespace Hyro {
 		memcpy(data, indices.data(), m_Size);
 		vkUnmapMemory(VulkanDevice::GetVkDevice(), stagingMemory);
 
-		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		VulkanBuffer::CreateBuffer(m_Size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Buffer, m_Memory);
 
 		VulkanBuffer::CopyBuffer(stagingBuffer, m_Buffer, m_Size);
@@ -214,7 +214,7 @@ namespace Hyro {
 	{
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingMemory;
-		VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VulkanBuffer::CreateBuffer(m_Size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingMemory);
 
 		//Query Max Size
@@ -248,7 +248,7 @@ namespace Hyro {
 
 		for (size_t i = 0; i < maxFramesInFlight; i++)
 		{
-			VulkanBuffer::CreateBufer(m_Size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VulkanBuffer::CreateBuffer(m_Size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_Buffers[i], m_BufferMemories[i]);
 
 			VkDeviceSize offset = 0;

@@ -12,7 +12,6 @@ layout(std140, binding = 0) uniform Transform {
     mat4 MVP;
 } transform;
 
-
 //Map push constants to a uniform variable for OpenGL
 #ifdef VULKAN
 layout(push_constant) uniform PushConstants {

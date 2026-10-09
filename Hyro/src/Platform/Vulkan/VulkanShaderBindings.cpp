@@ -35,7 +35,7 @@ namespace Hyro {
 				}
 			}
 		}
-
+		
 
 		for (const auto& descriptor : m_ReflectionData.Descriptors) {
 			if (descriptor.Type == DescriptorType::UniformBuffer) {
@@ -46,6 +46,9 @@ namespace Hyro {
 				m_IsDirty = true;
 			}
 		}
+
+		//TODO: textures should be set to fallback texture by default, but this is not the case for now. This will be fixed in the future
+		//TODO: handle the case where a shader has no samplers, but a cubemap is set. This will be fixed in the future
 	}
 
 	Ref<UniformBuffer> VulkanShaderBindings::RetrieveUniformBuffer(const std::string& name) const
@@ -66,6 +69,24 @@ namespace Hyro {
 			else
 				m_Textures[i] = m_FallbackTexture;
 		}
+		m_IsDirty = true;
+	}
+
+	void VulkanShaderBindings::SetSampler(const Ref<Texture>& texture, uint32_t slot)
+	{
+		if (slot >= m_Textures.size())
+		{
+			HYRO_LOG_CORE_ERROR("Tried to set a texture at slot {} but the shader only has {} slots. This may indicate a bug.", slot, m_Textures.size());
+			return;
+		}
+		if (slot == 0)
+		{
+			HYRO_LOG_CORE_ERROR("Tried to set a texture at slot 0 but this slot is reserved for the fallback texture. This may indicate a bug.");
+			return;
+		}
+
+		m_Textures[slot] = texture;
+
 		m_IsDirty = true;
 	}
 
@@ -129,14 +150,17 @@ namespace Hyro {
 		//Definitely needs to be reafactored but fine for now
 		uint32_t maxFramesInFlight = VulkanContext::Get().GetMaxFramesInFlight();
 
-		std::vector<VkWriteDescriptorSet> writes;
-		writes.resize(m_ReflectionData.Descriptors.size());
+		std::vector<VkWriteDescriptorSet> writes(
+			m_ReflectionData.Descriptors.size(),
+			VkWriteDescriptorSet{}
+		);
 
 
 		std::vector<VkDescriptorImageInfo> imageInfos(m_Textures.size());
 		std::vector<VkDescriptorBufferInfo> bufferInfos(m_UniformBuffersByBinding.size());
 
 		//Descriptor sets for each frame in flight
+		//TODO: Updates Descriptors sets of all frames in flight, but this is not optimal. Should only update the current frame in flight
 		for (uint32_t frameIndex = 0; frameIndex < maxFramesInFlight; frameIndex++)
 		{
 			size_t bufferIndex = 0;
@@ -159,13 +183,14 @@ namespace Hyro {
 					bufferInfos[bufferIndex].offset = 0; //Offset is only requiered when ubo data is in the same buffer
 					bufferInfos[bufferIndex].range = vulkanUBO->GetSize();
 
-					writes[descriptorIndex].pBufferInfo = bufferInfos.data();
+					writes[descriptorIndex].pBufferInfo = &bufferInfos[bufferIndex];
 					++bufferIndex;
 				}
 				else if (descriptor.Type == DescriptorType::Sampler) {
 
 					for (size_t imageIndex = 0; imageIndex < imageInfos.size(); imageIndex++)
 					{
+						//TODO: This is a bit of a hack, but it works for now. Should be refactored in the future
 						if (imageInfos.size() > 1) {
 							VulkanTexture* vulkanTexture = static_cast<VulkanTexture*>(m_Textures[imageIndex].get());
 

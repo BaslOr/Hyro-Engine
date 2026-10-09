@@ -47,10 +47,14 @@ namespace Hyro {
 		const Ref<Texture>& GetAlbedo() const { return m_Albedo; }
 		const Ref<Texture>& GetNormal() const { return m_Normal; }
 		const Ref<Texture>& GetRoughness() const { return m_Roughness; }
+		const Ref<Texture>& GetMetallic() const { return m_Metallic; }
 		const Ref<Texture>& GetAmbientOcclusion() const { return m_AmbientOcclusion; }
+
+		const uint32_t GetRevisions() const { return m_Revision; }
 
 		void SetAlbedo(const Ref<Texture>& albedo) { m_Albedo = albedo; m_Revision++; }
 		void SetNormal(const Ref<Texture>& normal) { m_Normal = normal; m_Revision++; }
+		void SetMetallic(const Ref<Texture>& metallic) { m_Metallic = metallic; m_Revision++; }
 		void SetRoughness(const Ref<Texture>& roughness) { m_Roughness = roughness; m_Revision++; }
 		void SetAmbientOcclusion(const Ref<Texture>& ao) { m_AmbientOcclusion = ao; m_Revision++; }
 
@@ -65,6 +69,7 @@ namespace Hyro {
         Ref<Texture> m_Albedo;
         Ref<Texture> m_Normal;
         Ref<Texture> m_Roughness;
+		Ref<Texture> m_Metallic;
         Ref<Texture> m_AmbientOcclusion;
 
 		uint32_t m_Revision = 0;

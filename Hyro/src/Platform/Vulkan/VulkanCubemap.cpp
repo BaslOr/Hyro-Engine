@@ -34,7 +34,7 @@ namespace Hyro {
 		const uint32_t pixelSize = cubemap.GetComponents() * Bitmap::GetBytesPerComponent(cubemap.GetFormat());
 		const uint32_t imageSize = cubemap.GetWidth() * cubemap.GetHeight() * pixelSize * 6;
 
-		VulkanBuffer::CreateBufer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		VulkanBuffer::CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 			stagingBuffer, stagingMemory);
 
 		void* mappedData;

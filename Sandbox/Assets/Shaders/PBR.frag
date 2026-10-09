@@ -7,11 +7,13 @@ layout(location = 2) in vec3 fragNormal;
 layout(location = 0) out vec4 outColor;
 
 
-// layout(std140, binding = 1) uniform Material {
-//    float metallic;
-//    float roughness;
-//    float ao;
-// } material;
+layout(std140, binding = 1) uniform Material {
+    uint albedoMap;
+    uint normalMap;
+    uint metallicMap;
+    uint roughnessMap;
+    uint aoMap;
+} material;
 
 layout(binding = 2) uniform sampler2D u_Textures[16];
 
@@ -61,14 +63,16 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 
 void main() {
-    vec3 albedo = texture(u_Textures[1], fragUV.xy).rgb;
-    vec3 normals = normalize(texture(u_Textures[2], fragUV.xy).rgb);
-    float metallic = texture(u_Textures[3], fragUV.xy).a;
-    float roughness = texture(u_Textures[3], fragUV.xy).g; 
-    float ao = texture(u_Textures[4], fragUV.xy).r;
+    vec3 albedo = texture(u_Textures[material.albedoMap], fragUV.xy).xyz;
+    vec3 normals = normalize(texture(u_Textures[material.normalMap], fragUV.xy).rgb);
+    float metallic = texture(u_Textures[material.metallicMap], fragUV.xy).b;
+    float roughness = texture(u_Textures[material.roughnessMap], fragUV.xy).g; 
+    float ao = texture(u_Textures[material.aoMap], fragUV.xy).r;
+
+    
 
     vec3 F0 = vec3(0.04);
-    F0 = mix(F0, albedo, roughness);
+    F0 = mix(F0, albedo, metallic);
 
     // reflectance equation
     vec3 Lo = vec3(0.0);   

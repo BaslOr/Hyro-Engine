@@ -80,6 +80,7 @@ namespace Hyro {
             int result = spvReflectCreateShaderModule(sizeof(uint32_t) * spirVs[i].size(), spirVs[i].data(), &modules[i]);
             if (result != SPV_REFLECT_RESULT_SUCCESS) {
                 HYRO_LOG_CORE_ERROR("Failed to reflect Shader Module!");
+				return data;
             }
         }
 
@@ -104,6 +105,7 @@ namespace Hyro {
                     descriptorInfo.Stage = i == 0 ? ShaderStage::Vertex : ShaderStage::Fragment;
                     descriptorInfo.Type = SpvDescriptorTypeToHyroType(binding->descriptor_type);
 
+					//TODO: The entire size should be queried here not just for blocks.
                     descriptorInfo.BlockSize = descriptorInfo.Type == DescriptorType::UniformBuffer ? binding->block.size: 0;
 
                     data.Descriptors.push_back(descriptorInfo);
@@ -129,7 +131,7 @@ namespace Hyro {
 
 
         //Destroy Shader modules
-        for (auto module : modules) {
+        for (auto& module : modules) {
             spvReflectDestroyShaderModule(&module);
         }
 
