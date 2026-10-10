@@ -78,7 +78,8 @@ namespace Hyro {
 		transfroms.Push(uniform);
 		m_CubemapBindings->SetPushConstantBlock(transfroms);
 
-		RenderCommand::SubmitCubemap(m_CubemapVAO, m_CubemapBindings, m_Cubemap);
+		//TODO: Submit should not need to know about the number of indices, this should be handled by the index buffer
+		RenderCommand::Submit(m_CubemapVAO, m_CubemapBindings, 36);
 	}
 
 	void SceneRenderer::EndScene()

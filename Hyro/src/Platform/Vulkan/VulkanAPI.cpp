@@ -148,11 +148,6 @@ namespace Hyro {
         vkCmdDrawIndexed(m_CommandBuffers[currentFrame], count, 1, 0, 0, 0);
     }
 
-    void VulkanAPI::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, Ref<Cubemap> cubemap)
-    {
-        Submit(vertexArray, material, 36);
-    }
-
     void VulkanAPI::SetClearColor(const glm::vec4& color)
 	{
         m_ClearColor = color;

@@ -28,6 +28,7 @@ namespace Hyro {
 		Matrix,
 
 		Sampler,
+		SamplerCube,
 		Image,
 
 		UniformBuffer,
@@ -56,6 +57,8 @@ namespace Hyro {
 		case Hyro::DescriptorType::Matrix:
 			return 4*4*4;
 		case Hyro::DescriptorType::Sampler:
+			return 0;
+		case Hyro::DescriptorType::SamplerCube:
 			return 0;
 		case Hyro::DescriptorType::Image:
 			return 0;

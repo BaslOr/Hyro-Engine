@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Platform/OpenGL/OpenGLShaderBindings.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Platform/OpenGL/OpenGLTexture.h"
+#include "Platform/OpenGL/OpenGLCubemap.h"
 
 #include "Hyro/Project/AssetManager.h"
 
@@ -15,45 +17,41 @@ namespace Hyro {
 		: m_Shader(shader)
 	{
 		m_Shader->Bind();
+
 		m_FallbackTexture = AssetManager::GetFallbackTexture();
-
-		//Set Samplers
 		m_ReflectionData = m_Shader->GetReflectionData();
-		for (const auto& descriptor : m_ReflectionData.Descriptors) {
-			if (descriptor.Type == DescriptorType::Sampler) {
-				if (descriptor.Count > 1) {
-					m_Textures.resize(16);
-					std::vector<int> textureSlots(descriptor.Count);
-					std::iota(textureSlots.begin(), textureSlots.end(), 0);
-
-					OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
-					int location = openGLShader->GetUniformLocation(descriptor.Name);
-					glUniform1iv(location, textureSlots.size(), textureSlots.data());
-				}
-				else {
-					m_Textures.resize(1);
-					OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
-					openGLShader->SetUnifrom({ descriptor.Name, DescriptorType::Sampler, 0 });
-				}
-			}
-		}
-
-		//Default texture slots
-		for (size_t i = 0; i < m_Textures.size(); ++i) {
-			m_Textures[i] = m_FallbackTexture;
-		}
-
-
+		m_Textures.resize(0);
+		
 		for (const auto& descriptor : m_ReflectionData.Descriptors) {
 			if (descriptor.Type == DescriptorType::UniformBuffer) {
-				//If UBO is not created - create it
-				//Keep in mind that OpenGL uses one UniformBuffer for all Shaders
 				if (s_UniformBuffersByBinding.find(descriptor.Binding) == s_UniformBuffersByBinding.end()) {
 					Ref<UniformBuffer> ubo = UniformBuffer::Create(descriptor.Binding, descriptor.BlockSize);
 					s_UniformBuffersByBinding[descriptor.Binding] = ubo;
 					s_UniformBuffersByName[descriptor.Name] = ubo;
 				}
 			}
+			else if (descriptor.Type == DescriptorType::Sampler) {
+				m_Textures.resize(16);
+				std::vector<int> textureSlots(descriptor.Count);
+				std::iota(textureSlots.begin(), textureSlots.end(), 0);
+				OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
+				int location = openGLShader->GetUniformLocation(descriptor.Name);
+				glUniform1iv(location, textureSlots.size(), textureSlots.data());
+
+				for (size_t i = 0; i < m_Textures.size(); ++i) {
+					m_Textures[i] = m_FallbackTexture;
+				}
+			}
+			else if (descriptor.Type == DescriptorType::SamplerCube) {
+				OpenGLShader* openGLShader = static_cast<OpenGLShader*>(m_Shader.get());
+				openGLShader->SetUnifrom({ descriptor.Name, DescriptorType::Sampler, 0 });
+				m_HasCubemapSampler = true;
+			}
+		}
+
+		bool hasSamplers = m_Textures.size() > 0;
+		if (hasSamplers && m_HasCubemapSampler) {
+			HYRO_LOG_CORE_ERROR("Shader has both a sampler and a cubemap sampler. This is not supported. This may indicate a bug.");
 		}
 	}
 
@@ -148,8 +146,24 @@ namespace Hyro {
 		}
 	}
 
+	void OpenGLShaderBindings::SetSamplerCube(const Ref<Cubemap>& cubemap)
+	{
+		if (!m_HasCubemapSampler) {
+			HYRO_LOG_CORE_ERROR("Tried to set a cubemap but the shader does not have a cubemap sampler. This may indicate a bug.");
+			return;
+		}
+
+		m_Cubemap = cubemap;
+		m_IsCubemapSet = true;
+	}
+
 	void OpenGLShaderBindings::Bind()
 	{
+		if (!m_IsCubemapSet && m_HasCubemapSampler) {
+			HYRO_LOG_CORE_ERROR("Tried to bind Material without a Cubemap but the shader has a cubemap sampler. This may indicate a bug.");
+			return;
+		}
+
 		m_Shader->Bind();
 		for (auto& [binding, ubo] : s_UniformBuffersByBinding)
 		{
@@ -157,7 +171,12 @@ namespace Hyro {
 		}
 
 		for (size_t i = 0; i < m_Textures.size(); ++i) {
+			// Texture::Bind(uint32_t slot) should not be public
 			m_Textures[i]->Bind(i);
+		}
+
+		if (m_IsCubemapSet) {
+			m_Cubemap->Bind();
 		}
 	}
 

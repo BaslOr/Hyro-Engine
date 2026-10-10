@@ -23,7 +23,6 @@ namespace Hyro {
 		virtual void EndRenderPass() = 0;
 
 		virtual void Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, uint32_t count) = 0;
-		virtual void SubmitCubemap(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, Ref<Cubemap> cubemap) = 0;
 
 		virtual void SetClearColor(const glm::vec4&	color) = 0;
 	};

@@ -103,7 +103,14 @@ namespace Hyro {
                     descriptorInfo.Set = set->set;
                     descriptorInfo.Count = binding->count;
                     descriptorInfo.Stage = i == 0 ? ShaderStage::Vertex : ShaderStage::Fragment;
-                    descriptorInfo.Type = SpvDescriptorTypeToHyroType(binding->descriptor_type);
+					//Determine descriptor type, cubemaps are handled differently in hyro than in spirv reflect, so we need to check for that here.
+                    if (binding->image.dim == SpvDimCube) {
+						descriptorInfo.Type = DescriptorType::SamplerCube;
+                    }
+                    else {
+                        descriptorInfo.Type = SpvDescriptorTypeToHyroType(binding->descriptor_type);
+                    }
+
 
 					//TODO: The entire size should be queried here not just for blocks.
                     descriptorInfo.BlockSize = descriptorInfo.Type == DescriptorType::UniformBuffer ? binding->block.size: 0;

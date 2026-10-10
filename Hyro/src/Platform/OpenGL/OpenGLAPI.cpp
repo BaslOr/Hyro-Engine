@@ -138,16 +138,6 @@ namespace Hyro {
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
-    void OpenGLAPI::SubmitCubemap(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, Ref<Cubemap> cubemap)
-    {
-        vertexArray->Bind();
-        material->Bind();
-        cubemap->Bind();
-
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-        cubemap->Unbind();
-    }
-
 	void OpenGLAPI::SetClearColor(const glm::vec4& color)
 	{
 		glClearColor(color.r, color.g, color.b, color.a);

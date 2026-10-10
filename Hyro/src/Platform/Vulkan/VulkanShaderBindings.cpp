@@ -27,17 +27,10 @@ namespace Hyro {
 		VulkanShader* vulkanShader = static_cast<VulkanShader*>(m_Shader.get());
 		m_DescriptorSets = VulkanDescriptorPool::AllocateDescriptorSets(vulkanShader->GetVkDescriptorSetLayout(), maxFramesInFlight);
 
-		for (const auto& descriptor : m_ReflectionData.Descriptors) {
-			if (descriptor.Type == DescriptorType::Sampler) {
-				m_Textures.resize(descriptor.Count);
-				for (size_t i = 0; i < m_Textures.size(); ++i) {
-					m_Textures[i] = m_FallbackTexture;
-				}
-			}
-		}
-		
+		m_Textures.resize(0);
 
 		for (const auto& descriptor : m_ReflectionData.Descriptors) {
+			//Handle Uniform Buffers
 			if (descriptor.Type == DescriptorType::UniformBuffer) {
 				Ref<UniformBuffer> ubo = UniformBuffer::Create(descriptor.Binding, descriptor.BlockSize);//Technichally binding is not neccesarry to pass but for compatibility reasons(OpenGL)
 				m_UniformBuffersByBinding[descriptor.Binding] = ubo;
@@ -45,13 +38,29 @@ namespace Hyro {
 
 				m_IsDirty = true;
 			}
+
+			//Handle Samplers
+			if (descriptor.Type == DescriptorType::Sampler) {
+				m_Textures.resize(descriptor.Count);
+				for (size_t i = 0; i < m_Textures.size(); ++i) {
+					m_Textures[i] = m_FallbackTexture;
+				}
+				m_IsDirty = true;
+			}
+
+			if (descriptor.Type == DescriptorType::SamplerCube) {
+				if (descriptor.Count > 1) {
+					HYRO_LOG_CORE_ERROR("Shader has a cubemap sampler with count > 1. This is not supported. This may indicate a bug.");
+				}
+
+				m_HasCubemapSampler = true;
+			}
 		}
 
-		for (size_t i = 0; i < m_Textures.size(); ++i) {
-			if (m_Textures[i] == nullptr)
-				m_Textures[i] = m_FallbackTexture;
+		bool hasSamplers = m_Textures.size() > 0;
+		if (hasSamplers && m_HasCubemapSampler) {
+			HYRO_LOG_CORE_ERROR("Shader has both a sampler and a cubemap sampler. This is not supported. This may indicate a bug.");
 		}
-		//TODO: handle the case where a shader has no samplers, but a cubemap is set. This will be fixed in the future
 	}
 
 	Ref<UniformBuffer> VulkanShaderBindings::RetrieveUniformBuffer(const std::string& name) const
@@ -147,7 +156,13 @@ namespace Hyro {
 
 	void VulkanShaderBindings::SetSamplerCube(const Ref<Cubemap>& cubemap)
 	{
+		if (!m_HasCubemapSampler) {
+			HYRO_LOG_CORE_ERROR("Tried to set a cubemap but the shader does not have a cubemap sampler. This may indicate a bug.");
+			return;
+		}
+
 		m_Cubemap = cubemap;
+		m_IsCubemapSet = true;
 		m_IsDirty = true;
 	}
 
@@ -173,6 +188,10 @@ namespace Hyro {
 
 	void VulkanShaderBindings::Bind(void* commandBuffer)
 	{
+		if (!m_IsCubemapSet && m_HasCubemapSampler) {
+			HYRO_LOG_CORE_ERROR("Tried to bind Material without a Cubemap but the shader has a cubemap sampler. This may indicate a bug.");
+		}
+
 		uint32_t currentFrameIndex = VulkanContext::Get().GetCurrentFrameIndex();
 		VulkanShader* vulkanShader = static_cast<VulkanShader*>(m_Shader.get());
 
@@ -211,8 +230,9 @@ namespace Hyro {
 		);
 
 
-		std::vector<VkDescriptorImageInfo> imageInfos(m_Textures.size());
-		std::vector<VkDescriptorBufferInfo> bufferInfos(m_UniformBuffersByBinding.size());
+		std::vector<VkDescriptorImageInfo> imageInfos(m_Textures.size(), {});
+		std::vector<VkDescriptorBufferInfo> bufferInfos(m_UniformBuffersByBinding.size(), {});
+		VkDescriptorImageInfo cubemapInfo{};
 
 		//Descriptor sets for each frame in flight
 		//TODO: Updates Descriptors sets of all frames in flight, but this is not optimal. Should only update the current frame in flight
@@ -242,27 +262,25 @@ namespace Hyro {
 					++bufferIndex;
 				}
 				else if (descriptor.Type == DescriptorType::Sampler) {
-
 					for (size_t imageIndex = 0; imageIndex < imageInfos.size(); imageIndex++)
 					{
-						//TODO: This is a bit of a hack, but it works for now. Should be refactored in the future
-						if (imageInfos.size() > 1) {
-							VulkanTexture* vulkanTexture = static_cast<VulkanTexture*>(m_Textures[imageIndex].get());
+						VulkanTexture* vulkanTexture = static_cast<VulkanTexture*>(m_Textures[imageIndex].get());
 
-							imageInfos[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-							imageInfos[imageIndex].imageView = vulkanTexture->GetVkImageView();
-							imageInfos[imageIndex].sampler = vulkanTexture->GetVkSampler();
-						}
-						else {
-							VulkanCubemap* vulkanCubemap = static_cast<VulkanCubemap*>(m_Cubemap.get());
+						imageInfos[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+						imageInfos[imageIndex].imageView = vulkanTexture->GetVkImageView();
+						imageInfos[imageIndex].sampler = vulkanTexture->GetVkSampler();
 
-							imageInfos[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-							imageInfos[imageIndex].imageView = vulkanCubemap->GetVkImageView();
-							imageInfos[imageIndex].sampler = vulkanCubemap->GetVkSampler();
-						}
 					}
-
 					writes[descriptorIndex].pImageInfo = imageInfos.data();
+				}						
+				else  if (descriptor.Type == DescriptorType::SamplerCube) {
+					VulkanCubemap* vulkanCubemap = static_cast<VulkanCubemap*>(m_Cubemap.get());
+
+					cubemapInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+					cubemapInfo.imageView = vulkanCubemap->GetVkImageView();
+					cubemapInfo.sampler = vulkanCubemap->GetVkSampler();
+
+					writes[descriptorIndex].pImageInfo = &cubemapInfo;
 				}
 			}
 			vkUpdateDescriptorSets(VulkanDevice::GetVkDevice(), static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);

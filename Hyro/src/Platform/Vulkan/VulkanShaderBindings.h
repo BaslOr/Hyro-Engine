@@ -50,6 +50,8 @@ namespace Hyro {
 		ShaderReflectionData m_ReflectionData;
 
 		bool m_IsDirty = false;
+		bool m_IsCubemapSet = false;
+		bool m_HasCubemapSampler = false;
 	};
 
 }
