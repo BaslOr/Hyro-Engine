@@ -59,7 +59,7 @@ namespace Hyro {
 
 		m_Data.MaterialBuffer->SetData(&slots);
 
-		RenderCommand::Submit(mesh->VAO, m_Data.ShaderBinding, mesh->Count);
+		RenderCommand::Submit(mesh->VAO, m_Data.ShaderBinding);
 	}
 
 	void Renderer3D::BeginScene(const glm::mat4& ViewProjection)

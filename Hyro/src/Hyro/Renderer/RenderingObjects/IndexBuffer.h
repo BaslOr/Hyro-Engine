@@ -14,6 +14,8 @@ namespace Hyro {
 		virtual void Bind(void* commandBuffer) const = 0;
 
 		virtual void SetData(const std::vector<uint32_t>& data) = 0;
+
+		virtual uint32_t GetCount() const = 0;
 	};
 
 }

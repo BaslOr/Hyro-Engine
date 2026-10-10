@@ -12,7 +12,7 @@ namespace Hyro {
 		void BeginRenderPass() override;
 		void EndRenderPass() override;
 
-		void Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, uint32_t count) override;
+		void Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material) override;
 
 		void SetClearColor(const glm::vec4& color) override;
 
@@ -30,7 +30,7 @@ namespace Hyro {
 			Ref<IndexBuffer> IndexBuffer;
 
 			Ref<Shader> Shader;
-			Ref<ShaderBindings> Material;
+			Ref<ShaderBindings> Bindings;
 		};
 		FramebufferData m_FramebufferData;
 

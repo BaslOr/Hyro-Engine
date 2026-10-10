@@ -106,8 +106,8 @@ namespace Hyro {
         m_FramebufferData.VertexArray->AddVertexBuffer(m_FramebufferData.VertexBuffer);
         m_FramebufferData.VertexArray->SetIndexBuffer(m_FramebufferData.IndexBuffer);
 
-        m_FramebufferData.Material = ShaderBindings::Create(m_FramebufferData.Shader);
-        m_FramebufferData.Material->SetSampler(AssetManager::GetFallbackTexture(), 0);
+        m_FramebufferData.Bindings = ShaderBindings::Create(m_FramebufferData.Shader);
+        m_FramebufferData.Bindings->SetSampler(AssetManager::GetFallbackTexture(), 0);
     }
 
     void OpenGLAPI::BeginRenderPass()
@@ -127,15 +127,15 @@ namespace Hyro {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glDisable(GL_DEPTH_TEST);
-		m_FramebufferData.Material->SetSampler(m_FramebufferData.ColorAttachment, 0);
-		Submit(m_FramebufferData.VertexArray, m_FramebufferData.Material, 6);
+		m_FramebufferData.Bindings->SetSampler(m_FramebufferData.ColorAttachment, 0);
+		Submit(m_FramebufferData.VertexArray, m_FramebufferData.Bindings);
     }
 
-    void OpenGLAPI::Submit(Ref<VertexArray> vao, Ref<ShaderBindings> material, uint32_t count)
+    void OpenGLAPI::Submit(Ref<VertexArray> vao, Ref<ShaderBindings> material)
 	{
         vao->Bind();
         material->Bind();
-        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, vao->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
 	}
 
 	void OpenGLAPI::SetClearColor(const glm::vec4& color)

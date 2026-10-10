@@ -18,7 +18,7 @@ namespace Hyro {
 		void BeginRenderPass() override;
 		void EndRenderPass() override;
 
-		void Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, uint32_t count) override;
+		void Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material) override;
 
 		void SetClearColor(const glm::vec4& color) override;
 

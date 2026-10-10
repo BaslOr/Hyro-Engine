@@ -138,14 +138,14 @@ namespace Hyro {
         VulkanContext::Get().IncreaseImageIndex();
     }
 
-    void VulkanAPI::Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> bindings, uint32_t count)
+    void VulkanAPI::Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> bindings)
     {
         uint32_t currentFrame = VulkanContext::Get().GetCurrentFrameIndex();
 
         vertexArray->Bind(m_CommandBuffers[currentFrame]);
         bindings->Bind(m_CommandBuffers[currentFrame]);
 
-        vkCmdDrawIndexed(m_CommandBuffers[currentFrame], count, 1, 0, 0, 0);
+        vkCmdDrawIndexed(m_CommandBuffers[currentFrame], vertexArray->GetIndexCount(), 1, 0, 0, 0);
     }
 
     void VulkanAPI::SetClearColor(const glm::vec4& color)

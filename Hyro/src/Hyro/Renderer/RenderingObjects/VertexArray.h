@@ -16,6 +16,8 @@ namespace Hyro {
 		virtual void Bind() const = 0;
 		virtual void Bind(void* commandBuffer) const = 0;//Only for Vulkan
 
+		virtual uint32_t GetIndexCount() const = 0;
+
 	};
 
 

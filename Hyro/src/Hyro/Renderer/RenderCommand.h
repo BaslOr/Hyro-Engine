@@ -13,7 +13,7 @@ namespace Hyro {
 		static void BeginRenderPass();
 		static void EndRenderPass();
 
-		static void Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, uint32_t count);
+		static void Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material);
 
 		static void SetClearColor(const glm::vec4& color);
 

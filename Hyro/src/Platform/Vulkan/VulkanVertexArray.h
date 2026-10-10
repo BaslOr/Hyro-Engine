@@ -15,6 +15,8 @@ namespace Hyro {
 		void Bind() const override {}
 		void Bind(void* commandBuwffer) const override;
 
+		inline uint32_t GetIndexCount() const override { return m_IndexBuffer ? m_IndexBuffer->GetCount() : 0; }
+
 	private:
 		std::vector<Ref<VertexBuffer>> m_VerexBuffers;
 		Ref<IndexBuffer> m_IndexBuffer;

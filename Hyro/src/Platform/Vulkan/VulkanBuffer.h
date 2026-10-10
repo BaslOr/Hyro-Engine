@@ -49,11 +49,14 @@ namespace Hyro {
 		void Bind() const override;
 		void Bind(void* commandBuffer) const override;
 		void SetData(const std::vector<uint32_t>& indices) override;
+		
+		uint32_t GetCount() const override { return m_Count; }
 
 	private:
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_Memory;
 		uint32_t m_Size;
+		uint32_t m_Count;
 	};
 
 

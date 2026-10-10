@@ -16,6 +16,8 @@ namespace Hyro {
 		void AddVertexBuffer(Ref<VertexBuffer> buffer) override;
 		void SetIndexBuffer(Ref<IndexBuffer> buffer) override;
 
+		inline uint32_t GetIndexCount() const override { return m_IndexBuffer ? m_IndexBuffer->GetCount() : 0; }
+
 	private:
 		uint32_t AttributeTypeToOpenGLEnum(VertexAttributeType type) const;
 

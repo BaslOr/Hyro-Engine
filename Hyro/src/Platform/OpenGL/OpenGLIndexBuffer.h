@@ -10,13 +10,16 @@ namespace Hyro {
 		OpenGLIndexBuffer(const std::vector<uint32_t>& data);
 		~OpenGLIndexBuffer();
 
-		virtual void SetData(const std::vector<uint32_t>& data) override;
+		void SetData(const std::vector<uint32_t>& data) override;
 
-		virtual void Bind() const override;
-		virtual void Bind(void* commandBuffer) const override;
+		void Bind() const override;
+		void Bind(void* commandBuffer) const override;
+
+		uint32_t GetCount() const override;
 
 	private:
 		uint32_t m_ID;
+		uint32_t m_Count;
 	};
 
 }

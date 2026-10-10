@@ -17,12 +17,14 @@ namespace Hyro {
 		glCreateBuffers(1, &m_ID);
 		Bind();
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.size() * sizeof(data[0]), data.data(), GL_DYNAMIC_DRAW);
+		m_Count = static_cast<uint32_t>(data.size());
 	}
 
 	void OpenGLIndexBuffer::SetData(const std::vector<uint32_t>& data)
 	{
 		Bind();
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.size() * sizeof(data[0]), data.data(), GL_DYNAMIC_DRAW);
+		m_Count = static_cast<uint32_t>(data.size());
 	}
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
@@ -38,6 +40,11 @@ namespace Hyro {
 	void OpenGLIndexBuffer::Bind(void* commandBuffer) const
 	{
 		HYRO_LOG_CORE_WARN("IndexBuffer::Bind(...) was called with a commandBuffer on OpenGL side. This may indicate a Bug!");
+	}
+
+	uint32_t OpenGLIndexBuffer::GetCount() const
+	{
+		return m_Count;
 	}
 
 }

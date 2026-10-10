@@ -63,7 +63,7 @@ namespace Hyro {
 		transfroms.Push(model);
 		s_Data.ShaderBindings->SetPushConstantBlock(transfroms);
 
-		RenderCommand::Submit(s_Data.VAO, s_Data.ShaderBindings, static_cast<uint32_t>(s_Data.Indices.size()));
+		RenderCommand::Submit(s_Data.VAO, s_Data.ShaderBindings);
 
 		s_Data.Vertices.clear();
 		s_Data.Indices.clear();

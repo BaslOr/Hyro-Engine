@@ -18,9 +18,9 @@ namespace Hyro {
 		m_API->EndRenderPass();
 	}
 
-	void RenderCommand::Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material, uint32_t count)
+	void RenderCommand::Submit(Ref<VertexArray> vertexArray, Ref<ShaderBindings> material)
 	{
-		m_API->Submit(vertexArray, material, count);
+		m_API->Submit(vertexArray, material);
 	}
 
 	void RenderCommand::SetClearColor(const glm::vec4& color)

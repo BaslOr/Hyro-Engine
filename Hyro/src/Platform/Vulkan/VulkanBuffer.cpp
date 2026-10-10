@@ -190,6 +190,8 @@ namespace Hyro {
 
 		vkDestroyBuffer(VulkanDevice::GetVkDevice(), stagingBuffer, g_VulkanAllocationCallback);
 		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);
+
+		m_Count = static_cast<uint32_t>(indices.size());
 	}
 
 	VulkanIndexBuffer::~VulkanIndexBuffer()
@@ -227,6 +229,8 @@ namespace Hyro {
 
 		vkDestroyBuffer(VulkanDevice::GetVkDevice(), stagingBuffer, g_VulkanAllocationCallback);
 		vkFreeMemory(VulkanDevice::GetVkDevice(), stagingMemory, g_VulkanAllocationCallback);
+
+		m_Count = static_cast<uint32_t>(indices.size());
 	}
 
 
