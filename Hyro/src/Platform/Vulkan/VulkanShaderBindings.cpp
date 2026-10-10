@@ -92,6 +92,7 @@ namespace Hyro {
 			slot++;
 		}
 		m_Textures[slot] = texture;
+		m_IsDirty = true;
 		return slot;
 	}
 
