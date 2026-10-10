@@ -22,7 +22,6 @@ namespace Hyro {
 		void FlushTextureSlots() override;
 
 
-		void SetSamplers(const std::array<Ref<Texture>, 16>& textures) override;
 		void SetSampler(const Ref<Texture>& texture, uint32_t slot) override;
 		void SetPushConstantBlock(const PushConstantBlock& block) override;
 

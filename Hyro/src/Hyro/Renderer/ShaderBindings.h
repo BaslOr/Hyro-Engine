@@ -39,7 +39,6 @@ namespace Hyro {
 		virtual bool IsTextureBound(Ref<Texture> texture) const = 0;
 		virtual void FlushTextureSlots() = 0;
 
-		virtual void SetSamplers(const std::array<Ref<Texture>, 16>& textures) = 0;
 		virtual void SetSampler(const Ref<Texture>& texture, uint32_t slot) = 0;
 		virtual void SetPushConstantBlock(const PushConstantBlock& block) = 0;
 

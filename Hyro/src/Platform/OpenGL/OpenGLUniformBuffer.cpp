@@ -11,7 +11,7 @@ namespace Hyro {
 	{
 		glCreateBuffers(1, &m_Buffer);
 		Bind();
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(TransformData), nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_UNIFORM_BUFFER, m_Size, nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_Buffer);
 	}
 

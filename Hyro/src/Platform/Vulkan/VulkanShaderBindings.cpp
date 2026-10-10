@@ -125,18 +125,6 @@ namespace Hyro {
 		m_IsDirty = true;
 	}
 
-	void VulkanShaderBindings::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
-	{
-		m_Textures[0] = m_FallbackTexture;
-		for (size_t i = 1; i < textures.size(); ++i) {
-			if (textures[i] != nullptr)
-				m_Textures[i] = textures[i];
-			else
-				m_Textures[i] = m_FallbackTexture;
-		}
-		m_IsDirty = true;
-	}
-
 	void VulkanShaderBindings::SetSampler(const Ref<Texture>& texture, uint32_t slot)
 	{
 		if (slot >= m_Textures.size())

@@ -115,21 +115,6 @@ namespace Hyro {
 		}
 	}
 
-	void OpenGLShaderBindings::SetSamplers(const std::array<Ref<Texture>, 16>& textures)
-	{
-		m_Shader->Bind();
-		m_Textures[0] = m_FallbackTexture;
-		m_Textures[0]->Bind(0u);
-		for (size_t i = 1; i < m_Textures.size(); ++i) {
-			if (textures[i] != nullptr)
-				m_Textures[i] = textures[i];
-			else
-				m_Textures[i] = m_FallbackTexture;
-
-			m_Textures[i]->Bind(i);
-		}
-	}
-
 	void OpenGLShaderBindings::SetSampler(const Ref<Texture>& texture, uint32_t slot)
 	{
 		HYRO_ASSERT(slot < 16);
